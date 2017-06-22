@@ -46,8 +46,8 @@ All modules will publish the outputs in the respective ROS topic:
 ### Message Format
 
 The messages can be 
-- JSON formatted strings
-- [ROS messages](http://wiki.ros.org/msg) (George +1)
+- JSON formatted strings (George +1)
+- [ROS messages](http://wiki.ros.org/msg) 
 
 Vote so that we can choose.
 
