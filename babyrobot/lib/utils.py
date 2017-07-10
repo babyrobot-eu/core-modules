@@ -41,7 +41,7 @@ def timethis(func):
     """
     Decorator that measure the time it takes for a function to complete
     Usage:
-      @babyrobot_integration.lib.utils.timethis
+      @babyrobot.lib.utils.timethis
       def time_consuming_function(...):
     """
     @functools.wraps(func)
