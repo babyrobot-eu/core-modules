@@ -1,6 +1,9 @@
 import functools
 import logging
+import shutil
+import subprocess
 import time
+import urllib
 import yaml
 
 
@@ -54,3 +57,41 @@ def timethis(func):
             f=func.__name__, a=args, kw=kwargs, t=elapsed))
         return result, elapsed
     return timed
+
+
+def run_cmd(cmd):
+    """
+    Run given command locally
+    Return a tuple with the return code, stdout, and stderr of the command
+    """
+    pipe = subprocess.Popen(cmd,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+
+    stdout, stderr = [stream.strip() for stream in pipe.communicate()]
+    output = ' - STDOUT: "%s"' % stdout if len(stdout) > 0 else ''
+    error = ' - STDERR: "%s"' % stdout if len(stderr) > 0 else ''
+    logger.debug("Running [{command}] returns: [{rc}]{output}{error}".format(
+                 command=cmd,
+                 rc=pipe.returncode,
+                 output=output,
+                 error=error))
+
+    return pipe.returncode, stdout, stderr
+
+
+def download_url(url, dest_path):
+    """
+    Download a file to a destination path given a URL
+    """
+    name = url.rsplit('/')[-1]
+    dest = dest_path + "/" + name
+    try:
+        response = urllib.request.urlopen(url)
+    except (urllib.error.HTTPError, urllib.error.URLError):
+        return False
+
+    with open(dest, 'wb') as f:
+        shutil.copyfileobj(response, f)
+    return True
