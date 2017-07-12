@@ -1,0 +1,5 @@
+babyrobot_msgs/Frame frame
+string metadata
+---
+babyrobot_msgs/ObjectRecognition recognized
+

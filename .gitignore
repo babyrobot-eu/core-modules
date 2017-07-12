@@ -1,6 +1,22 @@
 # Log files
 *.log
 
+# ROS files
+.catkin_workspace
+build/
+catkin/
+catkin_generated/
+cmake/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+devel/
+gtest/
+test_results
+babyrobot/src/babyrobot_msgs/Makefile
+babyrobot/src/CMakeLists.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

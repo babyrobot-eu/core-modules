@@ -1,0 +1,6 @@
+babyrobot_msgs/AudioSegment audio_segment
+string opensmile_conf
+string metadata
+---
+babyrobot_msgs/SpeechFeatures extracted
+
