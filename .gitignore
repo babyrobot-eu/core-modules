@@ -15,6 +15,7 @@ devel/
 gtest/
 test_results
 babyrobot/src/babyrobot_msgs/Makefile
+babyrobot/src/objectrec/Makefile
 babyrobot/src/CMakeLists.txt
 
 # Byte-compiled / optimized / DLL files
