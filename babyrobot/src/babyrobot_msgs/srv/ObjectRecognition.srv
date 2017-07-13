@@ -1,5 +1,5 @@
 babyrobot_msgs/Frame frame
 string metadata
 ---
-babyrobot_msgs/ObjectRecognition recognized
+babyrobot_msgs/ObjectRecognitionResult recognized
 
