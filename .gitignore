@@ -1,6 +1,9 @@
 # Log files
 *.log
 
+# Tox
+.tox/
+
 # ROS files
 .catkin_workspace
 build/
