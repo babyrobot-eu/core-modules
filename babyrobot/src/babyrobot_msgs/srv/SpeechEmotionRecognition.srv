@@ -1,5 +1,5 @@
 babyrobot_msgs/AudioSegment audio_segment
 string metadata
 ---
-babyrobot_msgs/EmotionPrediction predicted
+babyrobot_msgs/EmotionRecognitionResult recognized
 

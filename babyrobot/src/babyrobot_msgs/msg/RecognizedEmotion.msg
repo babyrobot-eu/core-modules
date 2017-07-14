@@ -1,3 +1,3 @@
-string prediction
+string label
 float32 confidence
 
