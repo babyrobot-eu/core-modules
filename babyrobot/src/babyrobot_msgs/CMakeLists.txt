@@ -53,13 +53,13 @@ add_message_files(
   ASR.msg
   AudioSegment.msg
   BoundingBox.msg
-  EmotionPrediction.msg
+  EmotionRecognitionResult.msg
   Feature.msg
   Frame.msg
   Header.msg
   ObjectRecognitionResult.msg
   PixelPoint.msg
-  PredictedEmotion.msg
+  RecognizedEmotion.msg
   RecognizedObject.msg
   SpeechFeatures.msg
 )
@@ -68,7 +68,7 @@ add_message_files(
 add_service_files(
   FILES
   ObjectRecognition.srv
-  SpeechEmotionPrediction.srv
+  SpeechEmotionRecognition.srv
   SpeechFeatureExtraction.srv
   SpeechRecognition.srv
 )
