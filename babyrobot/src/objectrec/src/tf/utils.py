@@ -74,7 +74,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-def distance_from_center(box, image):
+def distance_from_center(box):
     """
     Computes the distance from the center of a box,
     from the center of the image.
@@ -83,7 +83,7 @@ def distance_from_center(box, image):
     :param image:
     :return: distance in range (0,1).
     """
-    (im_width, im_height) = image.size
+    # (im_width, im_height) = image.size
     ymin, xmin, ymax, xmax = box
     center_box = [(ymin + ymax) / 2, (xmin + xmax) / 2]
     dist = euclidean([0.5, 0.5], center_box)
@@ -166,8 +166,8 @@ def extract_box_from_image(image, objects, threshold):
             #               ymax * width, xmax * height
 
             # The docs say otherwise (as far as i can tell), but this works...
-            _denorm_box = xmin * width, ymin * height, \
-                          xmax * width, ymax * height
+            _denorm_box = (xmin * width, ymin * height,
+                           xmax * width, ymax * height)
 
             frame = image.crop(_denorm_box)
             _images.append(frame)
@@ -218,10 +218,10 @@ def orec_image(sess, comp_graph, image):
         [boxes, scores, classes, num_detections],
         feed_dict={image_tensor: image_np_expanded})
 
-    results = np.squeeze(boxes), \
-              np.squeeze(classes).astype(np.int32), \
-              np.squeeze(scores), \
-              np.squeeze(num_detections).astype(np.int32)
+    results = (np.squeeze(boxes),
+               np.squeeze(classes).astype(np.int32),
+               np.squeeze(scores),
+               np.squeeze(num_detections).astype(np.int32))
 
     return results
 
@@ -262,7 +262,7 @@ def visualize_recognized_objects(image, boxes, classes, scores,
     plt.show()
 
 
-def debug_info_image(image, objects, category_index, threshold):
+def debug_info_image(objects, category_index, threshold):
     """
     print debugging information, for the object recognition on an image
     :return:
@@ -272,5 +272,5 @@ def debug_info_image(image, objects, category_index, threshold):
             print("label:{}, score:{}, dist:{}".format(
                 category_index[cls]["name"],
                 score,
-                distance_from_center(box, image)))
+                distance_from_center(box)))
     print("")

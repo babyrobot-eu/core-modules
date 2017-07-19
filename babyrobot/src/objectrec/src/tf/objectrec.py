@@ -32,8 +32,7 @@ with detect_graph.as_default():
                                         config["model"]["threshold"])
 
         # print debugging information
-        debug_info_image(image, objects, label_map,
-                         config["model"]["threshold"])
+        debug_info_image(objects, label_map, config["model"]["threshold"])
 
         # Visualization of the results of a detection.
         if config["model"]["visualize"]:
