@@ -1,6 +1,6 @@
 model:
   name: ssd_mobilenet_v1_coco_11_06_2017
   labels: mscoco_label_map.pbtxt
-  threshold: 0.2
+  threshold: 0.35
   classes: 90
   visualize: True

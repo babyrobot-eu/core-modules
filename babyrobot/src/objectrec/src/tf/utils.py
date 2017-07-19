@@ -1,8 +1,11 @@
 """
 Utility functions for object recognition, using Tensorflow API
 """
+import glob
 import os
+import random
 import tarfile
+from PIL import Image
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -87,14 +90,30 @@ def distance_from_center(box, image):
     return dist
 
 
+def get_random_image():
+    """
+    Returns a random image from '/images' dir
+    :return:
+    """
+    _script_loc = os.path.dirname(os.path.abspath(__file__))
+    _test_images_dir = os.path.join(_script_loc, '..', 'images')
+    _image_paths = glob.glob(_test_images_dir + "/*.jpg")
+
+    random.shuffle(_image_paths)
+
+    image = Image.open(_image_paths[0])
+
+    return image
+
+
 def capture_frame():
     """
     Captures a frame from the camera and returns it as an Image
-    * Note:
+    * Note: At the moment, it returns a random image from the '/images' dir
     :return:
     """
-
-    pass
+    # todo: add code to read data from camera
+    return get_random_image()
 
 
 def get_labels_map(labels, n_classes):
@@ -121,6 +140,42 @@ def get_labels_map(labels, n_classes):
     return category_index
 
 
+def extract_box_from_image(image, objects, threshold):
+    """
+    Given an image and a collection of recognized objects,
+    it extracts the parts of the image, that correspond to each object
+    :param image: a PIL image
+    :param objects: list of recognized objects (box, score, class)
+    :param threshold:
+    :return:
+    """
+
+    # image.show()
+    width, height = image.size
+
+    _images = []
+
+    for box, score, cls in objects:
+        if score > threshold:
+            ymin, xmin, ymax, xmax = box
+
+            # _denorm_box = ymin * width, xmin * height, \
+            #               ymax * width, xmax * height
+
+            # _denorm_box = ymin * width, xmin * height, \
+            #               ymax * width, xmax * height
+
+            # The docs say otherwise (as far as i can tell), but this works...
+            _denorm_box = xmin * width, ymin * height, \
+                          xmax * width, ymax * height
+
+            frame = image.crop(_denorm_box)
+            _images.append(frame)
+            frame.show()
+
+    return image
+
+
 def orec_image(sess, comp_graph, image):
     """
     Performs object recognition on an image and returns
@@ -128,7 +183,15 @@ def orec_image(sess, comp_graph, image):
     :param sess: the current tf session
     :param comp_graph: the computational graph (model)
     :param image: the image (python Image)
-    :return: boxes, scores, classes, num_detections
+    :return:
+        - boxes: The coordinates of the each bounding box in boxes are encoded
+            as [y_min, x_min, y_max, x_max].
+            The bounding box coordinates are floats in [0.0, 1.0] relative
+            to the width and height of the underlying image.
+        - scores: the confidence of the prediction.
+            list of floats in [0.0, 1.0].
+        - classes
+        - num_detections
     """
 
     # the array based representation of the image will be used later
@@ -155,29 +218,26 @@ def orec_image(sess, comp_graph, image):
         [boxes, scores, classes, num_detections],
         feed_dict={image_tensor: image_np_expanded})
 
-    # results = []
-    # for box, score, cls in zip(boxes, scores, classes):
-    #     obj = {
-    #         "box": box,
-    #         "score": score,
-    #         "label": cls
-    #     }
-    #     results.append(obj)
-    #
-    # return results
+    results = np.squeeze(boxes), \
+              np.squeeze(classes).astype(np.int32), \
+              np.squeeze(scores), \
+              np.squeeze(num_detections).astype(np.int32)
 
-    return boxes, scores, classes, num_detections
+    return results
 
 
-def visualize_recognized_objects(image, boxes, classes, scores, category_index,
+def visualize_recognized_objects(image, boxes, classes, scores,
+                                 category_index,
                                  threshold):
     """
-
+    Show an image with bounding boxes around the recognized objects,
+    along with the confidence of the model for each object
     :param image:
     :param boxes:
     :param classes:
     :param scores:
     :param category_index:
+    :param threshold:
     :return:
     """
     # Size, in inches, of the output images. For visualization
@@ -189,9 +249,9 @@ def visualize_recognized_objects(image, boxes, classes, scores, category_index,
     image_np = load_image_into_numpy_array(image)
     vis_util.visualize_boxes_and_labels_on_image_array(
         image_np,
-        np.squeeze(boxes),
-        np.squeeze(classes).astype(np.int32),
-        np.squeeze(scores),
+        boxes,
+        classes,
+        scores,
         category_index,
         use_normalized_coordinates=True,
         line_thickness=10,
@@ -202,18 +262,15 @@ def visualize_recognized_objects(image, boxes, classes, scores, category_index,
     plt.show()
 
 
-def debug_info_image(image, boxes, scores, classes, category_index, threshold):
+def debug_info_image(image, objects, category_index, threshold):
     """
     print debugging information, for the object recognition on an image
     :return:
     """
-    # print("--------------------")
-    # print(image_path)
-    # print("--------------------")
-    for x, y, b in list(zip(np.squeeze(scores),
-                            np.squeeze(classes).astype(np.int32),
-                            np.squeeze(boxes))):
-        # for x, y, b in objects:
-        if x > threshold:
-            print(category_index[y]["name"], x, distance_from_center(b, image))
-    print()
+    for box, score, cls in objects:
+        if score > threshold:
+            print("label:{}, score:{}, dist:{}".format(
+                category_index[cls]["name"],
+                score,
+                distance_from_center(box, image)))
+    print("")

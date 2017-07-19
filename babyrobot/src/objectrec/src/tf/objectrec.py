@@ -1,19 +1,11 @@
-import glob
-import os
-
 import tensorflow as tf
-from PIL import Image
 
 from babyrobot.lib.utils import yaml2dict
 from utils import load_frozen_model, check_model, orec_image, \
-    visualize_recognized_objects, debug_info_image, get_labels_map
+    visualize_recognized_objects, debug_info_image, get_labels_map, \
+    capture_frame, extract_box_from_image
 
 config = yaml2dict("config.yaml")
-
-# Images
-SCRIPT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-PATH_TO_TEST_IMAGES_DIR = os.path.join(SCRIPT_DIR_PATH, '..', 'images')
-TEST_IMAGE_PATHS = glob.glob(PATH_TO_TEST_IMAGES_DIR + "/*.jpg")
 
 # Download Model
 check_model(config["model"]["name"])
@@ -27,24 +19,25 @@ label_map = get_labels_map(config["model"]["labels"],
 
 with detect_graph.as_default():
     with tf.Session(graph=detect_graph) as sess:
-        for image_path in TEST_IMAGE_PATHS:
-            image = Image.open(image_path)
+        image = capture_frame()
 
-            # objects = orec_image(sess, detection_graph, image)
-            (boxes, scores, classes, num_detections) = orec_image(sess,
-                                                                  detect_graph,
-                                                                  image)
-            # boxes = [ymin, xmin, ymax, xmax]
+        (boxes, classes, scores, num_detections) = orec_image(sess,
+                                                              detect_graph,
+                                                              image)
 
-            # print debugging information
-            debug_info_image(image, boxes, scores, classes, label_map,
-                             config["model"]["threshold"])
+        objects = list(zip(boxes, scores, classes))
 
-            # Visualization of the results of a detection.
-            if config["model"]["visualize"]:
-                visualize_recognized_objects(image,
-                                             boxes,
-                                             classes,
-                                             scores,
-                                             label_map,
-                                             config["model"]["threshold"])
+        # extract object image frames
+        frames = extract_box_from_image(image, objects,
+                                        config["model"]["threshold"])
+
+        # print debugging information
+        debug_info_image(image, objects, label_map,
+                         config["model"]["threshold"])
+
+        # Visualization of the results of a detection.
+        if config["model"]["visualize"]:
+            visualize_recognized_objects(image,
+                                         boxes, classes, scores,
+                                         label_map,
+                                         config["model"]["threshold"])
