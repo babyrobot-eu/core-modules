@@ -3,3 +3,4 @@ model:
   labels: mscoco_label_map.pbtxt
   threshold: 0.2
   classes: 90
+  visualize: True

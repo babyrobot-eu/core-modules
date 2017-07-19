@@ -4,20 +4,14 @@ import os
 import tensorflow as tf
 from PIL import Image
 
-from babyrobot.lib.utils import get_parameter_from_yaml, yaml2dict
+from babyrobot.lib.utils import yaml2dict
 from utils import load_frozen_model, check_model, orec_image, \
     visualize_recognized_objects, debug_info_image, get_labels_map
 
-VISUALIZE = True
-##############################################################################
-# PATHS & FILENAMES
-##############################################################################
-SCRIPT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-
-# get_parameter_from_yaml()
 config = yaml2dict("config.yaml")
 
 # Images
+SCRIPT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 PATH_TO_TEST_IMAGES_DIR = os.path.join(SCRIPT_DIR_PATH, '..', 'images')
 TEST_IMAGE_PATHS = glob.glob(PATH_TO_TEST_IMAGES_DIR + "/*.jpg")
 
@@ -47,7 +41,7 @@ with detect_graph.as_default():
                              config["model"]["threshold"])
 
             # Visualization of the results of a detection.
-            if VISUALIZE:
+            if config["model"]["visualize"]:
                 visualize_recognized_objects(image,
                                              boxes,
                                              classes,
