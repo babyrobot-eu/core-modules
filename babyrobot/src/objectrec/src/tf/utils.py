@@ -5,19 +5,17 @@ import glob
 import os
 import random
 import tarfile
-from PIL import Image
 
-from matplotlib import pyplot as plt
 import numpy as np
 import six.moves.urllib as urllib
 import tensorflow as tf
-import ctypes
+from PIL import Image
+from matplotlib import pyplot as plt
 from scipy.spatial.distance import euclidean
-from tensorflow.models.object_detection.utils.label_map_util import \
-    convert_label_map_to_categories, load_labelmap, create_category_index
-
 from tensorflow.models.object_detection.utils import \
     visualization_utils as vis_util
+from tensorflow.models.object_detection.utils.label_map_util import \
+    convert_label_map_to_categories, load_labelmap, create_category_index
 
 
 def check_model(model_name):

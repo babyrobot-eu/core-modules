@@ -2,7 +2,6 @@
 
 import numpy as np
 import rospy
-from PIL import Image
 from babyrobot_msgs.msg import Frame
 from babyrobot_msgs.srv import ObjectRecognition
 
