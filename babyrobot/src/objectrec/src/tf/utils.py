@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import six.moves.urllib as urllib
 import tensorflow as tf
+import ctypes
 from scipy.spatial.distance import euclidean
 from tensorflow.models.object_detection.utils.label_map_util import \
     convert_label_map_to_categories, load_labelmap, create_category_index
@@ -33,7 +34,7 @@ def check_model(model_name):
     _extract_loc = os.path.join(_script_loc, 'models')
 
     if not os.path.isfile(_save_loc):
-        print("Downloading Model...")
+        print "Downloading Model...",
         opener = urllib.request.URLopener()
         opener.retrieve(_url_base + _model_file, _save_loc)
         tar_file = tarfile.open(_save_loc)
@@ -41,7 +42,7 @@ def check_model(model_name):
             file_name = os.path.basename(_file.name)
             if 'frozen_inference_graph.pb' in file_name:
                 tar_file.extract(_file, _extract_loc)
-        print("done!")
+        print "done!"
 
 
 def load_frozen_model(model_name):
@@ -55,7 +56,7 @@ def load_frozen_model(model_name):
     _model_path = os.path.join(_script_loc, 'models', model_name,
                                'frozen_inference_graph.pb')
 
-    print("Loading a (frozen) Tensorflow model into memory...")
+    print "Loading a (frozen) Tensorflow model into memory...",
     detection_graph = tf.Graph()
     with detection_graph.as_default():
         od_graph_def = tf.GraphDef()
@@ -63,7 +64,7 @@ def load_frozen_model(model_name):
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
-    print("done!")
+    print "done!"
 
     return detection_graph
 
@@ -157,23 +158,26 @@ def extract_box_from_image(image, objects, threshold):
 
     for box, score, cls in objects:
         if score > threshold:
-            ymin, xmin, ymax, xmax = box
+            _abs_box = get_abs_box_from_image(image, box)
 
-            # _denorm_box = ymin * width, xmin * height, \
-            #               ymax * width, xmax * height
-
-            # _denorm_box = ymin * width, xmin * height, \
-            #               ymax * width, xmax * height
-
-            # The docs say otherwise (as far as i can tell), but this works...
-            _denorm_box = (xmin * width, ymin * height,
-                           xmax * width, ymax * height)
-
-            frame = image.crop(_denorm_box)
+            frame = image.crop(_abs_box)
             _images.append(frame)
-            frame.show()
+            # frame.show()
 
-    return image
+    return _images
+
+
+def get_abs_box_from_image(image, box):
+    """
+    Get the bounding box of an image, in pixels
+    :return:
+    """
+    width, height = image.size
+    ymin, xmin, ymax, xmax = box
+    _abs_box = (np.uint8(xmin * width), np.uint8(ymin * height),
+                np.uint8(xmax * width), np.uint8(ymax * height))
+    # print _abs_box
+    return _abs_box
 
 
 def orec_image(sess, comp_graph, image):
