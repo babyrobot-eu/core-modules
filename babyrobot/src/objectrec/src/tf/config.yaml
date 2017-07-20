@@ -1,5 +1,14 @@
+"""
+Config file for object recognition
+
+Tensorflow detection model zoo:
+https://github.com/tensorflow/models/blob/master/object_detection/g3doc/
+                                                     detection_model_zoo.md
+"""
+
 model:
-  name: ssd_mobilenet_v1_coco_11_06_2017
+#  name: ssd_mobilenet_v1_coco_11_06_2017
+  name: faster_rcnn_resnet101_coco_11_06_2017
   labels: mscoco_label_map.pbtxt
   threshold: 0.35
   classes: 90

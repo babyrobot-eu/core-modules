@@ -20,9 +20,9 @@ from tensorflow.models.object_detection.utils.label_map_util import \
 
 def check_model(model_name):
     """
-    Check if the given model exists on disk.
-    If it doesn't, then download it
-    :param model_name:
+    Checks if the given model exists on disk.
+    If it doesn't, then downloads it
+    :param model_name: the name of the model
     :return:
     """
     _model_file = model_name + '.tar.gz'
@@ -47,8 +47,8 @@ def load_frozen_model(model_name):
     """
     Loads a pre-trained model from the disk
     and returns a TF Graph object
-    :param model_name:
-    :return:
+    :param model_name: the name of the model
+    :return: TF Graph
     """
     _script_loc = os.path.dirname(os.path.abspath(__file__))
     _model_path = os.path.join(_script_loc, 'models', model_name,
@@ -78,9 +78,8 @@ def distance_from_center(box):
     Computes the distance from the center of a box,
     from the center of the image.
     The distances are normalized
-    :param box: (ymin, xmin, ymax, xmax)
-    :param image:
-    :return: distance in range (0,1).
+    :param box: (ymin, xmin, ymax, xmax) tuple
+    :return: (float) distance in range (0,1).
     """
     # (im_width, im_height) = image.size
     ymin, xmin, ymax, xmax = box
@@ -117,12 +116,7 @@ def capture_frame():
 
 def get_labels_map(labels, n_classes):
     """
-    Label maps map indices to category names,
-    so that when our convolution network predicts 5,
-    we know that this corresponds to airplane.
-    Here we use internal utility functions,
-    but anything that returns a dictionary mapping integers
-    to appropriate string labels would be fine
+    Mapping from class indices to class labels
     :return:
     """
     _tf_models_dir = os.path.abspath(tf.models.object_detection.__file__) \
@@ -145,12 +139,12 @@ def extract_box_from_image(image, objects, threshold):
     it extracts the parts of the image, that correspond to each object
     :param image: a PIL image
     :param objects: list of recognized objects (box, score, class)
-    :param threshold:
-    :return:
+    :param threshold: (float) omit images with score below a threshold
+    :return: (list of PIL.Image) cropped images for each object
     """
 
     # image.show()
-    width, height = image.size
+    # width, height = image.size
 
     _images = []
 
@@ -174,7 +168,6 @@ def get_abs_box_from_image(image, box):
     ymin, xmin, ymax, xmax = box
     _abs_box = (np.uint8(xmin * width), np.uint8(ymin * height),
                 np.uint8(xmax * width), np.uint8(ymax * height))
-    # print _abs_box
     return _abs_box
 
 
@@ -256,7 +249,7 @@ def visualize_recognized_objects(image, boxes, classes, scores,
         scores,
         category_index,
         use_normalized_coordinates=True,
-        line_thickness=10,
+        line_thickness=5,
         min_score_thresh=threshold)
     plt.figure(figsize=IMAGE_SIZE)
     # plt.figure(figsize=(w / my_dpi, h / my_dpi), dpi=my_dpi)
