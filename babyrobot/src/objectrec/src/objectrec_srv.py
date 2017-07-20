@@ -6,13 +6,23 @@ import numpy as np
 import rospy
 import tensorflow as tf
 from PIL import Image
-from babyrobot_msgs.msg import ObjectRecognitionResult, RecognizedObject, \
-    BoundingBox, PixelPoint
+from babyrobot_msgs.msg import (
+    ObjectRecognitionResult,
+    RecognizedObject,
+    BoundingBox,
+    PixelPoint
+)
 from babyrobot_msgs.srv import ObjectRecognition, ObjectRecognitionResponse
 
 from babyrobot.lib.utils import yaml2dict
-from tf.utils import check_model, load_frozen_model, get_labels_map, \
-    orec_image, extract_box_from_image, get_abs_box_from_image
+from tf.utils import (
+    check_model,
+    load_frozen_model,
+    get_labels_map,
+    orec_image,
+    extract_box_from_image,
+    get_abs_box_from_image
+)
 
 
 def handle_objectrec(req):
