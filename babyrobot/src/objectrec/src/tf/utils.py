@@ -7,6 +7,7 @@ import random
 import tarfile
 
 import numpy as np
+import rospy
 import six.moves.urllib as urllib
 import tensorflow as tf
 from PIL import Image
@@ -17,6 +18,8 @@ from tensorflow.models.object_detection.utils import \
 from tensorflow.models.object_detection.utils.label_map_util import \
     convert_label_map_to_categories, load_labelmap, create_category_index
 
+from config import OBJECTREC as CONFIG
+
 
 def check_model(model_name):
     """
@@ -25,22 +28,23 @@ def check_model(model_name):
     :param model_name: the name of the model
     :return:
     """
+
     _model_file = model_name + '.tar.gz'
-    _url_base = 'http://download.tensorflow.org/models/object_detection/'
     _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _save_loc = os.path.join(_script_loc, 'models', _model_file)
-    _extract_loc = os.path.join(_script_loc, 'models')
+    _models_path = CONFIG.model.paths.models
+    _save_loc = os.path.join(_script_loc, _models_path, _model_file)
+    _extract_loc = os.path.join(_script_loc, _models_path)
 
     if not os.path.isfile(_save_loc):
-        print "Downloading Model...",
+        rospy.loginfo("Downloading Model...", )
         opener = urllib.request.URLopener()
-        opener.retrieve(_url_base + _model_file, _save_loc)
+        opener.retrieve(CONFIG.model.repo + _model_file, _save_loc)
         tar_file = tarfile.open(_save_loc)
         for _file in tar_file.getmembers():
             file_name = os.path.basename(_file.name)
             if 'frozen_inference_graph.pb' in file_name:
                 tar_file.extract(_file, _extract_loc)
-        print "done!"
+        rospy.loginfo("done!")
 
 
 def load_frozen_model(model_name):
@@ -51,10 +55,11 @@ def load_frozen_model(model_name):
     :return: TF Graph
     """
     _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _model_path = os.path.join(_script_loc, 'models', model_name,
+    _models_path = CONFIG.model.paths.models
+    _model_path = os.path.join(_script_loc, _models_path, model_name,
                                'frozen_inference_graph.pb')
 
-    print "Loading a (frozen) Tensorflow model into memory...",
+    rospy.loginfo("Loading a (frozen) Tensorflow model into memory...", )
     detection_graph = tf.Graph()
     with detection_graph.as_default():
         od_graph_def = tf.GraphDef()
@@ -62,7 +67,7 @@ def load_frozen_model(model_name):
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
-    print "done!"
+    rospy.loginfo("done!")
 
     return detection_graph
 
@@ -73,7 +78,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-def distance_from_center(box):
+def distance_box_to_center(box):
     """
     Computes the distance from the center of a box,
     from the center of the image.
@@ -94,7 +99,8 @@ def get_random_image():
     :return:
     """
     _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _test_images_dir = os.path.join(_script_loc, '..', 'images')
+    _test_images_dir = os.path.join(_script_loc, '..',
+                                    CONFIG.model.paths.images)
     _image_paths = glob.glob(_test_images_dir + "/*.jpg")
 
     random.shuffle(_image_paths)
@@ -133,10 +139,15 @@ def get_labels_map(labels, n_classes):
     return category_index
 
 
-def extract_box_from_image(image, objects, threshold):
+def extract_box_from_image(image, objects, threshold=None):
     """
     Given an image and a collection of recognized objects,
     it extracts the parts of the image, that correspond to each object
+
+    If a threshold is passed, the it extracts only the frames
+    for those objects that have higher score than the threshold.
+    Else (threshold is None) it extracts frames for all the objects.
+
     :param image: a PIL image
     :param objects: list of recognized objects (box, score, class)
     :param threshold: (float) omit images with score below a threshold
@@ -147,28 +158,54 @@ def extract_box_from_image(image, objects, threshold):
     # width, height = image.size
 
     _images = []
+    _mask = []
 
     for box, score, cls in objects:
-        if score > threshold:
-            _abs_box = get_abs_box_from_image(image, box)
+        _m = False
 
+        condition = (
+            (threshold is not None and score > threshold)
+            or (threshold is None)
+        )
+        if condition:
+            _abs_box = box_norm2abs(image, box)
             frame = image.crop(_abs_box)
             _images.append(frame)
-            # frame.show()
+            _m = True
 
-    return _images
+        _mask.append(_m)
+
+    return _images, _mask
 
 
-def get_abs_box_from_image(image, box):
+def box_norm2abs(image, box):
     """
     Get the bounding box of an image, in pixels
     :return:
     """
     width, height = image.size
     ymin, xmin, ymax, xmax = box
-    _abs_box = (np.uint8(xmin * width), np.uint8(ymin * height),
-                np.uint8(xmax * width), np.uint8(ymax * height))
-    return _abs_box
+    _abs_box = np.asarray([ymin * height, xmin * width,
+                           ymax * height, xmax * width])
+    return _abs_box.astype(np.uint32)
+
+
+def ros_box_to_norm_box(image, rbox):
+    """
+    Convert a ROS msg BoundingBox to a TF (normalized) box
+    :param image:
+    :param rbox:
+    :return:
+    """
+    width, height = image.size
+    box = [rbox.upper_left.y, rbox.upper_left.x,
+           rbox.lower_right.y, rbox.lower_right.x]
+    box = np.array(box).astype(np.float32)
+    ymin, xmin, ymax, xmax = box
+
+    _norm_box = np.asarray([ymin / height, xmin / width,
+                            ymax / height, xmax / width])
+    return _norm_box
 
 
 def orec_image(sess, comp_graph, image):
@@ -221,6 +258,26 @@ def orec_image(sess, comp_graph, image):
     return results
 
 
+def visualize_objectrec_response(image, res, label_map, threshold):
+    objects = res.recognized.objects
+
+    boxes = []
+    classes = []
+    scores = []
+    for o in objects:
+        box = ros_box_to_norm_box(image, o.bounding_box)
+        boxes.append(box)
+
+        scores.append(o.confidence)
+        cls_id = [k for (k, v) in label_map.items() if v['name'] == o.label][0]
+        classes.append(cls_id)
+
+    visualize_recognized_objects(image,
+                                 np.asarray(boxes), classes, scores,
+                                 label_map,
+                                 threshold)
+
+
 def visualize_recognized_objects(image, boxes, classes, scores,
                                  category_index,
                                  threshold):
@@ -264,8 +321,8 @@ def debug_info_image(objects, category_index, threshold):
     """
     for box, score, cls in objects:
         if score > threshold:
-            print("label:{}, score:{}, dist:{}".format(
+            rospy.loginfo("label:{}, score:{}, dist:{}".format(
                 category_index[cls]["name"],
                 score,
-                distance_from_center(box)))
-    print("")
+                distance_box_to_center(box)))
+    rospy.loginfo("")
