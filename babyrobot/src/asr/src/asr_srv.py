@@ -10,7 +10,7 @@ from babyrobot_msgs.srv import SpeechRecognitionResponse
 
 
 def handle_asr(req):
-    rospy.loginfo('Request metadata: {}'.format(req.metadata))
+    # rospy.loginfo('Request metadata: {}'.format(req.metadata))
 
     transcription = "Hello from test ASR"
 
