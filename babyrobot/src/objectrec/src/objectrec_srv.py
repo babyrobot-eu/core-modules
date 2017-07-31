@@ -12,9 +12,9 @@ from babyrobot_msgs.msg import (
     PixelPoint
 )
 from babyrobot_msgs.srv import ObjectRecognition, ObjectRecognitionResponse
+from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
-from tf.config import OBJECTREC as CONFIG
-from tf.utils import (
+from babyrobot.objectrec.utils import (
     check_model,
     load_frozen_model,
     get_labels_map,

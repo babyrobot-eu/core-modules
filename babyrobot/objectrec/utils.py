@@ -30,10 +30,8 @@ def check_model(model_name):
     """
 
     _model_file = model_name + '.tar.gz'
-    _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _models_path = CONFIG.model.paths.models
-    _save_loc = os.path.join(_script_loc, _models_path, _model_file)
-    _extract_loc = os.path.join(_script_loc, _models_path)
+    _save_loc = os.path.join(CONFIG.model.paths.models, _model_file)
+    _extract_loc = CONFIG.model.paths.models
 
     if not os.path.isfile(_save_loc):
         rospy.loginfo("Downloading Model...", )
@@ -54,9 +52,7 @@ def load_frozen_model(model_name):
     :param model_name: the name of the model
     :return: TF Graph
     """
-    _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _models_path = CONFIG.model.paths.models
-    _model_path = os.path.join(_script_loc, _models_path, model_name,
+    _model_path = os.path.join(CONFIG.model.paths.models, model_name,
                                'frozen_inference_graph.pb')
 
     rospy.loginfo("Loading a (frozen) Tensorflow model into memory...", )
@@ -98,15 +94,9 @@ def get_random_image():
     Returns a random image from '/images' dir
     :return:
     """
-    _script_loc = os.path.dirname(os.path.abspath(__file__))
-    _test_images_dir = os.path.join(_script_loc, '..',
-                                    CONFIG.model.paths.images)
-    _image_paths = glob.glob(_test_images_dir + "/*.jpg")
-
+    _image_paths = glob.glob(CONFIG.model.paths.images + "/*.jpg")
     random.shuffle(_image_paths)
-
     image = Image.open(_image_paths[0])
-
     return image
 
 
