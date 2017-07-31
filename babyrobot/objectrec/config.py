@@ -14,9 +14,10 @@ class MODEL_PATHS:
 
 
 class MODEL:
-    name = 'ssd_mobilenet_v1_coco_11_06_2017'
+    # name = 'ssd_inception_v2_coco_11_06_2017'
+    name = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
     labels = 'mscoco_label_map.pbtxt'
-    threshold = 0.35
+    threshold = 0.3
     classes = 90
     repo = 'http://download.tensorflow.org/models/object_detection/'
     visualize = True

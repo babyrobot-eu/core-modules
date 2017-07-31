@@ -33,7 +33,7 @@ def check_model(model_name):
     _save_loc = os.path.join(CONFIG.model.paths.models, _model_file)
     _extract_loc = CONFIG.model.paths.models
 
-    if not os.path.isfile(_save_loc):
+    if not os.path.exists(os.path.join(_extract_loc, model_name)):
         rospy.loginfo("Downloading Model...", )
         opener = urllib.request.URLopener()
         opener.retrieve(CONFIG.model.repo + _model_file, _save_loc)
@@ -43,6 +43,9 @@ def check_model(model_name):
             if 'frozen_inference_graph.pb' in file_name:
                 tar_file.extract(_file, _extract_loc)
         rospy.loginfo("done!")
+
+        # remove the tar file
+        os.remove(_save_loc)
 
 
 def load_frozen_model(model_name):
