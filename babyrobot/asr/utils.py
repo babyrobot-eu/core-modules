@@ -13,3 +13,17 @@ def mock_audio_segment():
     with open(asr_config.TEST.WAV_SAMPLE, 'r') as wav_fd:
         clip = wav_fd.read()
     return clip
+
+
+def write_wav(byte_str, wav_file):
+    '''
+    Write a hex string into a wav file
+
+    Args:
+        byte_str: The hex string containing the audio data
+        wav_file: The output wav file
+
+    Returns:
+    '''
+    with open(wav_file, 'w') as f:
+        f.write(byte_str)
