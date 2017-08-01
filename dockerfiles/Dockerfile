@@ -51,7 +51,7 @@ RUN  echo "    IdentityFile /root/.ssh/id_rsa\n" >> /etc/ssh/ssh_config
 RUN echo "Host gitlab.com\n" >> /etc/ssh/ssh_config
 RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
-RUN git clone git@gitlab.com:georgepar/babyrobot-integration.git /babyrobot-integration
+RUN git clone --recursive git@gitlab.com:georgepar/babyrobot-integration.git /babyrobot-integration
 WORKDIR /babyrobot-integration
 RUN pip install -r ./requirements.txt
 WORKDIR /babyrobot-integration/babyrobot
