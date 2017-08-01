@@ -2,6 +2,7 @@ import functools
 import logging
 import shutil
 import subprocess
+import sys
 import time
 import urllib
 import yaml
@@ -95,3 +96,13 @@ def download_url(url, dest_path):
     with open(dest, 'wb') as f:
         shutil.copyfileobj(response, f)
     return True
+
+
+def suppress_print(func):
+    @functools.wraps(func)
+    def func_wrapper(*args, **kwargs):
+        with open('/dev/null', 'w') as sys.stdout:
+            ret = func(*args, **kwargs)
+        sys.stdout = sys.__stdout__
+        return ret
+    return func_wrapper

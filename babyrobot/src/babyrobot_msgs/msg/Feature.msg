@@ -1,4 +1,3 @@
-babyrobot_msgs/Header header
-float64[] feature_values
+float64 feature_value
 string feature_name
 
