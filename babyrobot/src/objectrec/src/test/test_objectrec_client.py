@@ -7,10 +7,10 @@ from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
 def test_object_recognition_client_object_labels():
     """
-    Test that for:
-    * a given threshold
-    * and a given model
-    the model finds the correct objects
+    Test the labels of the top (highest confidence) 10 objects
+
+    Note: Ensure that objectrec_srv is running!
+
     :return:
     :rtype:
     """
@@ -18,21 +18,24 @@ def test_object_recognition_client_object_labels():
 
     model_name = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
     CONFIG.debug = False
-    CONFIG.model.threshold = 0.3
     CONFIG.model.name = model_name
 
     im_name = CONFIG.model.paths.images + "/Copy_of_objects-000.jpg"
     image = Image.open(im_name)
 
     recognized = objectrec(image)
-    assert [r.label for r in recognized.objects] == ['person',
-                                                     'couch',
-                                                     'sports ball']
+
+    top_10 = ['person', 'couch', 'sports ball', 'bed', 'couch', 'teddy bear',
+              'person', 'banana', 'dining table', 'apple']
+    assert [r.label for r in recognized.objects][:10] == top_10
 
 
-def test_object_recognition_client_object_threshold():
+def test_object_recognition_client_object_scores():
     """
-    Test that changing the threshold affects the response
+    Test the scores of the top (highest confidence) 10 objects
+
+    Note: Ensure that objectrec_srv is running!
+
     :return:
     :rtype:
     """
@@ -40,11 +43,13 @@ def test_object_recognition_client_object_threshold():
 
     model_name = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
     CONFIG.debug = False
-    CONFIG.model.threshold = 99.99
     CONFIG.model.name = model_name
 
     im_name = CONFIG.model.paths.images + "/Copy_of_objects-000.jpg"
     image = Image.open(im_name)
 
     recognized = objectrec(image)
-    assert len(recognized.objects) == 0
+
+    top_10 = [0.57, 0.49, 0.35, 0.29, 0.21, 0.14, 0.13, 0.1, 0.09, 0.08]
+    assert [round(r.confidence, 2)
+            for r in recognized.objects][:10] == top_10

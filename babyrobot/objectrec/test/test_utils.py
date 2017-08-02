@@ -9,3 +9,8 @@ def test_get_random_image():
 def test_capture_frame():
     frame = utils.capture_frame()
     assert frame.width > 0 and frame.height > 0
+
+
+def test_extract_box_from_image():
+    # todo:add test
+    assert True

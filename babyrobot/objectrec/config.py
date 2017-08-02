@@ -20,10 +20,9 @@ class MODEL:
     threshold = 0.3
     classes = 90
     repo = 'http://download.tensorflow.org/models/object_detection/'
-    visualize = True
     paths = MODEL_PATHS
 
 
 class OBJECTREC:
-    debug = True
+    debug = False
     model = MODEL
