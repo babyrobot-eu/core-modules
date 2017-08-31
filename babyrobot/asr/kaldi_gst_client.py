@@ -106,10 +106,11 @@ class MyClient(WebSocketClient):
         self.final_hyp_queue.put(" ".join(self.final_hyps))
 
 
-def run_gst(clip_path, byte_rate=32000):
+def run_gst(server_url, clip_path, byte_rate=32000):
     clip = open(clip_path, 'r')
     content_type = ''
-    request_url = "ws://localhost:8888/client/ws/speech?{}".format(
+    request_url = "{0}{1}".format(
+        server_url,
         urllib.urlencode([("content-type", content_type)]))
     ws = MyClient(
         clip,

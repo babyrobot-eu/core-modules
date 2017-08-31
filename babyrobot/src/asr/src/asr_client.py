@@ -10,4 +10,5 @@ if __name__ == "__main__":
     rospy.init_node(asr_config.ROS_CONFIG.CLIENT_NODE)
     clip = mock_audio_segment()
     recognized = asr_client.asr(clip)
-    rospy.logerr("Service responded with {}".format(recognized.header.id))
+    rospy.loginfo(recognized)
+    # rospy.logerr("Service responded with {}".format(recognized.header.id))

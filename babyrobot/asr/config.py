@@ -1,6 +1,8 @@
 class KALDI_GST_SERVER:
     PATH = ('/home/nick/Programs/kaldi/kaldi-gstreamer-server/'
             'kaldigstserver')
+    URL_LOCAL = 'ws://localhost:8888/client/ws/speech?'
+    URL_DOCKER = 'ws://localhost:8080/client/ws/speech?'
 
 
 class KALDI_MODEL:
@@ -10,7 +12,7 @@ class KALDI_MODEL:
 
 class TEST:
     WAV_SAMPLE = ('/home/nick/Programs/kaldi/kaldi-gstreamer-server/'
-                  'test/data/punk.wav')
+                  'test/data/english_test.wav')
 
 
 class TEMP_FILE:
