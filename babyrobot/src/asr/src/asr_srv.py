@@ -17,7 +17,6 @@ def handle_asr(req):
     transcription = kaldi_gst_client.run_gst(
             server_url=asr_config.KALDI_GST_SERVER.URL_DOCKER,
             clip_path=asr_config.TEMP_FILE.WAV, byte_rate=32000)
-    print transcription
     msg = ASR()
     msg.header.id = str(uuid.uuid1())
     msg.related_segment_id = req.audio_segment.header.id

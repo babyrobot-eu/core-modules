@@ -5,6 +5,7 @@ import sys
 import urllib
 import Queue
 import json
+import rospy
 
 
 def rate_limited(maxPerSecond):
@@ -48,9 +49,8 @@ class MyClient(WebSocketClient):
     def opened(self):
         def send_data_to_ws():
             if self.send_adaptation_state_filename is not None:
-                print >> sys.stderr, \
-                    "Sending adaptation state from {}".format(
-                        self.send_adaptation_state_filename)
+                rospy.logerr("Sending adaptation state from {}".format(
+                        self.send_adaptation_state_filename))
                 try:
                     adaptation_state_props = json.load(
                         open(self.send_adaptation_state_filename, "r")
@@ -60,13 +60,12 @@ class MyClient(WebSocketClient):
                     )
                 except:
                     e = sys.exc_info()[0]
-                    print >> sys.stderr, \
-                        "Failed to send adaptation state: ",  e
+                    rospy.logerr("Failed to send adaptation state: ", e)
             with self.audiofile as audiostream:
                 for block in iter(lambda: audiostream.read(
                         self.byterate/4), ""):
                     self.send_data(block)
-            print >> sys.stderr, "Audio sent, now sending EOS"
+            rospy.logerr("Audio sent, now sending EOS")
             self.send("EOS")
 
         t = threading.Thread(target=send_data_to_ws)
@@ -79,25 +78,23 @@ class MyClient(WebSocketClient):
                 trans = response['result']['hypotheses'][0]['transcript']
                 if response['result']['final']:
                     self.final_hyps.append(trans)
-                    print >> sys.stderr, '\r%s' % trans.replace("\n", "\\n")
+                    rospy.logerr('\r%s' % trans.replace("\n", "\\n"))
                 else:
                     print_trans = trans.replace("\n", "\\n")
                     if len(print_trans) > 80:
                         print_trans = "... %s" % print_trans[-76:]
-                    print >> sys.stderr, '\r%s' % print_trans,
+                    rospy.logerr('\r%s' % print_trans)
             if 'adaptation_state' in response:
                 if self.save_adaptation_state_filename:
-                    print >> sys.stderr, \
-                        "Saving adaptation state to {}".format(
-                            self.save_adaptation_state_filename)
+                    rospy.logerr("Saving adaptation state to {}".format(
+                            self.save_adaptation_state_filename))
                     with open(self.save_adaptation_state_filename, "w") as f:
                         f.write(json.dumps(response['adaptation_state']))
         else:
-            print >> sys.stderr, \
-                "Received error from server (status {})".format(
-                    response['status'])
+            rospy.logerr("Received error from server (status {})".format(
+                    response['status']))
             if 'message' in response:
-                print >> sys.stderr, "Error message:",  response['message']
+                rospy.logerr("Error message:",  response['message'])
 
     def get_full_hyp(self, timeout=60):
         return self.final_hyp_queue.get(timeout)
