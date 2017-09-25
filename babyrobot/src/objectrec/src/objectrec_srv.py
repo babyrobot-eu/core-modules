@@ -12,14 +12,13 @@ from babyrobot_msgs.msg import (
     PixelPoint
 )
 from babyrobot_msgs.srv import ObjectRecognition, ObjectRecognitionResponse
-from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
+from babyrobot.objectrec.config import OBJECTREC as CONFIG
 from babyrobot.objectrec.utils import (
     check_model,
     load_frozen_model,
     get_labels_map,
     orec_image,
-    extract_box_from_image,
     box_norm2abs
 )
 
@@ -42,11 +41,6 @@ def handle_objectrec(req):
             (boxes, classes, scores, num_detections) = orec_image(sess,
                                                                   detect_graph,
                                                                   image)
-            objects = np.asarray(list(zip(boxes, scores, classes)))
-            frames, mask = extract_box_from_image(image, objects,
-                                                  CONFIG.model.threshold)
-            # filter: only images above threshold
-            objects = objects[mask]
 
             # make response
             msg = ObjectRecognitionResult()
@@ -54,7 +48,7 @@ def handle_objectrec(req):
             msg.header.timestamp = rospy.Time.now()
             msg.related_frame_id = msg.header.id
 
-            for (box, score, cls), frame in zip(objects, frames):
+            for box, score, cls in zip(boxes, scores, classes):
                 rec_object = RecognizedObject()
 
                 rec_object.proximity = 0

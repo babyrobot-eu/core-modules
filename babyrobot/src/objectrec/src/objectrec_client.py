@@ -12,4 +12,5 @@ if __name__ == "__main__":
     image = capture_frame()
 
     recognized = objectrec(image)
+
     rospy.loginfo("Service responded with {}".format(recognized))
