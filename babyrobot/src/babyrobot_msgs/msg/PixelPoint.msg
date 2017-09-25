@@ -1,3 +1,3 @@
-uint8 x
-uint8 y
+uint32 x
+uint32 y
 

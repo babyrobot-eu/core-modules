@@ -2,23 +2,13 @@
 
 import rospy
 
-from babyrobot_msgs.msg import AudioSegment
-from babyrobot_msgs.srv import SpeechEmotionRecognition
-
-
-def emorec(metadata):
-    rospy.wait_for_service('emorec')
-    try:
-        emorec = rospy.ServiceProxy('emorec', SpeechEmotionRecognition)
-        audio_segment = AudioSegment()
-        emorec_response = emorec(audio_segment, metadata)
-        return emorec_response.recognized
-    except rospy.ServiceException, e:
-        rospy.logerr("Service call failed: {}".format(e))
+from babyrobot.emorec import client as emorec_client
+from babyrobot.emorec import config as emorec_config
+from babyrobot.speech_features.utils import mock_audio_segment
 
 
 if __name__ == "__main__":
-    rospy.init_node('emorec_client')
-    metadata = "Hello from emorec client"
-    recognized = emorec(metadata)
-    rospy.logerr("Service responded with {}".format(recognized.header.id))
+    rospy.init_node(emorec_config.ROS_CONFIG.CLIENT_NODE)
+    clip = mock_audio_segment()
+    recognized = emorec_client.emorec(clip)
+    rospy.logerr("Service responded with {}".format(recognized))
