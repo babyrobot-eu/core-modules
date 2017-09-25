@@ -2,23 +2,13 @@
 
 import rospy
 
-from babyrobot_msgs.msg import AudioSegment
-from babyrobot_msgs.srv import SpeechRecognition
-
-
-def asr(metadata):
-    rospy.wait_for_service('asr')
-    try:
-        asr_caller = rospy.ServiceProxy('asr', SpeechRecognition)
-        audio_segment = AudioSegment()
-        asr_response = asr_caller(audio_segment, metadata)
-        return asr_response.recognized
-    except rospy.ServiceException, e:
-        rospy.logerr("Service call failed: {}".format(e))
-
+from babyrobot.asr import client as asr_client
+from babyrobot.asr import config as asr_config
+from babyrobot.asr.utils import mock_audio_segment
 
 if __name__ == "__main__":
-    rospy.init_node('asr_client')
-    metadata = "Hello from asr client"
-    recognized = asr(metadata)
-    rospy.logerr("Service responded with {}".format(recognized.header.id))
+    rospy.init_node(asr_config.ROS_CONFIG.CLIENT_NODE)
+    clip = mock_audio_segment()
+    recognized = asr_client.asr(clip)
+    rospy.loginfo(recognized)
+    # rospy.logerr("Service responded with {}".format(recognized.header.id))
