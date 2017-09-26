@@ -7,11 +7,10 @@ from babyrobot_msgs.srv import ObjectRecognition
 
 from babyrobot.objectrec.utils import (visualize_objectrec_response,
                                        get_labels_map)
-from config import OBJECTREC as CONFIG
+from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
 # Loading label map. Load it once to speed things up
-_label_map = get_labels_map(CONFIG.model.labels,
-                            CONFIG.model.classes)
+LABEL_MAP = get_labels_map(CONFIG.model.labels, CONFIG.model.classes)
 
 
 def objectrec(image):
@@ -41,9 +40,9 @@ def objectrec(image):
         if CONFIG.debug:
             visualize_objectrec_response(image,
                                          objectrec_response,
-                                         _label_map,
+                                         LABEL_MAP,
                                          CONFIG.model.threshold)
 
         return objectrec_response.recognized
-    except rospy.ServiceException as e:
-        rospy.logerr("Service call failed: {}".format(e))
+    except rospy.ServiceException as ex:
+        rospy.logerr("Service call failed: {}".format(ex))

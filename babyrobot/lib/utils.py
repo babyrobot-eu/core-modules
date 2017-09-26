@@ -1,5 +1,4 @@
 import functools
-import logging
 import shutil
 import subprocess
 import sys
@@ -7,13 +6,12 @@ import time
 import urllib
 import yaml
 
-
-logger = logging.getLogger(__name__)
+import rospy
 
 
 def yaml2dict(filename):
-    with open(filename) as f:
-        yamldict = yaml.safe_load(f)
+    with open(filename) as fd:
+        yamldict = yaml.safe_load(fd)
     return yamldict
 
 
@@ -31,7 +29,7 @@ def get_parameter_from_yaml(parameter, ymldict=None, filename=None):
         if filename is not None:
             ymldict = yaml2dict(filename)
         else:
-            logger.error("You must pass either ymldict or filename kwargs")
+            rospy.logerr("You must pass either ymldict or filename kwargs")
     value = ymldict
     for element in parameter.split("."):
         value = value.get(element)
@@ -54,7 +52,7 @@ def timethis(func):
         result = func(*args, **kwargs)
         te = time.time()
         elapsed = '{0}'.format(te - ts)
-        logger.info('{f}(*{a}, **{kw}) took: {t} sec'.format(
+        rospy.loginfo('{f}(*{a}, **{kw}) took: {t} sec'.format(
             f=func.__name__, a=args, kw=kwargs, t=elapsed))
         return result, elapsed
     return timed
@@ -73,11 +71,11 @@ def run_cmd(cmd):
     stdout, stderr = [stream.strip() for stream in pipe.communicate()]
     output = ' - STDOUT: "%s"' % stdout if len(stdout) > 0 else ''
     error = ' - STDERR: "%s"' % stdout if len(stderr) > 0 else ''
-    logger.debug("Running [{command}] returns: [{rc}]{output}{error}".format(
-                 command=cmd,
-                 rc=pipe.returncode,
-                 output=output,
-                 error=error))
+    rospy.logdebug("Running [{command}] returns: [{rc}]{output}{error}".format(
+        command=cmd,
+        rc=pipe.returncode,
+        output=output,
+        error=error))
 
     return pipe.returncode, stdout, stderr
 
@@ -93,8 +91,8 @@ def download_url(url, dest_path):
     except (urllib.error.HTTPError, urllib.error.URLError):
         return False
 
-    with open(dest, 'wb') as f:
-        shutil.copyfileobj(response, f)
+    with open(dest, 'wb') as fd:
+        shutil.copyfileobj(response, fd)
     return True
 
 
@@ -106,3 +104,31 @@ def suppress_print(func):
         sys.stdout = sys.__stdout__
         return ret
     return func_wrapper
+
+
+def write_wav(byte_str, wav_file):
+    '''
+    Write a hex string into a wav file
+
+    Args:
+        byte_str: The hex string containing the audio data
+        wav_file: The output wav file
+
+    Returns:
+    '''
+    with open(wav_file, 'w') as fd:
+        fd.write(byte_str)
+
+
+def mock_audio_segment(wav_sample):
+    '''
+    Mock an audio segment. Reads a test wav clip into a string
+    and returns the hex string.
+    Args:
+
+    Returns:
+        A hex string with the audio information.
+    '''
+    with open(wav_sample, 'r') as wav_fd:
+        clip = wav_fd.read()
+    return clip

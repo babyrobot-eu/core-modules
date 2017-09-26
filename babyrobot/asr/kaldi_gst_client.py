@@ -1,26 +1,25 @@
-from ws4py.client.threadedclient import WebSocketClient
+import json
+import Queue
 import time
 import threading
-import sys
 import urllib
-import Queue
-import json
+from ws4py.client.threadedclient import WebSocketClient
 import rospy
 
 
-def rate_limited(maxPerSecond):
-    minInterval = 1.0 / float(maxPerSecond)
+def rate_limited(max_per_second):
+    min_interval = 1.0 / float(max_per_second)
 
     def decorate(func):
-        lastTimeCalled = [0.0]
+        last_time_called = [0.0]
 
         def rate_limited_function(*args, **kargs):
-            elapsed = time.clock() - lastTimeCalled[0]
-            leftToWait = minInterval - elapsed
-            if leftToWait > 0:
-                time.sleep(leftToWait)
+            elapsed = time.clock() - last_time_called[0]
+            left_to_wait = min_interval - elapsed
+            if left_to_wait > 0:
+                time.sleep(left_to_wait)
             ret = func(*args, **kargs)
-            lastTimeCalled[0] = time.clock()
+            last_time_called[0] = time.clock()
             return ret
         return rate_limited_function
     return decorate
@@ -50,17 +49,15 @@ class MyClient(WebSocketClient):
         def send_data_to_ws():
             if self.send_adaptation_state_filename is not None:
                 rospy.logerr("Sending adaptation state from {}".format(
-                        self.send_adaptation_state_filename))
+                    self.send_adaptation_state_filename))
                 try:
                     adaptation_state_props = json.load(
-                        open(self.send_adaptation_state_filename, "r")
-                        )
+                        open(self.send_adaptation_state_filename, "r"))
                     self.send(json.dumps(
-                        dict(adaptation_state=adaptation_state_props))
-                    )
-                except:
-                    e = sys.exc_info()[0]
-                    rospy.logerr("Failed to send adaptation state: ", e)
+                        dict(adaptation_state=adaptation_state_props)))
+                except Exception, ex:
+                    rospy.logerr("Failed to send adaptation state: {}"
+                                 .format(ex))
             with self.audiofile as audiostream:
                 for block in iter(lambda: audiostream.read(
                         self.byterate/4), ""):
@@ -87,14 +84,14 @@ class MyClient(WebSocketClient):
             if 'adaptation_state' in response:
                 if self.save_adaptation_state_filename:
                     rospy.logerr("Saving adaptation state to {}".format(
-                            self.save_adaptation_state_filename))
+                        self.save_adaptation_state_filename))
                     with open(self.save_adaptation_state_filename, "w") as f:
                         f.write(json.dumps(response['adaptation_state']))
         else:
             rospy.logerr("Received error from server (status {})".format(
-                    response['status']))
+                response['status']))
             if 'message' in response:
-                rospy.logerr("Error message:",  response['message'])
+                rospy.logerr("Error message: {}".format(response['message']))
 
     def get_full_hyp(self, timeout=60):
         return self.final_hyp_queue.get(timeout)
@@ -116,7 +113,3 @@ def run_gst(server_url, clip_path, byte_rate=32000):
     ws.connect()
     result = ws.get_full_hyp()
     return result.encode('utf-8')
-
-
-if __name__ == "__main__":
-    run_gst()

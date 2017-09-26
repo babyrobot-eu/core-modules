@@ -2,8 +2,8 @@
 import rospy
 import uuid
 
+from babyrobot.lib import utils as br_utils
 from babyrobot.asr import config as asr_config
-from babyrobot.asr import utils as asr_utils
 from babyrobot.asr import kaldi_gst_client
 
 from babyrobot_msgs.msg import ASR
@@ -13,7 +13,7 @@ from babyrobot_msgs.srv import SpeechRecognitionResponse
 
 def handle_asr(req):
     # rospy.loginfo('Request metadata: {}'.format(req.metadata))
-    asr_utils.write_wav(req.audio_segment.clip, asr_config.TEMP_FILE.WAV)
+    br_utils.write_wav(req.audio_segment.clip, asr_config.TEMP_FILE.WAV)
     transcription = kaldi_gst_client.run_gst(
             server_url=asr_config.KALDI_GST_SERVER.URL_DOCKER,
             clip_path=asr_config.TEMP_FILE.WAV, byte_rate=32000)

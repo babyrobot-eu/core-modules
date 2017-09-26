@@ -1,7 +1,7 @@
 import os
 
 
-class MODELS:
+class MODELS(object):
     PATH = '/home/geopar/projects/babyrobot-integration/models/emotion'
     ZOO = {
         'anger': {
@@ -52,7 +52,7 @@ class MODELS:
     }
 
 
-class WEKA:
+class WEKA(object):
     PATH = '/home/geopar/projects/weka-3-8-1/'
     CLASSPATH = '{}:{}'.format(
         os.path.join(PATH, 'weka.jar'),
@@ -60,7 +60,7 @@ class WEKA:
     TEMP_ARFF_FILE = '/tmp/features.arff'
 
 
-class ROS_CONFIG:
+class ROS_CONFIG(object):
     SERVICE_NAME = 'emorec'
     SERVER_NODE = 'emorec_server'
     CLIENT_NODE = 'emorec_client'

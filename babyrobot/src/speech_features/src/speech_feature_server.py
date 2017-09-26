@@ -6,7 +6,6 @@ import uuid
 
 from babyrobot.lib import utils as br_utils
 from babyrobot.speech_features import config as sf_config
-from babyrobot.speech_features import utils as sf_utils
 from babyrobot_msgs.msg import SpeechFeatures, Feature
 from babyrobot_msgs.srv import SpeechFeatureExtraction
 from babyrobot_msgs.srv import SpeechFeatureExtractionResponse
@@ -26,7 +25,7 @@ def handle_speech_features(req):
         A SpeechFeatureExtractionResponse containing a SpeechFeatures
         ROS message.
     '''
-    sf_utils.write_wav(req.audio_segment.clip, sf_config.TEMP_FILE.WAV)
+    br_utils.write_wav(req.audio_segment.clip, sf_config.TEMP_FILE.WAV)
     if req.response_format == 'arff':
         out_file = sf_config.TEMP_FILE.ARFF_OUTPUT
         out_file_cmd = '--arffoutput {}'.format(out_file)
