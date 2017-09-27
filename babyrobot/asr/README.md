@@ -4,13 +4,19 @@
 ```
 docker build -t kaldi-gstreamer-server:1.0 https://github.com/jcsilva/docker-kaldi-gstreamer-server
 ```
-2. Run the image
+Or simply pull:
 ```
-docker run -tid -p 8080:80 -v <kaldi-model-dir>:/opt/models jcsilva/docker-kaldi-gstreamer-server:latest
+docker pull jcsilva/docker-kaldi-gstreamer-server
 ```
-3. Inside the container run `/opt/start.sh -y /opt/models/nnet2.yaml`
-4. Use the client to send a request to the service
-5. To stop run `/opt/stop.sh`
+2. Confirm that in the `models/asr/sample_worker.yaml` the directories begin with /opt/models
+3. Run the image
+```
+docker run -tid --name kaldigstreamer -p 8080:80 -v <absolute-path-to-models/asr>:/opt/models jcsilva/docker-kaldi-gstreamer-server:latest
+```
+4. Inside the container run `/opt/start.sh -y /opt/models/sample_worker.yaml`
+5. Run the asr server and then the client to send a request to the service
+6. To stop run `/opt/stop.sh`
+7. To delete the docker process entirely run `docker rm -f kaldigstreamer`
 
 ## Docker image (English model)
 
