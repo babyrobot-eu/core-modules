@@ -8,12 +8,12 @@ https://github.com/tensorflow/models/blob/master/object_detection/g3doc/
 PROJECT_ROOT = '/home/christos/PycharmProjects/babyrobot-integration/'
 
 
-class MODEL_PATHS:
+class MODEL_PATHS(object):
     models = PROJECT_ROOT + 'babyrobot/objectrec/models'
     images = PROJECT_ROOT + 'babyrobot/objectrec/images/lab'
 
 
-class MODEL:
+class MODEL(object):
     # name = 'ssd_inception_v2_coco_11_06_2017'
     name = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
     labels = 'mscoco_label_map.pbtxt'
@@ -23,6 +23,6 @@ class MODEL:
     paths = MODEL_PATHS
 
 
-class OBJECTREC:
+class OBJECTREC(object):
     debug = False
     model = MODEL

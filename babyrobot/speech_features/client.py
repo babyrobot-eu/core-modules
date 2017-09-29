@@ -1,5 +1,5 @@
-import rospy
 import uuid
+import rospy
 
 from babyrobot.speech_features import config as sf_config
 from babyrobot_msgs.msg import AudioSegment
@@ -51,6 +51,6 @@ def extract_speech_features(clip,
                                          response_format,
                                          metadata)
         return speech_feature_response.extracted
-    except rospy.ServiceException, e:
-        rospy.logerr("Service call failed: {}".format(e))
+    except rospy.ServiceException, ex:
+        rospy.logerr("Service call failed: {}".format(ex))
         return None

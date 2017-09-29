@@ -13,12 +13,16 @@ import tensorflow as tf
 from PIL import Image
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import euclidean
-from tensorflow.models.object_detection.utils import \
+from tensorflow.models.object_detection.utils import (
     visualization_utils as vis_util
-from tensorflow.models.object_detection.utils.label_map_util import \
-    convert_label_map_to_categories, load_labelmap, create_category_index
+)
+from tensorflow.models.object_detection.utils.label_map_util import (
+    convert_label_map_to_categories,
+    load_labelmap,
+    create_category_index
+)
 
-from config import OBJECTREC as CONFIG
+from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
 
 def check_model(model_name):
@@ -153,14 +157,10 @@ def extract_box_from_image(image, objects, threshold=None):
     _images = []
     _mask = []
 
-    for box, score, cls in objects:
+    for box, score, _ in objects:
         _m = False
 
-        condition = (
-            (threshold is not None and score > threshold)
-            or (threshold is None)
-        )
-        if condition:
+        if threshold is None or score > threshold:
             _abs_box = box_norm2abs(image, box)
             frame = image.crop(_abs_box)
             _images.append(frame)
@@ -257,12 +257,14 @@ def visualize_objectrec_response(image, res, label_map, threshold):
     boxes = []
     classes = []
     scores = []
-    for o in objects:
-        box = ros_box_to_norm_box(image, o.bounding_box)
+    for obj in objects:
+        box = ros_box_to_norm_box(image, obj.bounding_box)
         boxes.append(box)
 
-        scores.append(o.confidence)
-        cls_id = [k for (k, v) in label_map.items() if v['name'] == o.label][0]
+        scores.append(obj.confidence)
+        cls_id = [k
+                  for (k, v) in label_map.items()
+                  if v['name'] == obj.label][0]
         classes.append(cls_id)
 
     visualize_recognized_objects(image,
@@ -271,9 +273,8 @@ def visualize_objectrec_response(image, res, label_map, threshold):
                                  threshold)
 
 
-def visualize_recognized_objects(image, boxes, classes, scores,
-                                 category_index,
-                                 threshold):
+def visualize_recognized_objects(
+        image, boxes, classes, scores, category_index, threshold):
     """
     Show an image with bounding boxes around the recognized objects,
     along with the confidence of the model for each object

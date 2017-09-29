@@ -33,14 +33,14 @@ class Config(object):
             self.config_file = (os.environ['BABYROBOT_CONFIG']
                                 if config_file is None else config_file)
             if config_dict:
-                self._parse(None, config_dict)
+                self._parse(config_dict)
             else:
                 self.yaml_conf = br_utils.yaml2dict(self.config_file)
-                self._parse(None, self.yaml_conf)
+                self._parse(self.yaml_conf)
         except Exception as error:
             raise Exception('Parse config failed: {}'.format(str(error)))
 
-    def _parse(self, attr_now, left_parametes):
+    def _parse(self, left_parametes):
         for param_n, param_v in six.iteritems(left_parametes):
             if isinstance(param_v, dict):
                 # Recurse creating a new object

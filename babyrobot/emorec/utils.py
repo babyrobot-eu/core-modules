@@ -49,7 +49,7 @@ def classify_weka(model_config, arff_features, classes=None):
     return_code, stdout, stderr = br_utils.run_cmd(cmd)
     if return_code < 0:
         rospy.logerr('Failed to classify using Weka: {}'.format(cmd))
-        rospy.logger(stderr)
+        rospy.logerr(stderr)
         return None
     rospy.logdebug(cmd)
     rospy.logdebug(stdout)
@@ -60,7 +60,7 @@ def classify_weka(model_config, arff_features, classes=None):
     return emotion, confidence
 
 
-def toLibsvmFeatures(features, scale=None):
+def to_libsvm_features(features, scale=None):
     libsvm_features = {str(i + 1): f.feature_value
                        for i, f in enumerate(features)}
     if scale is not None:
@@ -76,7 +76,7 @@ def toLibsvmFeatures(features, scale=None):
 
 
 def classify_libsvm(model, features, scale=None, classes=None):
-    libsvm_feat = toLibsvmFeatures(features, scale=scale)
+    libsvm_feat = to_libsvm_features(features, scale=scale)
     svm_predict = br_utils.suppress_print(svmutil.svm_predict)
     if model.get_svm_type() in [3, 4]:
         labels, _, confidences = svm_predict([-1], libsvm_feat, model)
