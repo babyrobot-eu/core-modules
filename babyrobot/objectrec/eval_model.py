@@ -94,11 +94,10 @@ with detect_graph.as_default():
                                   boxes, classes, scores,
                                   label_map,
                                   CONFIG.model.threshold)
+
+            imsave("images/_test_results/" + filename + ".png", img)
             # IMAGE_SIZE = (12, 8)
             # fig = plt.figure(figsize=IMAGE_SIZE)
-            # fig.savefig("images/_test_results/" + filename + ".png")
-            imsave("images/_test_results/" + filename + ".png",
-                   img, dpi=100)
             # plt.figure(figsize=(w / my_dpi, h / my_dpi), dpi=my_dpi)
             # plt.imshow(img)
             # plt.show()
