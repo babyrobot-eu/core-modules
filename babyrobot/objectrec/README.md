@@ -26,3 +26,13 @@ Just run `babyrobot/objectrec/client.py`, which will:
  3. receive the recognized objects
  4. display the recognized objects, onto the original image
  5. exit
+ 
+ 
+### How to evaluate the model
+
+In order to evaluate the performance of the model, you can use  
+`babyrobot/objectrec/eval_model.py`. This script, uses the object recognition
+model, reads *all* the images in the directory 
+`babyrobot/objectrec/images/_test_images`
+and save the results (images with bounding boxes) to
+`babyrobot/objectrec/images/_test_results`.

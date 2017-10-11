@@ -11,6 +11,7 @@ import rospy
 import six.moves.urllib as urllib
 import tensorflow as tf
 from PIL import Image
+from babyrobot.objectrec.config import OBJECTREC as CONFIG
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import euclidean
 from tensorflow.models.object_detection.utils import (
@@ -21,8 +22,6 @@ from tensorflow.models.object_detection.utils.label_map_util import (
     load_labelmap,
     create_category_index
 )
-
-from babyrobot.objectrec.config import OBJECTREC as CONFIG
 
 
 def check_model(model_name):
@@ -105,6 +104,15 @@ def get_random_image():
     random.shuffle(_image_paths)
     image = Image.open(_image_paths[0])
     return image
+
+
+def get_images_from_dir(path=None):
+    _path = CONFIG.model.paths.images
+    if path is not None:
+        _path = path
+    _image_paths = glob.glob(_path + "/*.jpg")
+    for img in _image_paths:
+        yield Image.open(img)
 
 
 def capture_frame():
@@ -306,6 +314,7 @@ def visualize_recognized_objects(
     # plt.figure(figsize=(w / my_dpi, h / my_dpi), dpi=my_dpi)
     plt.imshow(image_np)
     plt.show()
+    return image_np
 
 
 def debug_info_image(objects, category_index, threshold):
