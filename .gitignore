@@ -104,3 +104,4 @@ ENV/
 # mypy
 .mypy_cache/
 /docs/build/
+/babyrobot/objectrec/labels_en.csv
