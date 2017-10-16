@@ -38,6 +38,11 @@ def progress(loss, epoch, batch, batch_size, dataset_size):
     sys.stdout.flush()
 
 
+# def class_weigths(dataset):
+#     w = get_class_weights(dataset.target)
+#     labels = get_class_labels(dataset.target)
+#     return torch.FloatTensor([w[l] for l in sorted(labels)])
+
 def plot_dict(d):
     (keys, values) = zip(*d.iteritems())
     y_pos = numpy.arange(len(keys))

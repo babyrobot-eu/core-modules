@@ -4,11 +4,12 @@ from collections import Counter
 
 import numpy
 from emorec.model.src.read_data import get_emotion_data
+from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 from torch.utils.data import Dataset
 
 
-class EmotionDataset(Dataset):
+class DataHolder:
 
     def __init__(self, transform=None):
         """
@@ -112,6 +113,46 @@ class EmotionDataset(Dataset):
         z_pad[:sample.shape[0], :sample.shape[1]] = sample
         return z_pad
 
+    def get_split(self, ratio=0.2):
+        sss = StratifiedShuffleSplit(n_splits=1, test_size=ratio,
+                                     random_state=0)
+        train_indices, test_indices = list(sss.split(self.data,
+                                                     self.target[1]))[0]
+
+        X_train = self.data[train_indices]
+        y_train_cont = self.target[0][train_indices]
+        y_train_cat = numpy.array(self.target[1])[train_indices]
+        y_train = [y_train_cont, y_train_cat]
+
+        X_test = self.data[test_indices]
+        y_test_cont = self.target[0][test_indices]
+        y_test_cat = numpy.array(self.target[1])[test_indices]
+        y_test = [y_test_cont, y_test_cat]
+
+        return (X_train, y_train), (X_test, y_test)
+
+    def __len__(self):
+        return len(self.data)
+
+
+class EmotionDataset(Dataset):
+
+    def __init__(self, data, targets, data_holder, transform=None):
+        """
+
+        Args:
+            transform (list): a list of callable that apply transformation
+                on the samples.
+        """
+
+        if transform is None:
+            transform = []
+        self.transform = transform
+
+        self.data = data
+        self.targets = targets
+        self.data_holder = data_holder
+
     def __len__(self):
         return len(self.data)
 
@@ -132,24 +173,23 @@ class EmotionDataset(Dataset):
 
         """
         sample = self.data[index]
-        label = self.target[0][index], self.target[1][index]
+        label = self.targets[0][index], self.targets[1][index]
 
         for i, tsfrm in enumerate(self.transform):
             sample = tsfrm(sample)
 
         # standardize the data
-        sample = self.scaler.transform(sample).astype('float32')
+        sample = self.data_holder.scaler.transform(sample).astype('float32')
         # zero padding, up to self.max_length
-        sample = self.pad_sample(sample)
+        sample = self.data_holder.pad_sample(sample)
 
         # convert string categorical labels, to class ids
-        cat_label = self.label_cat_encoder.transform([label[1]])[0]
+        cat_label = self.data_holder.label_cat_encoder.transform([label[1]])[0]
         # convert continuous labels, to desired range (0-1)
-        cont_label = self.label_cont_encoder.transform(
+        cont_label = self.data_holder.label_cont_encoder.transform(
             [label[0]]).ravel().astype('float32')
         label = cont_label, cat_label
 
         return sample, label, len(self.data[index]), index
 
-# ee = EmotionDataset()
-# ee[1]
+# DataHolder().get_split()

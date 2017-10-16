@@ -1,9 +1,8 @@
 from __future__ import print_function
 
-from config import Baseline
-
 import torch
-from emorec.model.src.dataset import EmotionDataset
+from config import Baseline
+from dataset import EmotionDataset, DataHolder
 from eval import eval_dataset
 from model import BaselineRNN
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, \
@@ -14,16 +13,24 @@ from train import train_epoch
 CHECKPOINT = "../dist/emorec.pytorch"
 
 _config = Baseline()
-train_set = EmotionDataset()
 
-dataloader_train = DataLoader(train_set,
-                              batch_size=_config.batch,
-                              shuffle=True,
-                              num_workers=4)
+# define data holder
+data_holder = DataHolder()
+(X_train, y_train), (X_test, y_test) = data_holder.get_split(0.2)
 
-model = BaselineRNN(train_set.input_size,
-                    train_set.label_cat_encoder.classes_.size,
-                    train_set.label_cont_encoder.scale_.size,
+# define data sets
+train_set = EmotionDataset(X_train, y_train, data_holder)
+test_set = EmotionDataset(X_test, y_test, data_holder)
+
+# define data loaders
+dataloader_train = DataLoader(train_set, batch_size=_config.batch,
+                              shuffle=True, num_workers=4)
+dataloader_test = DataLoader(test_set, batch_size=_config.batch,
+                             shuffle=True, num_workers=4)
+
+model = BaselineRNN(data_holder.input_size,
+                    data_holder.label_cat_encoder.classes_.size,
+                    data_holder.label_cont_encoder.scale_.size,
                     **_config.to_dict())
 # weights = class_weigths(train_set)
 
@@ -62,7 +69,7 @@ for epoch in range(1, _config.epochs + 1):
                            continuous_loss, categorical_loss, epoch)
     print()
     val_loss, (y_cat, y_cat_hat), (y_cont, y_cont_hat) = eval_dataset(
-        dataloader_train, model, categorical_loss, continuous_loss)
+        dataloader_test, model, categorical_loss, continuous_loss)
 
     if best_loss == 0:
         best_loss = val_loss
