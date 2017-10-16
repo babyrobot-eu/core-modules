@@ -1,7 +1,8 @@
 from __future__ import print_function
 
-import torch
 from config import Baseline
+
+import torch
 from emorec.model.src.dataset import EmotionDataset
 from eval import eval_dataset
 from model import BaselineRNN
@@ -9,6 +10,8 @@ from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, \
     mean_absolute_error, explained_variance_score
 from torch.utils.data import DataLoader
 from train import train_epoch
+
+CHECKPOINT = "../dist/emorec.pytorch"
 
 _config = Baseline()
 train_set = EmotionDataset()
@@ -53,12 +56,20 @@ eval_metrics = {
 #############################################################
 # Train
 #############################################################
+best_loss = 0
 for epoch in range(1, _config.epochs + 1):
     avg_loss = train_epoch(model, dataloader_train, optimizer,
                            continuous_loss, categorical_loss, epoch)
     print()
     val_loss, (y_cat, y_cat_hat), (y_cont, y_cont_hat) = eval_dataset(
         dataloader_train, model, categorical_loss, continuous_loss)
+
+    if best_loss == 0:
+        best_loss = val_loss
+
+    if val_loss < best_loss:
+        print("Improved model! Saving checkpoint...")
+        torch.save(model, CHECKPOINT)
 
     print("\t{}={:.4f}".format("loss", val_loss), end=", ")
 
