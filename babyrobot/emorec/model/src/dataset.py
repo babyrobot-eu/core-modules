@@ -68,12 +68,12 @@ class EmotionDataset(Dataset):
 
         # categorical labels
         y2 = [x[2]["emotion"] for x in data]
-        y2 = self.map_labels(y2)
+        X, y1, y2 = self.simplify(X, y1, y2)
 
         return X, [y1, y2]
 
-    def map_labels(self, labels):
-        counts = Counter(labels)
+    def simplify(self, data, labels_cont, labels_cat):
+        counts = Counter(labels_cat)
         print('categorical labels (initial):')
         print(counts)
         # plot_dict(counts)
@@ -91,14 +91,21 @@ class EmotionDataset(Dataset):
         }
         _omit = {"surprised"}
 
-        # apply mapping and filtering
-        labels = [_map[x] for x in labels if x not in _omit]
-        counts = Counter(labels)
+        # filter labels
+        mask = [x not in _omit for x in labels_cat]
+        labels_cont = numpy.array(labels_cont)[mask]
+        labels_cat = numpy.array(labels_cat)[mask]
+        data = numpy.array(data)[mask]
+
+        # apply mapping
+        labels_cat = [_map[x] for x in labels_cat]
+
+        counts = Counter(labels_cat)
         print('categorical labels (simplified):')
         print(counts)
         # plot_dict(counts)
 
-        return labels
+        return data, labels_cont, labels_cat
 
     def pad_sample(self, sample):
         z_pad = numpy.zeros((self.max_length, sample.shape[1]))
