@@ -18,6 +18,6 @@ class Baseline(Config):
     rnn_mode = "GRU"
     rnn_bidirectional = False
     simplify = True
-    rnn_dropout = .3
-    input_noise = .1
-    input_dropout = .7
+    rnn_dropout = .5
+    input_noise = .2
+    input_dropout = .8
