@@ -1,6 +1,7 @@
-from __future__ import division
+from __future__ import division, print_function
 
 import sys
+from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy
@@ -38,10 +39,35 @@ def progress(loss, epoch, batch, batch_size, dataset_size):
     sys.stdout.flush()
 
 
-# def class_weigths(dataset):
-#     w = get_class_weights(dataset.target)
-#     labels = get_class_labels(dataset.target)
-#     return torch.FloatTensor([w[l] for l in sorted(labels)])
+def index_array(array, indices):
+    return [array[i] for i in indices]
+
+
+def get_class_weights(y, smooth_factor=0):
+    """
+    Returns the normalized weights for each class based on the frequencies
+    of the samples
+    :param smooth_factor: factor that smooths extremely uneven weights
+    :param y: list of true labels (the labels must be hashable)
+    :return: dictionary with the weight for each class
+    """
+    counter = Counter(y)
+
+    if smooth_factor > 0:
+        p = max(counter.values()) * smooth_factor
+        for k in counter.keys():
+            counter[k] += p
+
+    majority = max(counter.values())
+
+    return {cls: float(majority / count) for cls, count in counter.items()}
+
+
+def class_weigths(targets):
+    w = get_class_weights(targets)
+    labels = numpy.unique(targets)
+    return torch.FloatTensor([w[l] for l in sorted(labels)])
+
 
 def plot_dict(d):
     (keys, values) = zip(*d.iteritems())
@@ -49,6 +75,23 @@ def plot_dict(d):
     plt.bar(y_pos, values, color='b')
     plt.xticks(y_pos, keys)
     plt.show()
+
+
+def dataset_perf(results, metrics):
+    val_loss, (y_cat, y_cat_hat), (y_cont, y_cont_hat) = results
+
+    print("\t{}={:.4f}".format("loss", val_loss), end=", ")
+
+    # log scores
+    scores = {}
+    scores.update({name: metric(y_cat, y_cat_hat)
+                   for name, metric in metrics["cat"].items()})
+    scores.update({name: metric(y_cont, y_cont_hat)
+                   for name, metric in metrics["cont"].items()})
+    for score_name, score in scores.items():
+        print("{}={:.4f}".format(score_name, score), end=", ")
+    print()
+    return results
 
 
 def torch2numpy(pt):

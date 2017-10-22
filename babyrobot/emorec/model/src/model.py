@@ -76,7 +76,7 @@ class BaselineRNN(nn.Module):
         # pack the batch
         x = pack_padded_sequence(x, list(lengths.data), batch_first=True)
 
-        out, (h, c) = self.rnn(x)
+        out, _ = self.rnn(x)
 
         # unpack output - no need if we are going to use only the last outputs
         unpacked, unpacked_len = pad_packed_sequence(out, batch_first=True)

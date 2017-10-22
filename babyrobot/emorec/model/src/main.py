@@ -3,20 +3,21 @@ from __future__ import print_function
 import torch
 from config import Baseline
 from dataset import EmotionDataset, DataHolder
-from eval import eval_dataset
+from emorec.model.src.eval import eval_dataset
+from emorec.model.src.utilities import class_weigths, dataset_perf
 from model import BaselineRNN
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, \
     mean_absolute_error, explained_variance_score
 from torch.utils.data import DataLoader
 from train import train_epoch
 
-CHECKPOINT = "../dist/emorec.pytorch"
+CHECKPOINT = "../dist/em orec.pytorch"
 
 _config = Baseline()
 
 # define data holder
-data_holder = DataHolder()
-(X_train, y_train), (X_test, y_test) = data_holder.get_split(0.2)
+data_holder = DataHolder(simplify=_config.simplify)
+(X_train, y_train), (X_test, y_test) = data_holder.split(0.1)
 
 # define data sets
 train_set = EmotionDataset(X_train, y_train, data_holder)
@@ -32,17 +33,18 @@ model = BaselineRNN(data_holder.input_size,
                     data_holder.label_cat_encoder.classes_.size,
                     data_holder.label_cont_encoder.scale_.size,
                     **_config.to_dict())
-# weights = class_weigths(train_set)
+weights = class_weigths(train_set.targets[1])
 
 if torch.cuda.is_available():
     # recursively go over all modules
     # and convert their parameters and buffers to CUDA tensors
     model.cuda()
+    weights = weights.cuda()
 
-categorical_loss = torch.nn.CrossEntropyLoss()
-continuous_loss = torch.nn.MSELoss()
+cat_loss = torch.nn.CrossEntropyLoss(weight=weights)
+cont_loss = torch.nn.MSELoss()
 parameters = filter(lambda p: p.requires_grad, model.parameters())
-optimizer = torch.optim.Adam(parameters)
+optimizer = torch.optim.Adam(params=parameters, weight_decay=0.001)
 
 #############################################################
 # Experiment
@@ -64,28 +66,33 @@ eval_metrics = {
 # Train
 #############################################################
 best_loss = 0
+patience = 10
+patience_left = patience
 for epoch in range(1, _config.epochs + 1):
     avg_loss = train_epoch(model, dataloader_train, optimizer,
-                           continuous_loss, categorical_loss, epoch)
+                           cont_loss, cat_loss, epoch)
     print()
-    val_loss, (y_cat, y_cat_hat), (y_cont, y_cont_hat) = eval_dataset(
-        dataloader_test, model, categorical_loss, continuous_loss)
+
+    # evaluate training set
+    print("Training:")
+    results = eval_dataset(dataloader_train, model, cat_loss, cont_loss)
+    train_loss, _, _ = dataset_perf(results, eval_metrics)
+
+    # evaluate validation set
+    print("Validation:")
+    results = eval_dataset(dataloader_test, model, cat_loss, cont_loss)
+    val_loss, _, _ = dataset_perf(results, eval_metrics)
 
     if best_loss == 0:
         best_loss = val_loss
 
     if val_loss < best_loss:
+        best_loss = val_loss
+        patience_left = patience
         print("Improved model! Saving checkpoint...")
         torch.save(model, CHECKPOINT)
+    else:
+        patience_left -= 1
 
-    print("\t{}={:.4f}".format("loss", val_loss), end=", ")
-
-    # log scores
-    scores = {}
-    scores.update({name: metric(y_cat, y_cat_hat)
-                   for name, metric in eval_metrics["cat"].items()})
-    scores.update({name: metric(y_cont, y_cont_hat)
-                   for name, metric in eval_metrics["cont"].items()})
-    for score_name, score in scores.items():
-        print("{}={:.4f}".format(score_name, score), end=", ")
-    print()
+    if patience_left == 0:
+        break

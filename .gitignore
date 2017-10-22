@@ -100,9 +100,9 @@ ENV/
 
 # mkdocs documentation
 /site
-
+!/**/.gitkeep
 # mypy
 .mypy_cache/
 /docs/build/
 /babyrobot/emorec/model/src/dataset/*.pickle
-/babyrobot/emorec/model/dist/*.pytorch
+/babyrobot/emorec/model/dist/emorec.pytorch

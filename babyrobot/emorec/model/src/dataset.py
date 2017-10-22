@@ -4,6 +4,7 @@ from collections import Counter
 
 import numpy
 from emorec.model.src.read_data import get_emotion_data
+from emorec.model.src.utilities import index_array
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 from torch.utils.data import Dataset
@@ -11,7 +12,7 @@ from torch.utils.data import Dataset
 
 class DataHolder:
 
-    def __init__(self, transform=None):
+    def __init__(self, transform=None, simplify=False):
         """
 
         Args:
@@ -38,11 +39,12 @@ class DataHolder:
                 print("caching dataset...")
                 pickle.dump(data, f)
 
-        self.data, self.target = self.prepare_data(data)
+        self.data, self.target = self.prepare_data(data, simplify)
 
-        # create mapping for the categorical data
+        # create mapping for the categorical labels
         self.label_cat_encoder = LabelEncoder()
         self.label_cat_encoder.fit(self.target[1])
+        # scale the continuous labels
         self.label_cont_encoder = MinMaxScaler()
         self.label_cont_encoder.fit(self.target[0])
 
@@ -50,8 +52,7 @@ class DataHolder:
         self.scaler = StandardScaler()
         self.scaler.fit([s for u in self.data for s in u])
 
-        lenghts = [len(x) for x in self.data]
-        self.max_length = max(lenghts)
+        self.max_length = max([len(x) for x in self.data])
 
         self.input_size = self.data[0].shape[1]
 
@@ -60,7 +61,7 @@ class DataHolder:
         # plt.xlabel('number of segments')
         # plt.show()
 
-    def prepare_data(self, data):
+    def prepare_data(self, data, simplify):
         X = [x[1] for x in data]
 
         # continuous labels
@@ -69,11 +70,13 @@ class DataHolder:
 
         # categorical labels
         y2 = [x[2]["emotion"] for x in data]
-        X, y1, y2 = self.simplify(X, y1, y2)
+
+        if simplify:
+            X, y1, y2 = self.simplify_labels(X, y1, y2)
 
         return X, [y1, y2]
 
-    def simplify(self, data, labels_cont, labels_cat):
+    def simplify_labels(self, data, labels_cont, labels_cat):
         counts = Counter(labels_cat)
         print('categorical labels (initial):')
         print(counts)
@@ -86,7 +89,7 @@ class DataHolder:
             'sad': "negative",
             'excited': "positive",
             'happy': "positive",
-            'surprised': "sad",
+            'surprised': "surprised",
             'fearful': "negative",
             'disgusted': "negative"
         }
@@ -113,21 +116,36 @@ class DataHolder:
         z_pad[:sample.shape[0], :sample.shape[1]] = sample
         return z_pad
 
-    def get_split(self, ratio=0.2):
+    def get_split(self, indices):
+        """
+        Select a subset of the dataset with the given indices
+        Args:
+            indices (): array of indices
+
+        Returns:
+
+        """
+        X = index_array(self.data, indices)
+        y_cont = index_array(self.target[0], indices)
+        y_cat = index_array(self.target[1], indices)
+        return X, [y_cont, y_cat]
+
+    def split(self, ratio=0.2):
+        """
+        Get a stratified split of the dataset
+        Args:
+            ratio ():
+
+        Returns:
+
+        """
         sss = StratifiedShuffleSplit(n_splits=1, test_size=ratio,
-                                     random_state=0)
+                                     random_state=None)
         train_indices, test_indices = list(sss.split(self.data,
                                                      self.target[1]))[0]
 
-        X_train = self.data[train_indices]
-        y_train_cont = self.target[0][train_indices]
-        y_train_cat = numpy.array(self.target[1])[train_indices]
-        y_train = [y_train_cont, y_train_cat]
-
-        X_test = self.data[test_indices]
-        y_test_cont = self.target[0][test_indices]
-        y_test_cat = numpy.array(self.target[1])[test_indices]
-        y_test = [y_test_cont, y_test_cat]
+        X_train, y_train = self.get_split(train_indices)
+        X_test, y_test = self.get_split(test_indices)
 
         return (X_train, y_train), (X_test, y_test)
 

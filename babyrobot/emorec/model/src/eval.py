@@ -54,7 +54,7 @@ def eval_dataset(dataloader, model, categorical_loss, continuous_loss):
 
         cont_loss = continuous_loss(cont_outputs, labels[0])
         cat_loss = categorical_loss(cat_outputs, labels[1])
-        loss = cat_loss + cont_loss
+        loss = cat_loss + 4 * cont_loss
         total_loss += loss.data[0]
 
         _, predicted = torch.max(cat_outputs.data, 1)

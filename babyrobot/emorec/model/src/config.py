@@ -11,12 +11,13 @@ class Config(object):
 
 class Baseline(Config):
     name = 'Baseline RNN'
-    batch = 64
+    batch = 128
     epochs = 100
     rnn_size = 250
     rnn_layers = 1
-    rnn_mode = "LSTM"
+    rnn_mode = "GRU"
     rnn_bidirectional = False
-    rnn_dropout = .5
-    input_noise = .4
-    input_dropout = .5
+    simplify = True
+    rnn_dropout = .3
+    input_noise = .1
+    input_dropout = .7

@@ -45,7 +45,7 @@ def train_epoch(model, dataloader, optimizer, continuous_loss,
         cat_loss = categorical_loss(cat_outputs, labels[1])
 
         # 4 - backward pass: compute gradient wrt model parameters
-        loss = cat_loss + cont_loss
+        loss = cat_loss + 4 * cont_loss
         loss.backward()
 
         # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs
