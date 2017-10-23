@@ -53,6 +53,7 @@ add_message_files(
   ASR.msg
   AudioSegment.msg
   BoundingBox.msg
+  ConceptNetInput.msg
   EmotionRecognitionResult.msg
   Feature.msg
   Frame.msg
@@ -61,12 +62,14 @@ add_message_files(
   PixelPoint.msg
   RecognizedEmotion.msg
   RecognizedObject.msg
+  SemanticEmbedding.msg
   SpeechFeatures.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
+  ConceptNet.srv
   ObjectRecognition.srv
   SpeechEmotionRecognition.srv
   SpeechFeatureExtraction.srv
