@@ -6,6 +6,7 @@
 
 # ROS files
 .catkin_workspace
+babyrobot/install/
 build/
 babyrobot/install/
 catkin/
