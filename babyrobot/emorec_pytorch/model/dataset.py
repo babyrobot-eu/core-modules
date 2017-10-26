@@ -4,7 +4,7 @@ from collections import Counter
 
 import numpy
 from emorec_pytorch.config import General
-from emorec_pytorch.utilities import index_array
+from emorec_pytorch.model.utilities import index_array
 from read_data import get_emotion_data
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
