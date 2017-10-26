@@ -3,8 +3,9 @@ import pickle
 from collections import Counter
 
 import numpy
-from emorec.model.src.read_data import get_emotion_data
-from emorec.model.src.utilities import index_array
+from emorec_pytorch.config import General
+from emorec_pytorch.utilities import index_array
+from read_data import get_emotion_data
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 from torch.utils.data import Dataset
@@ -19,6 +20,10 @@ class DataHolder:
             transform (list): a list of callable that apply transformation
                 on the samples.
         """
+
+        # import external configuration settings.
+        # It doesn't feel like a good practice, maybe change it...
+        self.config = General()
 
         if transform is None:
             transform = []
@@ -82,27 +87,14 @@ class DataHolder:
         print(counts)
         # plot_dict(counts)
 
-        _map = {
-            'frustrated': "negative",
-            'neutral': "neutral",
-            'angry': "negative",
-            'sad': "negative",
-            'excited': "positive",
-            'happy': "positive",
-            'surprised': "surprised",
-            'fearful': "negative",
-            'disgusted': "negative"
-        }
-        _omit = {"surprised"}
-
         # filter labels
-        mask = [x not in _omit for x in labels_cat]
+        mask = [x not in self.config.omit_labels for x in labels_cat]
         labels_cont = numpy.array(labels_cont)[mask]
         labels_cat = numpy.array(labels_cat)[mask]
         data = numpy.array(data)[mask]
 
         # apply mapping
-        labels_cat = [_map[x] for x in labels_cat]
+        labels_cat = [self.config.label_map[x] for x in labels_cat]
 
         counts = Counter(labels_cat)
         print('categorical labels (simplified):')

@@ -1,22 +1,20 @@
 from __future__ import print_function
 
 import torch
-from config import Baseline
+from config import General
 from dataset import EmotionDataset, DataHolder
-from emorec.model.src.eval import eval_dataset
-from emorec.model.src.utilities import class_weigths, dataset_perf
+from emorec_pytorch.eval import eval_dataset
 from model import BaselineRNN
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, \
     mean_absolute_error, explained_variance_score
 from torch.utils.data import DataLoader
 from train import train_epoch
+from utilities import class_weigths, dataset_perf
 
-CHECKPOINT = "../dist/em orec.pytorch"
-
-_config = Baseline()
+_confing = General()
 
 # define data holder
-data_holder = DataHolder(simplify=_config.simplify)
+data_holder = DataHolder(simplify=_confing.simplify)
 (X_train, y_train), (X_test, y_test) = data_holder.split(0.1)
 
 # define data sets
@@ -24,15 +22,15 @@ train_set = EmotionDataset(X_train, y_train, data_holder)
 test_set = EmotionDataset(X_test, y_test, data_holder)
 
 # define data loaders
-dataloader_train = DataLoader(train_set, batch_size=_config.batch,
+dataloader_train = DataLoader(train_set, batch_size=_confing.model.batch,
                               shuffle=True, num_workers=4)
-dataloader_test = DataLoader(test_set, batch_size=_config.batch,
+dataloader_test = DataLoader(test_set, batch_size=_confing.model.batch,
                              shuffle=True, num_workers=4)
 
 model = BaselineRNN(data_holder.input_size,
                     data_holder.label_cat_encoder.classes_.size,
                     data_holder.label_cont_encoder.scale_.size,
-                    **_config.to_dict())
+                    **_confing.model.to_dict())
 weights = class_weigths(train_set.targets[1])
 
 if torch.cuda.is_available():
@@ -68,7 +66,7 @@ eval_metrics = {
 best_loss = 0
 patience = 10
 patience_left = patience
-for epoch in range(1, _config.epochs + 1):
+for epoch in range(1, _confing.model.epochs + 1):
     avg_loss = train_epoch(model, dataloader_train, optimizer,
                            cont_loss, cat_loss, epoch)
     print()
@@ -90,7 +88,7 @@ for epoch in range(1, _config.epochs + 1):
         best_loss = val_loss
         patience_left = patience
         print("Improved model! Saving checkpoint...")
-        torch.save(model, CHECKPOINT)
+        torch.save(model, _confing.paths.checkpoint)
     else:
         patience_left -= 1
 

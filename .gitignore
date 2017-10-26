@@ -104,5 +104,5 @@ ENV/
 # mypy
 .mypy_cache/
 /docs/build/
-/babyrobot/emorec/model/src/dataset/*.pickle
-/babyrobot/emorec/model/dist/emorec.pytorch
+/babyrobot/emorec_pytorch/emorec.pytorch
+/babyrobot/emorec_pytorch/dataset/*.pickle

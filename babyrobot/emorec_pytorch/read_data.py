@@ -2,15 +2,10 @@ import os
 
 import glob2
 import numpy as np
+from emorec_pytorch.config import General
 from sklearn.datasets import load_svmlight_file
 
-BASE_PATH = "/home/christos/datasets/IEMOCAP"
-UTTERANCES_PARTIAL_PATH = "Statistical_Features_for_all_IEMOCAP/seglen_3/"
-INDEX_PARTIAL_PATH = "All_labels_and_features_with_ids/data/" \
-                     "IEMOCAP_wavid_emotion_valence_arousal_dominance.txt"
-
-UTTERANCES_PATH = os.path.join(BASE_PATH, UTTERANCES_PARTIAL_PATH)
-INDEX_FILE = os.path.join(BASE_PATH, INDEX_PARTIAL_PATH)
+paths = General().paths
 
 
 def parse_index(index_file):
@@ -56,5 +51,5 @@ def parse_utterances(utterances_path, index_file):
 
 
 def get_emotion_data():
-    index = parse_index(INDEX_FILE)
-    return parse_utterances(UTTERANCES_PATH, index)
+    index = parse_index(paths.index_file)
+    return parse_utterances(paths.utterances_ath, index)
