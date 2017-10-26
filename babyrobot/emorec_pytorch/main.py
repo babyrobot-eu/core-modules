@@ -1,8 +1,11 @@
 from __future__ import print_function
 
+import pickle
+from copy import deepcopy
+
 import torch
 from config import General
-from dataset import EmotionDataset, DataHolder
+from dataset import EmotionDataset, DataManager
 from emorec_pytorch.eval import eval_dataset
 from model import BaselineRNN
 from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, \
@@ -14,12 +17,12 @@ from utilities import class_weigths, dataset_perf
 _confing = General()
 
 # define data holder
-data_holder = DataHolder(simplify=_confing.simplify)
-(X_train, y_train), (X_test, y_test) = data_holder.split(0.1)
+data_manager = DataManager(simplify=_confing.simplify)
+(X_train, y_train), (X_test, y_test) = data_manager.split(0.1)
 
 # define data sets
-train_set = EmotionDataset(X_train, y_train, data_holder)
-test_set = EmotionDataset(X_test, y_test, data_holder)
+train_set = EmotionDataset(X_train, y_train, data_manager)
+test_set = EmotionDataset(X_test, y_test, data_manager)
 
 # define data loaders
 dataloader_train = DataLoader(train_set, batch_size=_confing.model.batch,
@@ -27,9 +30,9 @@ dataloader_train = DataLoader(train_set, batch_size=_confing.model.batch,
 dataloader_test = DataLoader(test_set, batch_size=_confing.model.batch,
                              shuffle=True, num_workers=4)
 
-model = BaselineRNN(data_holder.input_size,
-                    data_holder.label_cat_encoder.classes_.size,
-                    data_holder.label_cont_encoder.scale_.size,
+model = BaselineRNN(data_manager.input_size,
+                    data_manager.label_cat_encoder.classes_.size,
+                    data_manager.label_cont_encoder.scale_.size,
                     **_confing.model.to_dict())
 weights = class_weigths(train_set.targets[1])
 
@@ -89,6 +92,13 @@ for epoch in range(1, _confing.model.epochs + 1):
         patience_left = patience
         print("Improved model! Saving checkpoint...")
         torch.save(model, _confing.paths.checkpoint)
+
+        # write data_manager in order to be able to prepare new samples
+        dm = deepcopy(data_manager)
+        dm.data = None
+        dm.target = None
+        with open(_confing.paths.data_manager, 'wb') as f:
+            pickle.dump(dm, f, protocol=pickle.HIGHEST_PROTOCOL)
     else:
         patience_left -= 1
 

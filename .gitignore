@@ -102,7 +102,12 @@ ENV/
 /site
 !/**/.gitkeep
 # mypy
+
 .mypy_cache/
 /docs/build/
 /babyrobot/emorec_pytorch/emorec.pytorch
 /babyrobot/emorec_pytorch/dataset/*.pickle
+/babyrobot/emorec_pytorch/emorec_pytorch.model
+/babyrobot/emorec_pytorch/data_manager.p
+/models/emotion_pytorch/data_manager.p
+/models/emotion_pytorch/emorec_pytorch.model

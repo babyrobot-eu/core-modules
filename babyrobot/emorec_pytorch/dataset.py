@@ -11,7 +11,7 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 from torch.utils.data import Dataset
 
 
-class DataHolder:
+class DataManager:
 
     def __init__(self, transform=None, simplify=False):
         """
@@ -44,7 +44,7 @@ class DataHolder:
                 print("caching dataset...")
                 pickle.dump(data, f)
 
-        self.data, self.target = self.prepare_data(data, simplify)
+        self.data, self.target = self.prepare_dataset(data, simplify)
 
         # create mapping for the categorical labels
         self.label_cat_encoder = LabelEncoder()
@@ -66,7 +66,7 @@ class DataHolder:
         # plt.xlabel('number of segments')
         # plt.show()
 
-    def prepare_data(self, data, simplify):
+    def prepare_dataset(self, data, simplify):
         X = [x[1] for x in data]
 
         # continuous labels
@@ -141,13 +141,25 @@ class DataHolder:
 
         return (X_train, y_train), (X_test, y_test)
 
+    def prep_sample(self, sample):
+        _sample = sample
+        for i, tsfrm in enumerate(self.transform):
+            _sample = tsfrm(_sample)
+
+        # standardize the data
+        _sample = self.scaler.transform(_sample).astype('float32')
+        # zero padding, up to self.max_length
+        _sample = self.pad_sample(_sample)
+
+        return _sample, len(sample)
+
     def __len__(self):
         return len(self.data)
 
 
 class EmotionDataset(Dataset):
 
-    def __init__(self, data, targets, data_holder, transform=None):
+    def __init__(self, data, targets, data_manager, transform=None):
         """
 
         Args:
@@ -161,7 +173,7 @@ class EmotionDataset(Dataset):
 
         self.data = data
         self.targets = targets
-        self.data_holder = data_holder
+        self.data_mngr = data_manager
 
     def __len__(self):
         return len(self.data)
@@ -189,14 +201,14 @@ class EmotionDataset(Dataset):
             sample = tsfrm(sample)
 
         # standardize the data
-        sample = self.data_holder.scaler.transform(sample).astype('float32')
+        sample = self.data_mngr.scaler.transform(sample).astype('float32')
         # zero padding, up to self.max_length
-        sample = self.data_holder.pad_sample(sample)
+        sample = self.data_mngr.pad_sample(sample)
 
         # convert string categorical labels, to class ids
-        cat_label = self.data_holder.label_cat_encoder.transform([label[1]])[0]
+        cat_label = self.data_mngr.label_cat_encoder.transform([label[1]])[0]
         # convert continuous labels, to desired range (0-1)
-        cont_label = self.data_holder.label_cont_encoder.transform(
+        cont_label = self.data_mngr.label_cont_encoder.transform(
             [label[0]]).ravel().astype('float32')
         label = cont_label, cat_label
 
