@@ -12,6 +12,7 @@ class Config(object):
 
 class ModelBaseline(Config):
     name = 'Baseline RNN'
+    opensmile_config = 'emobase'
     batch = 64
     epochs = 100
     rnn_size = 500
@@ -58,3 +59,9 @@ class General(Config):
     }
     omit_labels = {"surprised"}
     ##############################################
+
+
+class ROS_CONFIG(object):
+    SERVICE_NAME = 'emorec_pytorch'
+    SERVER_NODE = 'emorec_pytorch_server'
+    CLIENT_NODE = 'emorec_pytorch_client'

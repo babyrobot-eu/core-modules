@@ -6,8 +6,8 @@ import uuid
 import numpy
 import rospy
 import torch
-from babyrobot.emorec import config as emorec_config
 from babyrobot.emorec_pytorch import config as emorec_pytorch_config
+from babyrobot.speech_features import client as speech_feat_client
 from babyrobot_msgs.msg import EmotionRecognitionResult
 from babyrobot_msgs.srv import SpeechEmotionRecognition
 from babyrobot_msgs.srv import SpeechEmotionRecognitionResponse
@@ -26,14 +26,12 @@ def extract_features(clip):
 
     """
 
-    ##########################################
-    # GEORGE
-    # INSERT CODE HERE
-    feats = numpy.loadtxt(
-        "/home/christos/PycharmProjects/babyrobot-integration/babyrobot/src/"
-        "emorec_pytorch/src/clip.txt")
-    ##########################################
-
+    extracted_feats = speech_feat_client.extract_speech_features(
+        clip,
+        opensmile_config=emorec_pytorch_config.ModelBaseline.opensmile_config,
+        response_format='list'
+    )
+    feats = numpy.array([f.feature_value for f in extracted_feats])
     return feats
 
 
@@ -97,8 +95,8 @@ def handle_emorec(req):
 
 
 def emorec_server():
-    rospy.init_node(emorec_config.ROS_CONFIG.SERVER_NODE)
-    rospy.Service(emorec_config.ROS_CONFIG.SERVICE_NAME,
+    rospy.init_node(emorec_pytorch_config.ROS_CONFIG.SERVER_NODE)
+    rospy.Service(emorec_pytorch_config.ROS_CONFIG.SERVICE_NAME,
                   SpeechEmotionRecognition, handle_emorec)
     global _model, _data_manager
 
