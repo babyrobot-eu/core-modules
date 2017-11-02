@@ -53,6 +53,7 @@ RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 RUN git clone --recursive git@gitlab.com:georgepar/babyrobot-integration.git /babyrobot-integration
 WORKDIR /babyrobot-integration
+RUN git submodule update --remote
 RUN pip install -r ./requirements.txt
 WORKDIR /babyrobot-integration/babyrobot
 RUN bash -c "source /opt/ros/$ROS_DISTRO/setup.bash && catkin_make"
@@ -103,5 +104,8 @@ RUN rm ./weka.zip
 ENV PYTHONPATH /opt/tensorflow-models/:/tensorflow-models/slim/
 
 RUN git clone https://github.com/tensorflow/models /opt/tensorflow-models
+
+RUN pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp27-cp27mu-manylinux1_x86_64.whl 
+RUN pip install torchvision 
 
 WORKDIR /babyrobot-integration
