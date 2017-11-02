@@ -100,8 +100,15 @@ ENV/
 
 # mkdocs documentation
 /site
-
+!/**/.gitkeep
 # mypy
+
 .mypy_cache/
 /docs/build/
-/babyrobot/objectrec/labels_en.csv
+/babyrobot/emorec_pytorch/emorec.pytorch
+/babyrobot/emorec_pytorch/dataset/*.pickle
+/babyrobot/emorec_pytorch/emorec_pytorch.model
+/babyrobot/emorec_pytorch/data_manager.p
+/models/emotion_pytorch/data_manager.p
+/models/emotion_pytorch/emorec_pytorch.model
+/babyrobot/emorec_pytorch/model/dataset/_emo_data.pickle
