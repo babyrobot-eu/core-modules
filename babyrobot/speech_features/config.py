@@ -10,8 +10,8 @@ class TEMP_FILE(object):
 
 
 class TEST(object):
-    WAV_SAMPLE = ('/home/geopar/projects/babyrobot-integration/babyrobot'
-                  '/src/speech_features/test.wav')
+    WAV_SAMPLE = ('/home/christos/PycharmProjects/babyrobot-integration/'
+                  'babyrobot/src/speech_features/test.wav')
 
 
 class ROS_CONFIG(object):
