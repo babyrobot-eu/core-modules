@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     openssh-client \
     python-tk \
     protobuf-compiler \
+    tmux \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -s https://bootstrap.pypa.io/get-pip.py | python
@@ -56,6 +57,7 @@ RUN echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 RUN git clone --recursive git@gitlab.com:georgepar/babyrobot-integration.git /babyrobot-integration
 WORKDIR /babyrobot-integration
 RUN git submodule update --remote
+RUN git checkout docker-install # TODO: remove when ready to merge
 RUN pip install -r ./requirements.txt
 WORKDIR /babyrobot-integration/babyrobot
 RUN bash -c "source /opt/ros/$ROS_DISTRO/setup.bash && catkin_make && catkin_make install"
