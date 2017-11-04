@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     wget \
     git \
     openssh-client \
+    python-tk \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -s https://bootstrap.pypa.io/get-pip.py | python
@@ -56,8 +58,8 @@ WORKDIR /babyrobot-integration
 RUN git submodule update --remote
 RUN pip install -r ./requirements.txt
 WORKDIR /babyrobot-integration/babyrobot
-RUN bash -c "source /opt/ros/$ROS_DISTRO/setup.bash && catkin_make"
-
+RUN bash -c "source /opt/ros/$ROS_DISTRO/setup.bash && catkin_make && catkin_make install"
+RUN echo 'source /babyrobot-integration/babyrobot/devel/setup.bash' >> /root/.bashrc
 
 ## SETUP OPENSMILE
 
@@ -101,9 +103,16 @@ RUN rm ./weka.zip
 
 ## SETUP TENSORFLOW OBJECT RECOGNITION
 
-ENV PYTHONPATH /opt/tensorflow-models/:/tensorflow-models/slim/
-
 RUN git clone https://github.com/tensorflow/models /opt/tensorflow-models
+
+RUN pip install pillow
+RUN pip install lxml
+
+WORKDIR /opt/tensorflow-models/research
+RUN protoc object_detection/protos/*.proto --python_out=/opt/tensorflow-models/research
+
+# RUN echo 'export PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/opt/tensorflow-models/research:/tensorflow-models/research/slim/' >> /root/.bashrc
+ENV PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/opt/tensorflow-models/research:/tensorflow-models/research/slim/
 
 RUN pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp27-cp27mu-manylinux1_x86_64.whl 
 RUN pip install torchvision 
