@@ -1,0 +1,3 @@
+<launch>
+  <node name="objectrec_server" pkg="objectrec" type="objectrec_srv.py" />
+</launch>
