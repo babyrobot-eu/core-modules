@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 ## GET THE BABYROBOT CODE FROM GITLAB
-
+RUN echo "HEY"
 RUN mkdir -p /root/.ssh
 COPY ./id_rsa_docker /root/.ssh/id_rsa
 RUN chmod 700 /root/.ssh/id_rsa
@@ -119,4 +119,8 @@ ENV PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/opt/tensorflow-models/resear
 RUN pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp27-cp27mu-manylinux1_x86_64.whl 
 RUN pip install torchvision 
 
+RUN cp /babyrobot-integration/dockerfiles/run_services.sh /bin/run_services
+RUN chmod +x /bin/run_services
+
 WORKDIR /babyrobot-integration
+#ENTRYPOINT ["/bin/run_services", "/bin/bash"]
