@@ -5,12 +5,15 @@ Tensorflow detection model zoo:
 https://github.com/tensorflow/models/blob/master/object_detection/g3doc/
 """
 
-PROJECT_ROOT = '/home/christos/PycharmProjects/babyrobot-integration/'
+import os
+
+import babyrobot.lib.config as br_config
 
 
 class MODEL_PATHS(object):
-    models = PROJECT_ROOT + 'babyrobot/objectrec/models'
-    images = PROJECT_ROOT + 'babyrobot/objectrec/images/lab'
+    models = os.path.join(br_config.BASE_PATH, 'babyrobot/objectrec/models')
+    images = os.path.join(br_config.BASE_PATH,
+                          'babyrobot/objectrec/images/lab')
 
 
 class MODEL(object):
