@@ -1,0 +1,3 @@
+<launch>
+  <node name="emorec_pytorch_server" pkg="emorec_pytorch" type="emorec_pytorch_srv.py" />
+</launch>
