@@ -123,4 +123,3 @@ RUN cp /babyrobot-integration/dockerfiles/run_services.sh /bin/run_services
 RUN chmod +x /bin/run_services
 
 WORKDIR /babyrobot-integration
-#ENTRYPOINT ["/bin/run_services", "/bin/bash"]
