@@ -114,7 +114,7 @@ WORKDIR /opt/tensorflow-models/research
 RUN protoc object_detection/protos/*.proto --python_out=/opt/tensorflow-models/research
 
 # RUN echo 'export PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/opt/tensorflow-models/research:/tensorflow-models/research/slim/' >> /root/.bashrc
-ENV PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/opt/tensorflow-models/research:/tensorflow-models/research/slim/
+ENV PYTHONPATH=$PYTHONPATH:/babyrobot-integration/:/babyrobot-integration/babyrobot/:/opt/tensorflow-models/research:/tensorflow-models/research/slim/
 
 RUN pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp27-cp27mu-manylinux1_x86_64.whl 
 RUN pip install torchvision 
