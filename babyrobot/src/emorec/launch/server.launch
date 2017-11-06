@@ -1,0 +1,3 @@
+<launch>
+  <node name="emorec_opensmile_server" pkg="emorec" type="emorec_srv.py" />
+</launch>

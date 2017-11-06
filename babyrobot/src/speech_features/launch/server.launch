@@ -1,0 +1,3 @@
+<launch>
+  <node name="speech_features_server" pkg="speech_features" type="speech_feature_server.py" />
+</launch>

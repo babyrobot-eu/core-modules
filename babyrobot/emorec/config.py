@@ -1,8 +1,10 @@
 import os
 
+import babyrobot.lib.config as br_config
+
 
 class MODELS(object):
-    PATH = '/home/geopar/projects/babyrobot-integration/models/emotion'
+    PATH = os.path.join(br_config.BASE_PATH, 'models/emotion')
     ZOO = {
         'anger': {
             'path': os.path.join(PATH, 'anger.model'),
@@ -53,7 +55,7 @@ class MODELS(object):
 
 
 class WEKA(object):
-    PATH = '/home/geopar/projects/weka-3-8-1/'
+    PATH = '/opt/weka-3-8/weka/'
     CLASSPATH = '{}:{}'.format(
         os.path.join(PATH, 'weka.jar'),
         os.path.join(PATH, 'weka-src.jar'))

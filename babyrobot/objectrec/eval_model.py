@@ -4,7 +4,7 @@ import tensorflow as tf
 from PIL import ImageOps
 from config import OBJECTREC as CONFIG
 from matplotlib.image import imsave
-from tensorflow.models.object_detection.utils import (
+from object_detection.utils import (
     visualization_utils as vis_util
 )
 from utils import load_frozen_model, check_model, orec_image, \

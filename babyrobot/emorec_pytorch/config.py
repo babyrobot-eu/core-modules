@@ -3,6 +3,8 @@ Config file, for training models
 """
 import os
 
+import babyrobot.lib.config as br_config
+
 
 class Config(object):
     def to_dict(self):
@@ -25,17 +27,14 @@ class ModelBaseline(Config):
 
 
 class Paths(Config):
-    root = "/home/christos/PycharmProjects/babyrobot-integration/babyrobot/" \
-           "emorec_pytorch/"
-    models_root = "/home/christos/PycharmProjects/babyrobot-integration/" \
-                  "models/emotion_pytorch"
+    root = os.path.join(br_config.BASE_PATH, "babyrobot/emorec_pytorch/")
+    models_root = os.path.join(br_config.BASE_PATH, "models/emotion_pytorch")
     checkpoint = models_root + "/emorec_pytorch.model"
     data_manager = models_root + "/data_manager.p"
     src = root + "model"
-    iemocap = "/home/christos/datasets/IEMOCAP"
-    utterances_partial_path = "Statistical_Features_for_all_IEMOCAP/seglen_3/"
-    index_partial_path = "All_labels_and_features_with_ids/data/" \
-                         "IEMOCAP_wavid_emotion_valence_arousal_dominance.txt"
+    iemocap = os.path.join(br_config.BASE_PATH, "models/data/IEMOCAP/")
+    utterances_partial_path = "seglen_3/"
+    index_partial_path = "IEMOCAP_index.txt"
     utterances_ath = os.path.join(iemocap, utterances_partial_path)
     index_file = os.path.join(iemocap, index_partial_path)
 

@@ -14,10 +14,10 @@ from PIL import Image
 from babyrobot.objectrec.config import OBJECTREC as CONFIG
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import euclidean
-from tensorflow.models.object_detection.utils import (
+from object_detection.utils import (
     visualization_utils as vis_util
 )
-from tensorflow.models.object_detection.utils.label_map_util import (
+from object_detection.utils.label_map_util import (
     convert_label_map_to_categories,
     load_labelmap,
     create_category_index
