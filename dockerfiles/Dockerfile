@@ -97,12 +97,16 @@ RUN apt-get install -y libsvm-tools python-libsvm
 RUN apt-get clean; apt-get autoclean; apt-get autoremove -y
 
 WORKDIR /opt
-ADD http://www.cs.waikato.ac.nz/~ml/weka/snapshots/stable-3-8.zip ./weka.zip
+RUN wget http://www.cs.waikato.ac.nz/~ml/weka/snapshots/stable-3-8.zip -O /opt/weka.zip
 RUN unzip ./weka.zip -d ./weka-3-8
 RUN rm ./weka.zip
 
 
 ## SETUP TENSORFLOW OBJECT RECOGNITION
+WORKDIR /babyrobot-integration/babyrobot/objectrec/models/
+RUN wget http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017.tar.gz -P /babyrobot-integration/babyrobot/objectrec/models/
+RUN tar xvf faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017.tar.gz
+
 
 RUN git clone https://github.com/tensorflow/models /opt/tensorflow-models
 
