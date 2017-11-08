@@ -10,3 +10,4 @@ glob2==0.6
 scikit_learn==0.19b2
 ws4py==0.4.2
 PyYAML==3.12
+rospy_message_converter==0.4.0
