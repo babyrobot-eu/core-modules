@@ -1,7 +1,7 @@
 import uuid
 import rospy
 
-from babyrobot.emorec import config as emorec_config
+from babyrobot.emorec_pytorch import config as emorec_config
 from babyrobot_msgs.msg import AudioSegment
 from babyrobot_msgs.srv import SpeechEmotionRecognition
 
