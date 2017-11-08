@@ -86,4 +86,4 @@ def emotion_recognition():
 
 
 if __name__ == '__main__':
-    app.run(port=4444, debug=True)
+    app.run(port=4444, debug=False)
