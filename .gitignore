@@ -7,6 +7,7 @@
 # ROS files
 .catkin_workspace
 build/
+babyrobot/install/
 catkin/
 catkin_generated/
 cmake/
@@ -112,3 +113,5 @@ ENV/
 /models/emotion_pytorch/data_manager.p
 /models/emotion_pytorch/emorec_pytorch.model
 /babyrobot/emorec_pytorch/model/dataset/_emo_data.pickle
+/babyrobot/objectrec/models/
+/opensmile
