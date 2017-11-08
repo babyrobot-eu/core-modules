@@ -1,0 +1,4 @@
+babyrobot_msgs/SemanticSimilarityInput embeddings
+string metadata
+---
+float64 similarity_score

@@ -1,0 +1,4 @@
+babyrobot_msgs/EmbeddingsFusionInput modality_embeddings
+string metadata
+---
+babyrobot_msgs/SemanticEmbedding fused
