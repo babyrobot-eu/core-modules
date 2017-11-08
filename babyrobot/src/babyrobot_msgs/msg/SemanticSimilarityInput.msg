@@ -1,0 +1,3 @@
+babyrobot_msgs/Header header
+babyrobot_msgs/SemanticEmbedding v1
+babyrobot_msgs/SemanticEmbedding v2
