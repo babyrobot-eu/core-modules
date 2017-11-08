@@ -82,6 +82,7 @@ RUN cd opensmile-2.3.0 \
     && sed -i '/chmod/async; sleep 1' buildStandalone.sh \
     && ./buildStandalone.sh -p /usr/local
 
+RUN ln -s /opt/opensmile-2.3.0 /babyrobot-integration/opensmile
 
 ## SETUP EMOTION RECOGNITION
 

@@ -1,6 +1,10 @@
+from babyrobot.lib import config as br_config
+import os
+
+
 class OPENSMILE(object):
-    ROOT_DIR = '/home/geopar/projects/opensmile'
-    CONFIG_DIR = '/home/geopar/projects/babyrobot-integration/opensmile_config'
+    ROOT_DIR = br_config.OPENSMILE_PATH
+    CONFIG_DIR = os.path.join(br_config.BASE_PATH, 'opensmile_config')
 
 
 class TEMP_FILE(object):
@@ -10,8 +14,8 @@ class TEMP_FILE(object):
 
 
 class TEST(object):
-    WAV_SAMPLE = ('/home/christos/PycharmProjects/babyrobot-integration/'
-                  'babyrobot/src/speech_features/test.wav')
+    WAV_SAMPLE = os.path.join(br_config.BASE_PATH,
+                              'babyrobot/src/speech_features/test.wav')
 
 
 class ROS_CONFIG(object):
