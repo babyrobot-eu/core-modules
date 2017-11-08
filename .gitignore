@@ -7,6 +7,7 @@
 # ROS files
 .catkin_workspace
 build/
+babyrobot/install/
 catkin/
 catkin_generated/
 cmake/

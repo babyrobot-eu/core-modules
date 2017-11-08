@@ -130,8 +130,7 @@ def get_labels_map(labels, n_classes):
     Mapping from class indices to class labels
     :return:
     """
-    _tf_models_dir = os.path.abspath(tf.models.object_detection.__file__) \
-        .strip("__init__.py").strip("__init__.pyc")
+    _tf_models_dir = '/opt/tensorflow-models/research/object_detection'
 
     # List of the strings that is used to add correct label for each box.
     _labels_path = os.path.join(_tf_models_dir, 'data', labels)
