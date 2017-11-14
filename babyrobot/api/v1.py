@@ -3,10 +3,10 @@ from flask_api import status
 from rospy_message_converter import json_message_converter
 
 from babyrobot.api.utils import json_to_image, save_wav
-from babyrobot.objectrec.client import objectrec
-from babyrobot.emorec.client import emorec
-from babyrobot.speech_features.client import extract_speech_features
+from babyrobot.lib.utils import run_cmd
 
+import cPickle
+import json
 
 app = Flask(__name__)
 
@@ -23,11 +23,14 @@ def object_recognition():
             mimetype="application/json")
     # Decode base64 image and convert it to PIL image format
     pil_img = json_to_image(base64_image=request.json['image'])
+    with open('/tmp/image.pkl','wb') as f:
+        cPickle.dump(pil_img, f)
     # Call client object recognition
-    recognized = objectrec(pil_img)
-    # Convert ROS message to JSON object
-    json_response = json_message_converter.\
-        convert_ros_message_to_json(recognized)
+    code, out, err = run_cmd(('python /babyrobot-integration/babyrobot'
+	'/src/objectrec/src/objectrec_client.py'))
+    # Read JSON response
+    with open('/tmp/image.json') as f:
+        json_response = json.load(f)
     # Respond with JSON back to caller
     return Response(
         json_response,
@@ -48,11 +51,12 @@ def speech_feature_recognition():
     # Save local copy of wav data
     save_wav(base64_wav=request.json['clip'],
              save_dir='/tmp/wav_clip.wav')
-    # Call client emorec_pytorch
-    recognized = extract_speech_features('/tmp/wav_clip.wav')
-    # Convert ROS message to JSON object
-    json_response = json_message_converter. \
-        convert_ros_message_to_json(recognized)
+    # Call client speech_features
+    code, out, err = run_cmd(('python /babyrobot-integration/babyrobot'
+	'/src/speech_features/src/speech_feature_client.py'))
+    # Read JSON response
+    with open('/tmp/speechfeatures.json') as f:
+        json_response = json.load(f)
     # Respond with JSON back to caller
     return Response(
         json_response,
@@ -74,10 +78,11 @@ def emotion_recognition():
     save_wav(base64_wav=request.json['clip'],
              save_dir='/tmp/wav_clip.wav')
     # Call client emorec_pytorch
-    recognized = emorec('/tmp/wav_clip.wav')
-    # Convert ROS message to JSON object
-    json_response = json_message_converter. \
-        convert_ros_message_to_json(recognized)
+    code, out, err = run_cmd(('python /babyrobot-integration/babyrobot'
+	'/src/emorec/src/emorec_client.py'))
+    # Read JSON response
+    with open('/tmp/emotions.json') as f:
+        json_response = json.load(f)
     # Respond with JSON back to caller
     return Response(
         json_response,
