@@ -18,6 +18,10 @@ class TEST(object):
                               'babyrobot/src/speech_features/test.wav')
 
 
+class TMP(object):
+    WAV_FILE = '/tmp/wav_clip.wav'
+
+
 class ROS_CONFIG(object):
     SERVICE_NAME = 'speech_feature_extraction'
     SERVER_NODE = 'speech_features_server'

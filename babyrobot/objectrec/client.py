@@ -27,7 +27,7 @@ def objectrec(image):
         # set parameters of Frame object
         frame.width = width
         frame.height = height
-        frame.encoding = image.format
+        frame.encoding = 'str'  # image.format
 
         # todo: find a more elegant way to serialize the image data
         frame.data = np.array(image.getdata(),
