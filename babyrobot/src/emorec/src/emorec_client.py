@@ -23,6 +23,6 @@ if __name__ == "__main__":
     recognized = emorec_client.emorec(clip)
     json_recognized = json_message_converter.\
         convert_ros_message_to_json(recognized)
-    with open('/tmp/emotions.json','w') as f:
+    with open('/tmp/emotions.json', 'w') as f:
         json.dump(json_recognized, f)
     rospy.logerr("Service responded with {}".format(recognized))

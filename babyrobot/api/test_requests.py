@@ -25,6 +25,6 @@ if __name__ == '__main__':
     send_wav_request(os.path.join(BASE_PATH,
                                   ('babyrobot/src/'
                                    'speech_features/test.wav')))
-    #send_image_request(os.path.join(BASE_PATH,
+    # send_image_request(os.path.join(BASE_PATH,
     #                                ('babyrobot/'
     #                                 'objectrec/images/image2.jpg')))
