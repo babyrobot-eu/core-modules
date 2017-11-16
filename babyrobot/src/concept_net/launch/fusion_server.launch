@@ -1,0 +1,3 @@
+<launch>
+  <node name="semantic_fusion_server" pkg="concept_net" type="fusion_server.py" />
+</launch>
