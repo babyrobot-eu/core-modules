@@ -93,6 +93,6 @@ def get_semantic_similarity(v1, v2):
         embeddings.v1 = v2
         metadata = ''
         semantic_similarity_response = caller(embeddings, metadata)
-        return semantic_similarity_response.similariry_score
+        return semantic_similarity_response.similarity_score
     except rospy.ServiceException, ex:
         rospy.logerr("Service call failed: {}".format(ex))

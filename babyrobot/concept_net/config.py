@@ -9,9 +9,9 @@ class ROS_CONFIG(object):
     FUSION_SERVICE_NAME = 'embeddings_fusion'
     FUSION_SERVER_NODE = 'embeddings_fusion_server'
     FUSION_CLIENT_NODE = 'embeddings_fusion_client'
-    SEM_SIM_SERVICE_NAME = 'semantic_similariry'
-    SEM_SIM_SERVER_NODE = 'semantic_similariry_server'
-    SEM_SIM_CLIENT_NODE = 'semantic_similariry_client'
+    SEM_SIM_SERVICE_NAME = 'semantic_similarity'
+    SEM_SIM_SERVER_NODE = 'semantic_similarity_server'
+    SEM_SIM_CLIENT_NODE = 'semantic_similarity_client'
 
 
 class SEMANTIC_SPACE(object):

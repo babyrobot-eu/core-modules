@@ -74,7 +74,7 @@ add_service_files(
   FILES
   EmbeddingsFusion.srv
   ObjectRecognition.srv
-  SemanticSimilariry.srv
+  SemanticSimilarity.srv
   SemanticSpace.srv
   SpeechEmotionRecognition.srv
   SpeechFeatureExtraction.srv

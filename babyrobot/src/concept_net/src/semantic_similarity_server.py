@@ -9,7 +9,7 @@ from babyrobot_msgs.srv import SemanticSimilarity
 from babyrobot_msgs.srv import SemanticSimilarityResponse
 
 
-def cos_similariry(v1, v2):
+def cos_similarity(v1, v2):
     if len(v1) != len(v2):
         return -1
 
@@ -24,7 +24,7 @@ def cos_similariry(v1, v2):
 
 def handle_semantic_similarity(req):
     resp = SemanticSimilarityResponse()
-    resp.similarity_score = cos_similariry(
+    resp.similarity_score = cos_similarity(
         req.embeddings.v1, req.embeddings.v2)
     return resp
 
