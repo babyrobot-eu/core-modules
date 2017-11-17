@@ -17,11 +17,11 @@ def late_fusion(x, y, z, a=0.33, b=0.33):
 def handle_fusion(req):
     resp = EmbeddingsFusionResponse()
     resp.fused = SemanticEmbedding()
-    resp.fused.word = req.word
+    resp.fused.word = req.modality_embeddings.word
     resp.fused.found = 1
-    text = req.modality_embeddings.text.embedding
-    visual = req.modality_embeddings.visual.embedding
-    audio = req.modality_embeddings.audio.embedding
+    text = req.modality_embeddings.text
+    visual = req.modality_embeddings.visual
+    audio = req.modality_embeddings.audio
     resp.fused.embedding = late_fusion(text, visual, audio)
     return resp
 

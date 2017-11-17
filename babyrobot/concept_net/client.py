@@ -38,7 +38,7 @@ def get_semantic_embeddings(word):
         return None
 
 
-def fuse_semantic_embeddings(text, visual, audio):
+def fuse_semantic_embeddings(word, text, visual, audio):
     '''
     Make a call to the embeddings fusion server.
     Args:
@@ -59,10 +59,12 @@ def fuse_semantic_embeddings(text, visual, audio):
         query = EmbeddingsFusionInput()
         query.header.id = str(uuid.uuid1())
         query.header.timestamp = rospy.Time.now()
+        query.word = word
         query.text = text
         query.visual = visual
         query.audio = audio
         metadata = ''
+        print(query)
         embeddings_fusion_response = caller(query, metadata)
         return embeddings_fusion_response.fused
     except rospy.ServiceException, ex:
@@ -90,7 +92,7 @@ def get_semantic_similarity(v1, v2):
         embeddings.header.id = str(uuid.uuid1())
         embeddings.header.timestamp = rospy.Time.now()
         embeddings.v1 = v1
-        embeddings.v1 = v2
+        embeddings.v2 = v2
         metadata = ''
         semantic_similarity_response = caller(embeddings, metadata)
         return semantic_similarity_response.similarity_score

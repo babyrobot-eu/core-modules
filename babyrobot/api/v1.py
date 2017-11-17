@@ -128,13 +128,15 @@ def fuse_semantic_embeddings():
             status=status.HTTP_400_BAD_REQUEST,
             mimetype="application/json")
     # Get embeddings from json message
+    word = request.json['word']
     text = request.json['text']
     visual = request.json['visual']
     audio = request.json['audio']
     # Call client concept_space
     code, out, err = run_cmd(
-        'python {client} {text} {visual} {audio}'.format(
+        'python {client} {word} {text} {visual} {audio}'.format(
             client=api_config.EMBEDDINGS_FUSION_CLIENT,
+            word=word,
             text=text,
             visual=visual,
             audio=audio))

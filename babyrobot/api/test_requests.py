@@ -30,9 +30,10 @@ def send_semantic_embedding_request(word):
     print r.status_code
 
 
-def send_fusion_request(text, visual, audio):
+def send_fusion_request(word, text, visual, audio):
     r = requests.post("http://127.0.0.1:4444/v1/get/fusedembeddings",
-                      json={"text": text,
+                      json={"word": word,
+                            "text": text,
                             "visual": visual,
                             "audio": audio})
     print r.text
@@ -40,7 +41,7 @@ def send_fusion_request(text, visual, audio):
 
 
 def send_semantic_similarity_request(vector1, vector2):
-    r = requests.post("http://127.0.0.1:4444/v1/get/semanticembeddings",
+    r = requests.post("http://127.0.0.1:4444/v1/get/semanticsimilarity",
                       json={"vector1": vector1,
                             "vector2": vector2})
     print r.text
@@ -74,8 +75,8 @@ if __name__ == '__main__':
                          ('babyrobot/src/'
                           'speech_features/test.wav')))
     elif arg == 'embedding':
-        send_semantic_embedding_request("ball")
+        send_semantic_embedding_request("sportsball")
     elif arg == 'fusion':
-        send_fusion_request([1, 2, 3], [4, 5, 6], [7, 8, 9])
+        send_fusion_request('test', [1, 2, 3], [4, 5, 6], [7, 8, 9])
     elif arg == 'similarity':
         send_semantic_similarity_request([1, 2, 3], [4, 5, 6])

@@ -1,4 +1,5 @@
 babyrobot_msgs/Header header
-babyrobot_msgs/SemanticEmbedding text
-babyrobot_msgs/SemanticEmbedding visual
-babyrobot_msgs/SemanticEmbedding audio
+string word
+float64[] text
+float64[] visual
+float64[] audio

@@ -24,6 +24,7 @@ def cos_similarity(v1, v2):
 
 def handle_semantic_similarity(req):
     resp = SemanticSimilarityResponse()
+    rospy.loginfo(req.embeddings)
     resp.similarity_score = cos_similarity(
         req.embeddings.v1, req.embeddings.v2)
     return resp
