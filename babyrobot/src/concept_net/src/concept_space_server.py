@@ -24,7 +24,7 @@ def get_word_embedding_in_space(space, word):
     # Currently the ROS wiki is down so using int
     embedding, found = space['default_not_found'], 0
     if word in space['space']:
-        embedding, found = space['space']['word'], 1
+        embedding, found = space['space'][word], 1
     return embedding, found
 
 

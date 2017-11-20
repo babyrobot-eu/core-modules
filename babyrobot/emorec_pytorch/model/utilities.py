@@ -97,5 +97,5 @@ def dataset_perf(results, metrics):
 def torch2numpy(pt):
     try:
         return pt.data.cpu().numpy()
-    except:
+    except Exception:
         return pt.cpu().numpy()

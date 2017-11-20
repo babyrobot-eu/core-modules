@@ -1,0 +1,3 @@
+<launch>
+  <node name="conceptual_space_server" pkg="concept_net" type="concept_space_server.py" />
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+  <node name="semantic_similarity_server" pkg="concept_net" type="semantic_similarity_server.py" />
+</launch>
