@@ -14,3 +14,5 @@ sleep 2
 /usr/bin/tmux new-window -t services:6 -n semantic_fusion 'bash -c "roslaunch --wait concept_net fusion_server.launch"'
 sleep 2
 /usr/bin/tmux new-window -t services:7 -n semantic_similarity 'bash -c "roslaunch --wait concept_net semantic_similarity_server.launch"'
+sleep 2
+/usr/bin/tmux new-window -t services:8 -n flask_api 'bash -c "python /babyrobot-integration/babyrobot/api/v1.py"'
