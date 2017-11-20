@@ -6,7 +6,6 @@ from babyrobot.concept_net import client as cn_client
 from babyrobot.concept_net import config as cn_config
 from rospy_message_converter import json_message_converter
 
-import sys
 import json
 
 

@@ -132,7 +132,7 @@ def fuse_semantic_embeddings():
     text = request.json['text']
     visual = request.json['visual']
     audio = request.json['audio']
-    with open('/tmp/tobefused.json','w') as f:
+    with open('/tmp/tobefused.json', 'w') as f:
         json.dump({"word": word,
                    "text": text,
                    "visual": visual,
@@ -164,7 +164,7 @@ def get_semantic_similarity():
     # Get embeddings from json message
     v1 = request.json['vector1']
     v2 = request.json['vector2']
-    with open('/tmp/vectors_for_similarity.json','w') as f:
+    with open('/tmp/vectors_for_similarity.json', 'w') as f:
         json.dump({"v1": v1,
                    "v2": v2}, f)
     # Call client concept_space
