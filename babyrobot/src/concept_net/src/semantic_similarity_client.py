@@ -16,7 +16,10 @@ def mock_embeddings():
 
 if __name__ == "__main__":
     rospy.init_node(cn_config.ROS_CONFIG.SEM_SIM_CLIENT_NODE)
-    v1, v2 = sys.argv[1:]
+    with open('/tmp/vectors_for_similarity.json') as f:
+        vectors = json.load(f)
+    v1 = vectors["v1"]
+    v2 = vectors["v2"]
     sim = cn_client.get_semantic_similarity(v1, v2)
     json_recognized = json_message_converter.convert_ros_message_to_json(sim)
     with open('/tmp/semantic_similarity.json', 'w') as f:
