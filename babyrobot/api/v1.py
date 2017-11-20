@@ -132,14 +132,15 @@ def fuse_semantic_embeddings():
     text = request.json['text']
     visual = request.json['visual']
     audio = request.json['audio']
+    with open('/tmp/tobefused.json', 'w') as f:
+        json.dump({"word": word,
+                   "text": text,
+                   "visual": visual,
+                   "audio": audio}, f)
     # Call client concept_space
     code, out, err = run_cmd(
-        'python {client} {word} {text} {visual} {audio}'.format(
-            client=api_config.EMBEDDINGS_FUSION_CLIENT,
-            word=word,
-            text=text,
-            visual=visual,
-            audio=audio))
+        'python {client}'.format(
+            client=api_config.EMBEDDINGS_FUSION_CLIENT))
     # Read JSON response
     with open('/tmp/fused_embeddings.json') as f:
         json_response = json.load(f)
@@ -163,12 +164,13 @@ def get_semantic_similarity():
     # Get embeddings from json message
     v1 = request.json['vector1']
     v2 = request.json['vector2']
+    with open('/tmp/vectors_for_similarity.json', 'w') as f:
+        json.dump({"v1": v1,
+                   "v2": v2}, f)
     # Call client concept_space
     code, out, err = run_cmd(
-        'python {client} {vector1} {vector2}'.format(
-            client=api_config.SEMANTIC_SIMILARITY_CLIENT,
-            vector1=v1,
-            vector2=v2))
+        'python {client}'.format(
+            client=api_config.SEMANTIC_SIMILARITY_CLIENT))
     # Read JSON response
     with open('/tmp/semantic_similarity.json') as f:
         json_response = json.load(f)
