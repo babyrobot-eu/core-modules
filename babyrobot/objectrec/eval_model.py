@@ -22,7 +22,7 @@ print("Processing images...")
 with detect_graph.as_default():
     with tf.Session(graph=detect_graph) as sess:
         # capture image
-        for image in get_images_from_dir("images"):
+        for image in get_images_from_dir("images/_test_images"):
             head, tail = os.path.split(image.filename)
             filename, ext = os.path.splitext(tail)
             print("processing image {} ...".format(tail))

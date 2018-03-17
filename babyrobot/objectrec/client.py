@@ -19,8 +19,8 @@ def objectrec(image):
         objectrec_srv = rospy.ServiceProxy('objectrec', ObjectRecognition)
         frame = Frame()
 
-        if CONFIG.debug:
-            image.show()
+        # if CONFIG.debug:
+        #     image.show()
 
         width, height = image.size
 

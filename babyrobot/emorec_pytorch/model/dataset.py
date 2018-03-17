@@ -3,10 +3,11 @@ import pickle
 from collections import Counter
 
 import numpy
-from emorec_pytorch.config import General
-from emorec_pytorch.model.utilities import index_array
-from read_data import get_emotion_data
+from babyrobot.emorec_pytorch.config import General
+from babyrobot.emorec_pytorch.model.read_data import get_emotion_data
+from babyrobot.emorec_pytorch.model.utilities import index_array
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler, StandardScaler
 from torch.utils.data import Dataset
 
@@ -54,8 +55,13 @@ class DataManager:
         self.label_cont_encoder.fit(self.target[0])
 
         # standardize the data
-        self.scaler = StandardScaler()
-        self.scaler.fit([s for u in self.data for s in u])
+        self.normalizer = Pipeline([
+            # ('normalizer', MinMaxScaler(feature_range=(-1, 1))),
+            ('standardizer', StandardScaler()),
+            # ('normalizer', Normalizer(norm='l2', copy=False)),
+        ])
+        # self.normanizer = StandardScaler()
+        self.normalizer.fit([s for u in self.data for s in u])
 
         self.max_length = max([len(x) for x in self.data])
 
@@ -131,8 +137,9 @@ class DataManager:
         Returns:
 
         """
-        sss = StratifiedShuffleSplit(n_splits=1, test_size=ratio,
-                                     random_state=None)
+        sss = StratifiedShuffleSplit(n_splits=1,
+                                     test_size=ratio,
+                                     random_state=0)
         train_indices, test_indices = list(sss.split(self.data,
                                                      self.target[1]))[0]
 
@@ -147,7 +154,7 @@ class DataManager:
             _sample = tsfrm(_sample)
 
         # standardize the data
-        _sample = self.scaler.transform(_sample).astype('float32')
+        _sample = self.normalizer.transform(_sample).astype('float32')
         # zero padding, up to self.max_length
         _sample = self.pad_sample(_sample)
 
@@ -201,17 +208,14 @@ class EmotionDataset(Dataset):
             sample = tsfrm(sample)
 
         # standardize the data
-        sample = self.data_mngr.scaler.transform(sample).astype('float32')
+        sample = self.data_mngr.normalizer.transform(sample).astype('float32')
         # zero padding, up to self.max_length
-        sample = self.data_mngr.pad_sample(sample)
+        sample = self.data_mngr.pad_sample(sample).astype('float32')
 
         # convert string categorical labels, to class ids
         cat_label = self.data_mngr.label_cat_encoder.transform([label[1]])[0]
         # convert continuous labels, to desired range (0-1)
         cont_label = self.data_mngr.label_cont_encoder.transform(
             [label[0]]).ravel().astype('float32')
-        label = cont_label, cat_label
 
-        return sample, label, len(self.data[index]), index
-
-# DataHolder().get_split()
+        return sample, cont_label, cat_label, len(self.data[index]), index

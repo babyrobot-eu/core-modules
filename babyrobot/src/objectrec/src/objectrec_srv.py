@@ -31,8 +31,8 @@ def handle_objectrec(req):
     image = Image.fromarray(
         data.reshape((req.frame.height, req.frame.width, 3)))
 
-    if CONFIG.debug:
-        image.show()
+    # if CONFIG.debug:
+    #     image.show()
 
     # object recognition
     (boxes, classes, scores, num_detections) = orec_image(sess,

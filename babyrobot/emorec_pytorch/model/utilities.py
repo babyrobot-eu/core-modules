@@ -8,22 +8,44 @@ import numpy
 import torch
 
 
-def sort_batch(lengths, others):
+def sort_batch(lengths):
     """
-    Sort batch data and labels by length
+    Sort batch data and labels by length.
+    Useful for variable length inputs, for utilizing PackedSequences
     Args:
         lengths (nn.Tensor): tensor containing the lengths for the data
 
     Returns:
+        - sorted lengths Tensor
+        - sort (callable) which will sort a given iterable according to lengths
+        - unsort (callable) which will revert a given iterable to its
+            original order
 
     """
     batch_size = lengths.size(0)
 
     sorted_lengths, sorted_idx = lengths.sort()
+    _, original_idx = sorted_idx.sort(0, descending=True)
     reverse_idx = torch.linspace(batch_size - 1, 0, batch_size).long()
+
     sorted_lengths = sorted_lengths[reverse_idx]
 
-    return sorted_lengths, (lst[sorted_idx][reverse_idx] for lst in others)
+    def sort(iterable):
+        if iterable.is_cuda:
+            return iterable[sorted_idx.cuda()][
+                reverse_idx.cuda()]
+        else:
+            return iterable[sorted_idx][reverse_idx]
+
+    def unsort(iterable):
+        if iterable.is_cuda:
+            return iterable[reverse_idx.cuda()][
+                original_idx.cuda()][
+                reverse_idx.cuda()]
+        else:
+            return iterable[reverse_idx][original_idx][reverse_idx]
+
+    return sorted_lengths, sort, unsort
 
 
 def progress(loss, epoch, batch, batch_size, dataset_size):

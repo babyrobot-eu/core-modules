@@ -17,13 +17,16 @@ class ModelBaseline(Config):
     opensmile_config = 'emobase'
     batch = 64
     epochs = 100
-    rnn_size = 500
-    rnn_layers = 1
-    rnn_mode = "GRU"
-    rnn_bidirectional = False
-    rnn_dropout = .5
-    input_noise = .0
-    input_dropout = .8
+    encoder_type = "GRU"
+    encoder_size = 200
+    encoder_layers = 1
+    encoder_dropout = .3
+    bidirectional = False
+    input_noise = .2
+    input_dropout = .5
+    attention_layers = 1
+    attention_dropout = .0
+    attention_activation = "tanh"
 
 
 class Paths(Config):
