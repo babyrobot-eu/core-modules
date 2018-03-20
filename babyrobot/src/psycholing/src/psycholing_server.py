@@ -43,13 +43,13 @@ def handle_psycholing(req):
     msg = PsycholingResult()
     msg.header.id = str(uuid.uuid1())
     msg.header.timestamp = rospy.Time.now()
-    psy_dims = get_psycholing_dims(req.text)
+    psy_dims = get_psycholing_dims(req.input.text)
     for k, v in psy_dims.items():
         psy = PsycholingDim()
         psy.dimension = k
         psy.count = v
         msg.dimensions.append(psy)
-    msg.input = req.text
+    msg.input = req.input.text
     return PsycholingResponse(msg)
 
 

@@ -14,6 +14,7 @@ if __name__ == "__main__":
     with open(sys.argv[1]) as fd:
         text = ' '.join([l.strip() for l in fd.readlines()])
     dimensions = psy_client.get_psycholing_dims(text)
+    rospy.logerr("Service responded with {}".format(dimensions))
     json_recognized = json_message_converter. \
         convert_ros_message_to_json(dimensions)
     with open('/tmp/psycholing_dimensions.json', 'w') as f:

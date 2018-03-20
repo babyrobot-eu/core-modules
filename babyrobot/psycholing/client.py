@@ -22,8 +22,8 @@ def get_psycholing_dims(text):
         query.header.timestamp = rospy.Time.now()
         query.text = text
         metadata = ''
-        semantic_space_response = caller(query, metadata)
-        return semantic_space_response.embeddings
+        psycholing_res = caller(query, metadata)
+        return psycholing_res.psycholing
     except rospy.ServiceException, ex:
         rospy.logerr("Service call failed: {}".format(ex))
         return None
