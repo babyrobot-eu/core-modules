@@ -10,7 +10,7 @@ import numpy as np
 import rospy
 import six.moves.urllib as urllib
 import tensorflow as tf
-from PIL import Image
+from PIL import Image, ImageOps
 from babyrobot.objectrec.config import OBJECTREC as CONFIG
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import euclidean
@@ -22,6 +22,48 @@ from object_detection.utils.label_map_util import (
     load_labelmap,
     create_category_index
 )
+
+
+def get_rec_objects(
+        image, boxes, classes, scores, category_index, threshold):
+    """
+    Show an image with bounding boxes around the recognized objects,
+    along with the confidence of the model for each object
+    :param image:
+    :param boxes:
+    :param classes:
+    :param scores:
+    :param category_index:
+    :param threshold:
+    :return:
+    """
+    image_np = load_image_into_numpy_array(image)
+    vis_util.visualize_boxes_and_labels_on_image_array(
+        image_np,
+        boxes,
+        classes,
+        scores,
+        category_index,
+        use_normalized_coordinates=True,
+        line_thickness=5,
+        min_score_thresh=threshold)
+    return image_np
+
+
+def downscale_image(image, baseWidth=800):
+    # Calculate the height using the same aspect ratio
+    widthPercent = (baseWidth / float(image.size[0]))
+    height = int((float(image.size[1]) * float(widthPercent)))
+    image = image.resize((baseWidth, height))
+    return image
+
+
+def pad_image(image):
+    # Calculate the height using the same aspect ratio
+    (im_width, im_height) = image.size
+    border = int(im_width * 0.1)
+    image = ImageOps.expand(image, border=border, fill='white')
+    return image
 
 
 def check_model(model_name):

@@ -2,8 +2,9 @@ import os
 
 import glob2
 import numpy as np
-from emorec_pytorch.config import General
 from sklearn.datasets import load_svmlight_file
+
+from babyrobot.emorec_pytorch.config import General
 
 paths = General().paths
 
