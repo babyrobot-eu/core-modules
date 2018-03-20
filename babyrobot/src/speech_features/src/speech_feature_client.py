@@ -21,7 +21,7 @@ if __name__ == "__main__":
     extracted = sf_client.extract_speech_features(clip, response_format='list')
     print(len([e.feature_value for e in extracted.features]))
     json_recognized = json_message_converter.\
-       convert_ros_message_to_json(extracted)
+        convert_ros_message_to_json(extracted)
     with open('/tmp/speechfeatures.json', 'w') as f:
-       json.dump(json_recognized, f)
+        json.dump(json_recognized, f)
     rospy.loginfo("Service responded with {}".format(extracted))
