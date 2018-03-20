@@ -1,0 +1,4 @@
+babyrobot_msgs/PsycholingInput input
+string metadata
+---
+babyrobot_msgs/PsycholingResult psycholing
