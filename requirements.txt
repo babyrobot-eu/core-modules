@@ -1,3 +1,4 @@
+googletrans==2.2.0
 Flask==0.12.2
 Flask_API==1.0
 six==1.10.0
