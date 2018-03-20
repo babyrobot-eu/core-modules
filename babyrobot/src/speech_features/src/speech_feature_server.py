@@ -25,6 +25,7 @@ def handle_speech_features(req):
         A SpeechFeatureExtractionResponse containing a SpeechFeatures
         ROS message.
     '''
+    print "HELLO"
     br_utils.write_wav(req.audio_segment.clip, sf_config.TEMP_FILE.WAV)
     if req.response_format == 'arff':
         out_file = sf_config.TEMP_FILE.ARFF_OUTPUT
@@ -42,11 +43,15 @@ def handle_speech_features(req):
         opensmile_conf,
         sf_config.TEMP_FILE.WAV,
         out_file_cmd)
+    rospy.logerr(cmd)
+    rospy.logerr(cmd)
     rospy.loginfo('Extracting features using "{}"'.format(cmd))
 
-    ret_code, _, _ = br_utils.run_cmd(cmd)
+    ret_code, stdout, stderr = br_utils.run_cmd(cmd)
     if ret_code != 0:
         rospy.logerr('Failed to extract features. Returning empty message')
+        rospy.logerr(stdout)
+        rospy.logerr(stderr)
         return SpeechFeatureExtractionResponse(SpeechFeatures())
 
     msg = SpeechFeatures()
