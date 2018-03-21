@@ -25,7 +25,7 @@ def read_msol():
     word1={'positive': 1, 'negative': 0}
     word2={'positive': 0, 'negative': 1}
     '''
-    fname = os.path.join(os.path.dirname(__file__), "MSOL-June15-09.txt")
+    fname = ta_config.MSOL
     with open(fname, "r") as f:
         lines = f.read().splitlines()
         entries = [line.split("\t") for line in lines]
@@ -48,8 +48,8 @@ def read_bing_liu():
     word2={'positive': 0, 'negative': 1}
     :return:
     """
-    fp = os.path.join(os.path.dirname(__file__), "positive-words.txt")
-    fn = os.path.join(os.path.dirname(__file__), "positive-words.txt")
+    fp = ta_config.BING_LIU_positive
+    fn = ta_config.BING_LIU_negative
 
     lexicon = defaultdict()
 
@@ -82,7 +82,7 @@ def read_mpqa():
     ('amaze', 'VERB')={'positive': 1, 'negative': 0, 'strength': 'strongsubj'}
     :return:
     """
-    fname = "subjclueslen1-HLTEMNLP05.csv"
+    fname = ta_config.MPQA
     with open(os.path.join(os.path.dirname(__file__), fname),
               "r") as f:
         lines = f.read().splitlines()
@@ -143,7 +143,7 @@ def read_affin():
     word1={-5,5}
     :return:
     """
-    filename = "AFINN-111.txt"
+    filename = ta_config.AFFIN
     with open(os.path.join(os.path.dirname(__file__), filename),
               "r") as f:
         reader = csv.reader(f, delimiter="\t")

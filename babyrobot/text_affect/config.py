@@ -11,4 +11,8 @@ class ROS_CONFIG(object):
 # TODO: Add lexicon
 AFFECTIVE_DATA = os.path.join(br_config.BASE_PATH, 'models/affective_data')
 
-AFFECTIVE_LEXICON = os.path.join(AFFECTIVE_DATA, 'THE_LEXICON.txt')
+MSOL = os.path.join(AFFECTIVE_DATA, 'MSOL-June15-09.txt')
+BING_LIU_positive = os.path.join(AFFECTIVE_DATA, 'positive-words.txt')
+BING_LIU_negative = os.path.join(AFFECTIVE_DATA, 'negative-words.txt')
+MPQA = os.path.join(AFFECTIVE_DATA, 'subjclueslen1-HLTEMNLP05.csv')
+AFFIN = os.path.join(AFFECTIVE_DATA, 'AFFIN-111.txt')
