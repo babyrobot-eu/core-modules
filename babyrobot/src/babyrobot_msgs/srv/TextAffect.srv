@@ -1,0 +1,4 @@
+babyrobot_msgs/TextAffectInput input
+string metadata
+---
+babyrobot_msgs/TextAffectResult affect

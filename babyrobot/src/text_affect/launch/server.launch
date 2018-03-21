@@ -1,0 +1,3 @@
+<launch>
+  <node name="text_affect_srv" pkg="text_affect" type="text_affect_server.py" />
+</launch>
