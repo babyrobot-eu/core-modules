@@ -87,23 +87,23 @@ for epoch in range(1, _confing.model.epochs + 1):
     results = pipelines.eval(dataloader_test, _model, cat_loss, cont_loss)
     val_loss, _, _ = dataset_perf(results, eval_metrics)
 
-    if best_loss == 0:
-        best_loss = val_loss
-
-    if val_loss < best_loss:
-        best_loss = val_loss
-        patience_left = patience
-        print("Improved model! Saving checkpoint...")
-        torch.save(_model, _confing.paths.checkpoint)
-
-        # write data_manager in order to be able to prepare new samples
-        dm = deepcopy(_data_manager)
-        dm.data = None
-        dm.target = None
-        with open(_confing.paths.data_manager, 'wb') as f:
-            pickle.dump(dm, f, protocol=pickle.HIGHEST_PROTOCOL)
-    else:
-        patience_left -= 1
-
-    if patience_left == 0:
-        break
+    # if best_loss == 0:
+    #     best_loss = val_loss
+    #
+    # if val_loss < best_loss:
+    #     best_loss = val_loss
+    #     patience_left = patience
+    #     print("Improved model! Saving checkpoint...")
+    #     torch.save(_model, _confing.paths.checkpoint)
+    #
+    #     # write data_manager in order to be able to prepare new samples
+    #     dm = deepcopy(_data_manager)
+    #     dm.data = None
+    #     dm.target = None
+    #     with open(_confing.paths.data_manager, 'wb') as f:
+    #         pickle.dump(dm, f, protocol=pickle.HIGHEST_PROTOCOL)
+    # else:
+    #     patience_left -= 1
+    #
+    # if patience_left == 0:
+    #     break

@@ -1,3 +1,4 @@
+googletrans==2.2.0
 Flask==0.12.2
 Flask_API==1.0
 six==1.10.0
@@ -12,3 +13,5 @@ ws4py==0.4.2
 PyYAML==3.12
 rospy_message_converter==0.4.0
 ujson==1.35
+http://download.pytorch.org/whl/cu80/torch-0.3.1-cp27-cp27mu-linux_x86_64.whl
+torchvision

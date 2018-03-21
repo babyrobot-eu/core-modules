@@ -7,6 +7,15 @@ import urllib
 import yaml
 
 import rospy
+from googletrans import Translator
+
+
+translator = Translator()
+
+
+def translate(query, src='el', dest='en'):
+    translation = translator.translate(query, src=src, dest=dest)
+    return translation.encode('utf-8')
 
 
 def yaml2dict(filename):

@@ -1,0 +1,3 @@
+<launch>
+  <node name="psycholing_srv" pkg="psycholing" type="psycholing_server.py" />
+</launch>

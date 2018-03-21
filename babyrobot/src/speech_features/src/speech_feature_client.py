@@ -18,9 +18,10 @@ if __name__ == "__main__":
     # Get wav
     clip = mock_audio_segment(sf_config.TMP.WAV_FILE)
     # Speech feature extraction
-    extracted = sf_client.extract_speech_features(clip)
+    extracted = sf_client.extract_speech_features(clip, response_format='list')
+    print(len([e.feature_value for e in extracted.features]))
     json_recognized = json_message_converter.\
         convert_ros_message_to_json(extracted)
     with open('/tmp/speechfeatures.json', 'w') as f:
         json.dump(json_recognized, f)
-    rospy.logerr("Service responded with {}".format(extracted))
+    rospy.loginfo("Service responded with {}".format(extracted))

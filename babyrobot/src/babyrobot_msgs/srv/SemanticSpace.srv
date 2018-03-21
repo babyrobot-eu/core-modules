@@ -1,4 +1,4 @@
 babyrobot_msgs/SemanticSpaceQuery query
 string metadata
----
+---SemanticSpaceResult
 babyrobot_msgs/SemanticSpaceResult embeddings
