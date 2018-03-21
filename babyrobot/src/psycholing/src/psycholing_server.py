@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 import uuid
-
-import babyrobot.psycholing.config as psy_config
-import babyrobot.psycholing.utils as psy_utils
+import nltk
 import rospy
+import ujson as json
+
+import babyrobot.psycholing.utils as psy_utils
+
 from babyrobot_msgs.msg import PsycholingDim
 from babyrobot_msgs.msg import PsycholingResult
 from babyrobot_msgs.srv import Psycholing
 from babyrobot_msgs.srv import PsycholingResponse
 
-VALID_DIMENSIONS = ['affect', 'percept', 'cogproc', 'drives', 'social']
+import babyrobot.psycholing.config as psy_config
+
+VALID_DIMENSIONS = ['affect', 'percept', 'cogproc', 'drives', 'social', 'anx']
 
 LEXICON = psy_utils.load_lexicon()
 
@@ -24,14 +28,15 @@ def get_psycholing_dims(text):
     psy_dims = {
         k: 0 for k in VALID_DIMENSIONS
     }
-    for word in text.lower().split():
+    tokenized = nltk.word_tokenize(text.lower())
+    for word in tokenized:
         if word in LEXICON:
-            print word + " in lexicon"
             for k in psy_dims.keys():
-                print k
                 dim = VALID_DIMENSION_MAP[k]
                 count = LEXICON[word][dim]
                 psy_dims[k] += count
+    for k in psy_dims.keys():
+        psy_dims[k] = float(psy_dims[k]) / len(tokenized)
     return psy_dims
 
 

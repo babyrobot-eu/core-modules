@@ -1,2 +1,2 @@
 string dimension
-uint32 count
+float64 count
