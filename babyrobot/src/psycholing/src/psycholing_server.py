@@ -1,17 +1,13 @@
 #!/usr/bin/env python
 import uuid
 
-import rospy
-import ujson as json
-
+import babyrobot.psycholing.config as psy_config
 import babyrobot.psycholing.utils as psy_utils
-
+import rospy
 from babyrobot_msgs.msg import PsycholingDim
 from babyrobot_msgs.msg import PsycholingResult
 from babyrobot_msgs.srv import Psycholing
 from babyrobot_msgs.srv import PsycholingResponse
-
-import babyrobot.psycholing.config as psy_config
 
 VALID_DIMENSIONS = ['affect', 'percept', 'cogproc', 'drives', 'social']
 

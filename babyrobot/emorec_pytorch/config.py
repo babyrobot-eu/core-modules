@@ -18,9 +18,9 @@ class ModelBaseline(Config):
     batch = 64
     epochs = 100
     encoder_type = "GRU"
-    encoder_size = 200
+    encoder_size = 100
     encoder_layers = 1
-    encoder_dropout = .3
+    encoder_dropout = .2
     bidirectional = False
     input_noise = .2
     input_dropout = .5
