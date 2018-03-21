@@ -26,6 +26,14 @@ def read_msol():
 
 
 def read_bing_liu():
+    """
+    Opinion Lexicon (or Sentiment Lexicon) -  Bing Liu (~6.800 entries)
+    --------------------------------------
+    format = dictionary with entries like this:
+    word1={'positive': 1, 'negative': 0}
+    word2={'positive': 0, 'negative': 1}
+    :return:
+    """
     fp = os.path.join(os.path.dirname(__file__), "positive-words.txt")
     fn = os.path.join(os.path.dirname(__file__), "positive-words.txt")
 
@@ -52,6 +60,14 @@ def read_bing_liu():
 
 
 def read_mpqa():
+    """
+    MPQA (Multi-Perspective Question Answering) Subjectivity Lexicon
+    (8.222 entries)
+    --------------------------------------
+    format = dictionary with entries like this:
+    ('amaze', 'VERB')={'positive': 1, 'negative': 0, 'strength': 'strongsubj'}
+    :return:
+    """
     fname = "subjclueslen1-HLTEMNLP05.csv"
     with open(os.path.join(os.path.dirname(__file__), fname),
               "r") as f:
@@ -102,6 +118,17 @@ def read_mpqa():
 
 
 def read_affin():
+    """
+    AFINN is a list of English words rated for valence with an integer
+    between minus five (negative) and plus five (positive). The words have
+    been manually labeled by Finn Arup Nielsen in 2009-2011. The file
+    is tab-separated
+    2477 words and phrases.
+    --------------------------------------
+    format = dictionary with entries like this:
+    word1={-5,5}
+    :return:
+    """
     filename = "AFINN-111.txt"
     with open(os.path.join(os.path.dirname(__file__), filename),
               "r") as f:
