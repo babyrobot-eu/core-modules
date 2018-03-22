@@ -3,7 +3,14 @@
 import rospy
 
 from babyrobot.objectrec.client import objectrec
-from objectrec.utils import capture_frame, downscale_image, pad_image
+from rospy_message_converter import json_message_converter
+
+from babyrobot.objectrec.utils import capture_frame, downscale_image, pad_image
+
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 if __name__ == "__main__":
     rospy.init_node('objectrec_client')
@@ -16,10 +23,10 @@ if __name__ == "__main__":
 
     # with open('/tmp/image.pkl', 'rb') as f:
     #     image = cPickle.load(f)
-    # recognized = objectrec(image)
-    # json_recognized = json_message_converter.\
-    #     convert_ros_message_to_json(recognized)
-    # with open('/tmp/image.json', 'w') as f:
-    #     json.dump(json_recognized, f)
+    recognized = objectrec(image)
+    json_recognized = (json_message_converter.
+                       convert_ros_message_to_json(recognized))
+    with open('/tmp/image.json', 'w') as f:
+        json.dump(json_recognized, f)
 
     rospy.loginfo("Service responded with {}".format(recognized))

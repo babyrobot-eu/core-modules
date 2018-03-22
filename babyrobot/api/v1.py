@@ -2,7 +2,7 @@ from flask import Flask, request, Response
 from flask_api import status
 
 from babyrobot.api import config as api_config
-from babyrobot.api.utils import json_to_image, save_wav
+from babyrobot.api.utils import base64_to_pil, save_wav
 from babyrobot.lib.utils import run_cmd
 
 import cPickle
@@ -22,7 +22,7 @@ def object_recognition():
             status=status.HTTP_400_BAD_REQUEST,
             mimetype="application/json")
     # Decode base64 image and convert it to PIL image format
-    pil_img = json_to_image(base64_image=request.json['image'])
+    pil_img = base64_to_pil(base64_image=request.json['image'])
     with open('/tmp/image.pkl', 'wb') as f:
         cPickle.dump(pil_img, f)
     # Call client object recognition

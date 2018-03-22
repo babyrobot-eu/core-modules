@@ -2,6 +2,7 @@ import os
 
 from babyrobot.lib import config as br_config
 
+DB = os.path.join(br_config.BASE_PATH, 'db')
 
 ROS_MODULES = os.path.join(br_config.BASE_PATH, 'babyrobot/src/')
 OBJECTREC_CLIENT = os.path.join(
