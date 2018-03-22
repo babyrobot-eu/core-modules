@@ -6,6 +6,8 @@ import pickleshare as psdb
 
 from babyrobot.api import config as api_config
 from babyrobot.api import utils as api_utils
+from flask import jsonify
+
 from babyrobot.lib.utils import run_cmd
 
 try:
@@ -74,7 +76,7 @@ def transcription():
         json_response['transcription'] = DB['speech/translated']
     pprint.pprint(json_response)
     return Response(
-        json_response,
+        jsonify(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
