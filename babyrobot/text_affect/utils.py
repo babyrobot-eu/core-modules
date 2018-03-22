@@ -31,7 +31,8 @@ def read_msol():
         entries = [line.split("\t") for line in lines]
         lexicon = defaultdict()
         for entry in entries:
-            lexicon[entry[0].replace("_", " ")] = {
+            word = entry[0].replace("_", " ")
+            lexicon[word] = {
                 "positive": 1 if entry[1] == "positive" else 0,
                 "negative": 1 if entry[1] == "negative" else 0,
                 "polarity": 1 if entry[1] == "positive" else -1
@@ -83,8 +84,7 @@ def read_mpqa():
     :return:
     """
     fname = ta_config.MPQA
-    with open(os.path.join(os.path.dirname(__file__), fname),
-              "r") as f:
+    with open(fname, "r") as f:
         lines = f.read().splitlines()
         entries = [tuple(line.split("\t")) for line in lines]
         lexicon = defaultdict(dict)
@@ -144,8 +144,7 @@ def read_affin():
     :return:
     """
     filename = ta_config.AFFIN
-    with open(os.path.join(os.path.dirname(__file__), filename),
-              "r") as f:
+    with open(filename,  "r") as f:
         reader = csv.reader(f, delimiter="\t")
         lexicon = defaultdict(dict)
         for row in reader:
