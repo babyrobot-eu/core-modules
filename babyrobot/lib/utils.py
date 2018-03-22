@@ -1,21 +1,41 @@
 import functools
 import shutil
 import subprocess
-import sys
-import time
 import urllib
 import yaml
+import os
 
 import rospy
 from googletrans import Translator
+from googleapiclient.discovery import build
+import codecs
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 translator = Translator()
 
 
-def translate(query, src='el', dest='en'):
-    translation = translator.translate(query, src=src, dest=dest)
-    return translation.encode('utf-8')
+def translate(query, src='el', dest='en', paid=True):
+    if paid:
+        try:
+            service = discovery.build(
+                'translate', 'v2',
+                developerKey=os.environ['TRANSLATE_KEY'])
+            response  = service.translations().list(
+                source=src,
+                target=dest,
+                q=[query]
+            ).execute()
+            return response['translations'][0]['translatedText'].encode('utf-8')
+        except:
+            translation = translator.translate(query, src=src, dest=dest)
+            return translation.encode('utf-8')
+    else:
+        translation = translator.translate(query, src=src, dest=dest)
+        return translation.encode('utf-8')
 
 
 def yaml2dict(filename):
