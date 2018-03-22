@@ -38,7 +38,7 @@ def object_recognition():
         json_response['image'] = api_utils.np_to_base64(DB['objectrec/image'])
 
     return Response(
-        json_response,
+        json.dumps(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
@@ -58,7 +58,7 @@ def speech_affect():
     if 'speech/valence' in DB.keys():
         json_response['valence'] = DB['speech/valence']
     return Response(
-        json_response,
+        json.dumps(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
@@ -76,7 +76,7 @@ def transcription():
         json_response['transcription'] = DB['speech/translated']
     pprint.pprint(json_response)
     return Response(
-        jsonify(json_response),
+        json.dumps(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
@@ -93,7 +93,7 @@ def text_affect():
     if 'text/valence' in DB.keys():
         json_response['valence'] = DB['text/valence']
     return Response(
-        json_response,
+        json.dumps(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
@@ -125,7 +125,7 @@ def cognitive_states():
     if 'congi/social' in DB.keys():
         json_response['social'] = DB['cogni/social']
     return Response(
-        json_response,
+        json.dumps(json_response),
         status=status.HTTP_200_OK,
         mimetype="application/json")
 
