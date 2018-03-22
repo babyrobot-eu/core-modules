@@ -1,3 +1,5 @@
+import pprint
+
 from flask import Flask, request, Response
 from flask_api import status
 import pickleshare as psdb
@@ -70,6 +72,7 @@ def transcription():
     json_response = {}
     if 'speech/translated' in DB.keys():
         json_response['transcription'] = DB['speech/translated']
+    pprint.pprint(json_response)
     return Response(
         json_response,
         status=status.HTTP_200_OK,
