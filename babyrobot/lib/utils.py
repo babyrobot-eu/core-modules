@@ -7,7 +7,7 @@ import os
 
 import rospy
 from googletrans import Translator
-from googleapiclient.discovery import build
+from googleapiclient import discovery
 import codecs
 import sys
 
@@ -30,7 +30,7 @@ def translate(query, src='el', dest='en', paid=True):
                 q=[query]
             ).execute()
             return response['translations'][0]['translatedText'].encode('utf-8')
-        except:
+        except Exception as e:
             translation = translator.translate(query, src=src, dest=dest)
             return translation.encode('utf-8')
     else:

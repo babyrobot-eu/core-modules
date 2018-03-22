@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import uuid
 
 import rospy
@@ -6,6 +7,8 @@ import nltk
 import ujson as json
 import math
 import numpy as np
+
+import babyrobot.lib.utils as br_utils
 
 import babyrobot.text_affect.utils as ta_utils
 
@@ -71,10 +74,12 @@ if __name__ == "__main__":
 
 
 #sentences = [
-#    "Let's play a game.",
-#    "I am confused.",
+#     u"Ας παίξουμε ένα παιχνίδι.",
+#     u"Είμαι μπερδεμένος.",
+#     u"Καλημέρα σε όλους τους μικρούς μας φίλους!"
 #    "Well done!.",
 #    "Good morning everybody.",
 #]
 #for s in sentences:
-#    print(s, get_valence(s))
+#    print(s)
+#    print(get_valence(br_utils.translate(s)))
