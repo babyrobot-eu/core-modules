@@ -5,6 +5,7 @@ import rospy
 import nltk
 import ujson as json
 import math
+import numpy as np
 
 import babyrobot.text_affect.utils as ta_utils
 
@@ -30,7 +31,12 @@ def get_valence(text):
         if word in LEXICON:
             entry = LEXICON[word]
             total.append(entry["polarity"])
-    return sigmoid(sum(total))
+    valence = np.tanh(sum(total)) + np.random.uniform(low=-0.1, high=0.1)
+    if valence > 1:
+        valence = 1
+    if valence < -1:
+        valence = -1
+    return valence
 
 
 def handle_text_affect(req):
@@ -63,12 +69,12 @@ if __name__ == "__main__":
     text_affect_server()
 
 
-#
-# sentences = [
-#     "Let's play a game.",
-#     "I am confused.",
-#     "Well done!.",
-#     "Good morning everybody.",
-# ]
-# for s in sentences:
-#     print(s, get_valence(s))
+
+#sentences = [
+#    "Let's play a game.",
+#    "I am confused.",
+#    "Well done!.",
+#    "Good morning everybody.",
+#]
+#for s in sentences:
+#    print(s, get_valence(s))
