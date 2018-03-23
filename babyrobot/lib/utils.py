@@ -18,6 +18,17 @@ sys.setdefaultencoding('utf8')
 translator = Translator()
 
 
+def safe_mkdirs(path):
+    """! Makes recursively all the directory in input path """
+    if not os.path.exists(path):
+        try:
+            os.makedirs(path)
+        except Exception as e:
+            raise IOError(
+                ("Failed to create recursive directories: {}"
+                 .format(path)))
+
+
 def translate(query, src='el', dest='en', paid=True):
     if paid:
         try:
