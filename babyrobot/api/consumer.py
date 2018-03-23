@@ -74,7 +74,6 @@ def transcription():
     json_response = {}
     if 'speech/translated' in DB.keys():
         json_response['transcription'] = DB['speech/translated']
-    pprint.pprint(json_response)
     return Response(
         json.dumps(json_response),
         status=status.HTTP_200_OK,
@@ -114,15 +113,15 @@ def cognitive_states():
     json_response = {}
     if 'cogni/anx' in DB.keys():
         json_response['stress'] = DB['cogni/anx']
-    if 'congi/affect' in DB.keys():
+    if 'cogni/affect' in DB.keys():
         json_response['affect'] = DB['cogni/affect']
-    if 'congi/percept' in DB.keys():
+    if 'cogni/percept' in DB.keys():
         json_response['percept'] = DB['cogni/percept']
-    if 'congi/proc' in DB.keys():
+    if 'cogni/proc' in DB.keys():
         json_response['load'] = DB['cogni/proc']
-    if 'congi/drives' in DB.keys():
+    if 'cogni/drives' in DB.keys():
         json_response['drives'] = DB['cogni/drives']
-    if 'congi/social' in DB.keys():
+    if 'cogni/social' in DB.keys():
         json_response['social'] = DB['cogni/social']
     return Response(
         json.dumps(json_response),
