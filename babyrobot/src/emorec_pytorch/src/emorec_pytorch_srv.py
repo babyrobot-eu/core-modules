@@ -104,17 +104,12 @@ def handle_emorec(req):
     # to the format in which the pytorch model expects it to be
     input, length = _data_manager.prep_sample(clip)
 
+    input = input.astype('float32')
+
     # convert the input to torch tensors
     value = torch.from_numpy(input)
     length = torch.from_numpy(np.array([length]))
 
-    # # then put it on the GPU,
-    # if torch.cuda.is_available():
-    #     test_value = Variable(value.cuda(), volatile=True)
-    #     test_length = Variable(length.cuda(), volatile=True)
-    # else:
-    #     test_value = Variable(value, volatile=True)
-    #     test_length = Variable(length, volatile=True)
     test_value = Variable(value, volatile=True)
     test_length = Variable(length, volatile=True)
 

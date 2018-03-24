@@ -159,7 +159,7 @@ class DataManager:
         # zero padding, up to self.max_length
         _sample = self.pad_sample(_sample)
 
-        return _sample, len(sample)
+        return _sample, min(len(sample), self.max_length)
 
     def __len__(self):
         return len(self.data)
