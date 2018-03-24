@@ -55,6 +55,9 @@ class SelfAttention(nn.Module):
         return unpacked.gather(1, idx).squeeze()
 
     def forward(self, inputs, lengths):
+
+        # contexts = self.last_timestep(inputs, lengths)
+
         ##################################################################
         # STEP 1 - perform dot product
         # of the attention vector and each hidden state

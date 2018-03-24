@@ -10,8 +10,8 @@ def pad_signal(s, padded_size):
 
 
 def get_frames(s,
-               frame_duration=0.025,
-               frame_stride=0.01,
+               frame_duration=0.5,
+               frame_stride=0.4,
                sample_rate=16000,
                max_sample_size=-1):
     if max_sample_size < 0:

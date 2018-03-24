@@ -15,10 +15,10 @@ from babyrobot.emorec_pytorch.model import pipelines
 from babyrobot.emorec_pytorch.model.utilities import (class_weigths,
                                                       dataset_perf)
 
-_confing = General()
+_config = General()
 
 # define data holder
-_data_manager = DataManager(simplify=_confing.simplify)
+_data_manager = DataManager(simplify=_config.simplify)
 (X_train, y_train), (X_test, y_test) = _data_manager.split(0.1)
 
 # define data sets
@@ -26,22 +26,22 @@ train_set = EmotionDataset(X_train, y_train, _data_manager)
 test_set = EmotionDataset(X_test, y_test, _data_manager)
 
 # define data loaders
-dataloader_train = DataLoader(train_set, batch_size=_confing.model.batch,
+dataloader_train = DataLoader(train_set, batch_size=_config.model.batch,
                               shuffle=True, num_workers=4)
-dataloader_test = DataLoader(test_set, batch_size=_confing.model.batch,
+dataloader_test = DataLoader(test_set, batch_size=_config.model.batch,
                              shuffle=True, num_workers=4)
 
 _model = MultitaskEmotionModel(_data_manager.input_size,
                                _data_manager.label_cat_encoder.classes_.size,
                                _data_manager.label_cont_encoder.scale_.size,
-                               **_confing.model.to_dict())
+                               **_config.model.to_dict())
 weights = class_weigths(train_set.targets[1])
 
-if torch.cuda.is_available():
-    # recursively go over all modules
-    # and convert their parameters and buffers to CUDA tensors
-    _model.cuda()
-    weights = weights.cuda()
+# if torch.cuda.is_available():
+#     # recursively go over all modules
+#     # and convert their parameters and buffers to CUDA tensors
+#     _model.cuda()
+#     weights = weights.cuda()
 
 cat_loss = torch.nn.CrossEntropyLoss(weight=weights)
 cont_loss = torch.nn.MSELoss()
@@ -72,7 +72,7 @@ eval_metrics = {
 best_loss = 0
 patience = 10
 patience_left = patience
-for epoch in range(1, _confing.model.epochs + 1):
+for epoch in range(1, _config.model.epochs + 1):
     avg_loss = pipelines.train(_model, dataloader_train, optimizer,
                                cont_loss, cat_loss, epoch)
     print()
@@ -94,13 +94,13 @@ for epoch in range(1, _confing.model.epochs + 1):
         best_loss = val_loss
         patience_left = patience
         print("Improved model! Saving checkpoint...")
-        torch.save(_model, _confing.paths.checkpoint)
+        torch.save(_model, _config.paths.checkpoint)
 
         # write data_manager in order to be able to prepare new samples
         dm = deepcopy(_data_manager)
         dm.data = None
         dm.target = None
-        with open(_confing.paths.data_manager, 'wb') as f:
+        with open(_config.paths.data_manager, 'wb') as f:
             pickle.dump(dm, f, protocol=pickle.HIGHEST_PROTOCOL)
     else:
         patience_left -= 1

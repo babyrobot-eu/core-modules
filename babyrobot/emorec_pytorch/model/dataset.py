@@ -111,7 +111,8 @@ class DataManager:
 
     def pad_sample(self, sample):
         z_pad = numpy.zeros((self.max_length, sample.shape[1]))
-        z_pad[:sample.shape[0], :sample.shape[1]] = sample
+        for i in range(min(self.max_length, sample.shape[0] )):
+            z_pad[i] = sample[i]
         return z_pad
 
     def get_split(self, indices):

@@ -17,9 +17,9 @@ def train(model, dataloader, optimizer, continuous_loss, categorical_loss,
         # convert to Variables
         batch = map(lambda x: Variable(x), batch)
 
-        # convert to CUDA
-        if torch.cuda.is_available():
-            batch = map(lambda x: x.cuda(), batch)
+        # # convert to CUDA
+        # if torch.cuda.is_available():
+        #     batch = map(lambda x: x.cuda(), batch)
 
         inputs, continuous, classes, lengths, indices = batch
 
@@ -83,9 +83,9 @@ def eval(dataloader, model, categorical_loss, continuous_loss):
         # convert to Variables
         batch = map(lambda x: Variable(x), batch)
 
-        # convert to CUDA
-        if torch.cuda.is_available():
-            batch = map(lambda x: x.cuda(), batch)
+        # # convert to CUDA
+        # if torch.cuda.is_available():
+        #     batch = map(lambda x: x.cuda(), batch)
 
         inputs, continuous, classes, lengths, indices = batch
 
