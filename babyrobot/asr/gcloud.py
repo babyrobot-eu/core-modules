@@ -30,13 +30,14 @@ def text2speech_wav(speech_file):
     """
     with open(speech_file, 'rb') as speech:
         sr, s = wavfile_read(speech)
+        # keep only first channel
         if s.ndim > 1:
             s = np.ascontiguousarray(s[:, 0])
         speech_content = base64.b64encode(s)
-    return text2speech(speech_content)
+    return text2speech(speech_content, sr=sr)
 
 
-def text2speech(base64_clip):
+def text2speech(base64_clip, sr=16000):
     service = get_speech_service()
     service_request = service.speech().syncrecognize(
         body={
@@ -50,5 +51,7 @@ def text2speech(base64_clip):
                 }
             })
     response = service_request.execute()
+    if 'results' not in response:
+        return ''
     return response['results'][0]['alternatives'][0]['transcript']
 

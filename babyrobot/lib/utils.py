@@ -40,13 +40,13 @@ def translate(query, src='el', dest='en', paid=True):
                 target=dest,
                 q=[query]
             ).execute()
-            return response['translations'][0]['translatedText'].encode('utf-8')
+            return response['translations'][0]['translatedText']
         except Exception as e:
             translation = translator.translate(query, src=src, dest=dest)
-            return translation.encode('utf-8')
+            return translation
     else:
         translation = translator.translate(query, src=src, dest=dest)
-        return translation.encode('utf-8')
+        return translation
 
 
 def yaml2dict(filename):
