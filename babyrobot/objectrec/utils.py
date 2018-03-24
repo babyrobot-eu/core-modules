@@ -50,7 +50,7 @@ def get_rec_objects(
     return image_np
 
 
-def downscale_image(image, baseWidth=800):
+def downscale_image(image, baseWidth=480):
     # Calculate the height using the same aspect ratio
     widthPercent = (baseWidth / float(image.size[0]))
     height = int((float(image.size[1]) * float(widthPercent)))
@@ -61,7 +61,7 @@ def downscale_image(image, baseWidth=800):
 def pad_image(image):
     # Calculate the height using the same aspect ratio
     (im_width, im_height) = image.size
-    border = int(im_width * 0.1)
+    border = int(im_width * 0.05)
     image = ImageOps.expand(image, border=border, fill='white')
     return image
 
