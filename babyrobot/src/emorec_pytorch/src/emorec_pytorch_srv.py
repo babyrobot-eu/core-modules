@@ -1,19 +1,59 @@
 #!/usr/bin/env python
+import base64
 import pickle
 import sys
 import uuid
+import io
 
-import numpy
+import numpy as np
 import rospy
+from scipy.io.wavfile import read as wav_read
+from scipy.io.wavfile import write as wav_write
+
 import torch
 from babyrobot.emorec_pytorch import config as emorec_pytorch_config
 from babyrobot.speech_features import client as speech_feat_client
 from babyrobot_msgs.msg import EmotionRecognitionResult
 from babyrobot_msgs.srv import SpeechEmotionRecognition
 from babyrobot_msgs.srv import SpeechEmotionRecognitionResponse
+from speech_features import frame_breaker
 from torch.autograd import Variable
 
 sys.path.append(emorec_pytorch_config.Paths.src)
+
+
+# def extract_features(clip):
+#     """
+#     Feature extraction from an audio clip
+#     Args:
+#         clip ():
+#
+#     Returns: A list of feature vectors
+#
+#     """
+#
+#     extracted_feats = speech_feat_client.extract_speech_features(
+#         clip,
+#         opensmile_config=emorec_pytorch_config.ModelBaseline.opensmile_config,
+#         response_format='list'
+#     )
+#     feats = numpy.array([f.feature_value for f in extracted_feats])
+#     return feats
+
+
+def extract_feats_for_segment(s):
+    return speech_feat_client.extract_speech_features(
+            s,
+            opensmile_config=emorec_pytorch_config.ModelBaseline.opensmile_config,
+            response_format='list'
+        )
+
+
+def np2base64(s, sr):
+    wav_write('/tmp/tmp.wav', sr, s)
+    with open('/tmp/tmp.wav', 'r') as fd:
+        s2 = fd.read()
+    return s2
 
 
 def extract_features(clip):
@@ -25,14 +65,20 @@ def extract_features(clip):
     Returns: A list of feature vectors
 
     """
-
-    extracted_feats = speech_feat_client.extract_speech_features(
-        clip,
-        opensmile_config=emorec_pytorch_config.ModelBaseline.opensmile_config,
-        response_format='list'
-    )
-    feats = numpy.array([f.feature_value for f in extracted_feats])
-    return feats
+    sr, clip_array = wav_read(io.BytesIO(clip))
+    segments = frame_breaker.get_frames(clip_array, sample_rate=22050)
+    segments_encoded = [np2base64(s, sr) for s in segments]
+    segment_features = [
+        [f.feature_value for f in extract_feats_for_segment(s).features]
+        for s in segments_encoded
+    ]
+    # extracted_feats = speech_feat_client.extract_speech_features(
+    #     clip,
+    #     opensmile_config=emorec_pytorch_config.ModelBaseline.opensmile_config,
+    #     response_format='list'
+    # )
+    # feats = np.array([f.feature_value for f in extracted_feats])
+    return segment_features
 
 
 def handle_emorec(req):
@@ -60,15 +106,17 @@ def handle_emorec(req):
 
     # convert the input to torch tensors
     value = torch.from_numpy(input)
-    length = torch.from_numpy(numpy.array([length]))
+    length = torch.from_numpy(np.array([length]))
 
-    # then put it on the GPU,
-    if torch.cuda.is_available():
-        test_value = Variable(value.cuda(), volatile=True)
-        test_length = Variable(length.cuda(), volatile=True)
-    else:
-        test_value = Variable(value, volatile=True)
-        test_length = Variable(length, volatile=True)
+    # # then put it on the GPU,
+    # if torch.cuda.is_available():
+    #     test_value = Variable(value.cuda(), volatile=True)
+    #     test_length = Variable(length.cuda(), volatile=True)
+    # else:
+    #     test_value = Variable(value, volatile=True)
+    #     test_length = Variable(length, volatile=True)
+    test_value = Variable(value, volatile=True)
+    test_length = Variable(length, volatile=True)
 
     # make it float and insert a fake batch dimension
     test_value = test_value.float()
@@ -85,7 +133,7 @@ def handle_emorec(req):
     intensities = cont_outputs.data.cpu().numpy()
 
     # get the predicted polarity
-    pred_cat = numpy.argmax(cat_outputs)
+    pred_cat = np.argmax(cat_outputs)
     polarity = _data_manager.label_cat_encoder.inverse_transform(pred_cat)
 
     msg.polarity = polarity
