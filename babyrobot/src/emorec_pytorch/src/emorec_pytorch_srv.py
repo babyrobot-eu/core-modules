@@ -66,7 +66,9 @@ def extract_features(clip):
 
     """
     sr, clip_array = wav_read(io.BytesIO(clip))
-    segments = frame_breaker.get_frames(clip_array, sample_rate=22050)
+    if clip_array.ndim > 1:
+        clip_array = clip_array[:, 0]
+    segments = frame_breaker.get_frames(clip_array, sample_rate=sr)
     segments_encoded = [np2base64(s, sr) for s in segments]
     segment_features = [
         [f.feature_value for f in extract_feats_for_segment(s).features]

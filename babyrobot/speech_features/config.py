@@ -14,8 +14,10 @@ class TEMP_FILE(object):
 
 
 class TEST(object):
+    # WAV_SAMPLE = os.path.join(br_config.BASE_PATH,
+    #                           'babyrobot/src/speech_features/test.wav')
     WAV_SAMPLE = os.path.join(br_config.BASE_PATH,
-                              'babyrobot/src/speech_features/test.wav')
+                              'babyrobot/src/speech_features/test_wavs/mourmour.wav')
 
 
 class TMP(object):
