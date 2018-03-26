@@ -127,7 +127,7 @@ class SpeechAffect(object):
             if self.speech_affect_computed:
                 self.pub.publish(self.emorec_result)
                 self.speech_affect_computed = False
-                self.emorec_result = EmotionRecognitionResult()
+                self.emorec_result = SpeechAffectResult()
                 r.sleep()
 
 

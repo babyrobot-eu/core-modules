@@ -10,14 +10,14 @@ class Translate(object):
         self.pub = rospy.Publisher('/iccs/translate', TimedString, queue_size=100)
         rospy.init_node('iccs_translate', anonymous=True)
         rospy.Subscriber("/iccs/asr", TimedString, self.handle_transcription)
-        self.translation = TimedString
+        self.translation = TimedString()
         self.translated = False
 
     def handle_transcription(self, transcription):
         self.translation.header.stamp = rospy.Time().now()
         self.translation.data = br_utils.translate(transcription.data, src='el', dest='en')
         self.translated = True
-        rospy.loginfo(u"Transcription (en): {}".format(self.translation))
+        rospy.loginfo(u"Transcription (en): {}".format(self.translation.data))
 
     def run(self):
         r = rospy.Rate(10)

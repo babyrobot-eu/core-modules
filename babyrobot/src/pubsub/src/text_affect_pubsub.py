@@ -43,7 +43,7 @@ class TextAffect(object):
         self.valence.data = self.get_valence(transcription.data)
         self.valence.header.stamp = rospy.Time().now()
         self.text_affect_computed = True
-        rospy.loginfo("Text valence: {}".format(self.valence))
+        rospy.loginfo("Text valence: {}".format(self.valence.data))
 
     def run(self):
         r = rospy.Rate(10)
