@@ -53,11 +53,14 @@ add_message_files(
   ASR.msg
   AudioSegment.msg
   BoundingBox.msg
+  CognistatesResult.msg
   EmbeddingsFusionInput.msg
   EmotionRecognitionResult.msg
   Feature.msg
+  Floats.msg
   Frame.msg
   Header.msg
+  Ints.msg
   ObjectRecognitionResult.msg
   PixelPoint.msg
   PsycholingDim.msg
@@ -69,9 +72,12 @@ add_message_files(
   SemanticSimilarityInput.msg
   SemanticSpaceQuery.msg
   SemanticSpaceResult.msg
+  SpeechAffectResult.msg
   SpeechFeatures.msg
   TextAffectInput.msg
   TextAffectResult.msg
+  TimedFloat64.msg
+  TimedString.msg
 )
 
 ## Generate services in the 'srv' folder

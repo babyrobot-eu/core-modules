@@ -42,7 +42,7 @@ def handle_speech_features(req):
         opensmile_conf,
         sf_config.TEMP_FILE.WAV,
         out_file_cmd)
-    rospy.loginfo('Extracting features using "{}"'.format(cmd))
+    #rospy.loginfo('Extracting features using "{}"'.format(cmd))
 
     ret_code, stdout, stderr = br_utils.run_cmd(cmd)
     if ret_code != 0:
@@ -87,7 +87,7 @@ def speech_features_server():
     rospy.Service(sf_config.ROS_CONFIG.SERVICE_NAME,
                   SpeechFeatureExtraction,
                   handle_speech_features)
-    rospy.loginfo("Speech Features server started.")
+    #rospy.loginfo("Speech Features server started.")
     rospy.spin()
 
 

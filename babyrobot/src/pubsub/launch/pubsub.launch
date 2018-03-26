@@ -1,0 +1,10 @@
+<launch>
+  <node name="speech_features_server" pkg="speech_features" type="speech_feature_server.py" />
+  <node name="objectrec" pkg="pubsub" type="objectrec_pubsub.py" />
+  <node name="audiorecorder" pkg="pubsub" type="audio_pubsub.py" />
+  <node name="speech_affect" pkg="pubsub" type="speech_affect_pubsub.py" />
+  <node name="continuous_asr" pkg="pubsub" type="asr_pubsub.py" />
+  <node name="translate" pkg="pubsub" type="translate_pubsub.py" />
+  <node name="cognistates" pkg="pubsub" type="psycholing_pubsub.py" />
+  <node name="text_affect" pkg="pubsub" type="text_affect_pubsub.py" />
+</launch>

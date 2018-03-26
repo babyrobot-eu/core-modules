@@ -34,14 +34,34 @@ label_map = get_labels_map(CONFIG.model.labels,
 
 class ObjectRec(object):
     def __init__(self):
-        self.pub = rospy.Publisher('/iccs/image/objectrec', ImageMsg, queue_size=1)
+        self.processed_images = 0
         self.recorded = False
-        rospy.init_node('iccs_objectrec', anonymous=True)
-        rospy.Subscriber("/kinect1/qhd/image_color", ImageMsg, self.handle_image)
         self.sess = tf.Session(graph=detect_graph)
-        self.recognized_image = None
+        self.recognized_image = ImageMsg()
         self.has_recognized = False
         self.bridge = CvBridge()
+        self.boxes = None
+        self.classes = None
+        self.scores = None
+        self.pil_img = None
+        rospy.init_node('iccs_objectrec', anonymous=True)
+        self.pub = rospy.Publisher('/iccs/image/objectrec', ImageMsg, queue_size=100)
+        self.pub_objects = rospy.Publisher('/iccs/objectrec/objects', String, queue_size=100)
+        rospy.Subscriber("/kinect1/qhd/image_color", ImageMsg, self.handle_image)
+        self.pub_timer = rospy.Timer(rospy.Duration(1.0/20), self.pub_timer_callback)
+        self.orec_timer = rospy.Timer(rospy.Duration(.5), self.orec_timer_callback)
+
+    def orec_timer_callback(self, _):
+        if self.processed_images >= 1:
+            (self.boxes, self.classes, self.scores, num_detections) = orec_image(
+                self.sess, detect_graph, self.pil_img)
+            # objects = list(zip(self.boxes, self.scores, self.classes))
+            # debug_info_image(objects, label_map, CONFIG.model.threshold)
+            self.processed_images = 0
+
+    def pub_timer_callback(self, _):
+        # rospy.loginfo('Update objectrec image')
+        self.pub.publish(self.recognized_image)
 
     def cv2pil(self, img):
         return Image.fromarray(img)
@@ -60,47 +80,52 @@ class ObjectRec(object):
         print("")
 
     def handle_image(self, image):
+        # import pprint
+        # pprint.pprint(label_map[51]['name'])
+        self.processed_images += 1
         cv_image = self.bridge.imgmsg_to_cv2(image, "bgr8")
         pil_img = self.cv2pil(cv_image)
-        pil_img = downscale_image(pil_img, baseWidth=640)
+        pil_img = downscale_image(pil_img, baseWidth=480)
         pil_img = pad_image(pil_img)
+        self.pil_img = pil_img
+        # if self.processed_images == 10:
+        #     (self.boxes, self.classes, self.scores, num_detections) = orec_image(
+        #         self.sess, detect_graph, pil_img)
+        #     # objects = list(zip(self.boxes, self.scores, self.classes))
+        #     # debug_info_image(objects, label_map, CONFIG.model.threshold)
+        #     self.processed_images = 0
 
-        # pil_img.show()
-
-        (boxes, classes, scores, num_detections) = orec_image(self.sess,
-                                                              detect_graph,
-                                                              pil_img)
-
-        objects = list(zip(boxes, scores, classes))
+        if self.boxes is None or self.scores is None or self.classes is None:
+            self.recognized_image = image
+            return
         #
         # # extract object image frames
         # frames, mask = extract_box_from_image(pil_img, objects,
         #                                       CONFIG.model.threshold)
 
         # print debugging information
-        debug_info_image(objects, label_map, CONFIG.model.threshold)
 
         # Visualization of the results of a detection.
         img = get_rec_objects(pil_img,
-                              boxes, classes, scores,
+                              self.boxes, self.classes, self.scores,
                               label_map,
                               CONFIG.model.threshold)
 
         # imsave("asdasdasd.png", img)
         # opencv_image = img
         # Convert RGB to BGR
-        # opencv_image = opencv_image[:, :, ::-1].copy()
-        self.recognized_image = self.bridge.cv2_to_imgmsg(img, "rgb8")
+        opencv_image = img[:, :, ::-1].copy()
+        self.recognized_image = self.bridge.cv2_to_imgmsg(opencv_image, "rgb8")
         # self.recognized_image = self.bridge.cv2_to_imgmsg(img)
-        self.has_recognized = True
-        rospy.loginfo('Object recognition has run')
 
     def run(self):
-        r = rospy.Rate(10)
-        while not rospy.is_shutdown():
-            if self.has_recognized:
-                self.pub.publish(self.recognized_image)
-                r.sleep()
+        rospy.spin()
+        self.pub_timer.shutdown()
+        self.orec_timer.shutdown()
+        # r = rospy.Rate(1)
+        # while not rospy.is_shutdown():
+        #     self.pub.publish(self.recognized_image)
+        #     r.sleep()
 
 
 if __name__ == '__main__':

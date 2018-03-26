@@ -3,9 +3,12 @@ import rospy
 import uuid
 import nltk
 from std_msgs.msg import String
+from babyrobot_msgs.msg import TimedString
+
 import babyrobot.psycholing.utils as psy_utils
 
 from babyrobot_msgs.msg import PsycholingResult
+from babyrobot_msgs.msg import CognistatesResult
 from babyrobot_msgs.msg import PsycholingDim
 
 
@@ -21,10 +24,10 @@ class Psycholing(object):
             k: v for k, v in self.dimension_map.items() if k in self.valid_dimensions
         }
 
-        self.pub = rospy.Publisher('/iccs/cognistates', PsycholingResult, queue_size=100)
+        self.pub = rospy.Publisher('/iccs/cognistates', CognistatesResult, queue_size=100)
         rospy.init_node('iccs_cognistates', anonymous=True)
-        rospy.Subscriber("/iccs/translate", String, self.handle_transcription)
-        self.cogni = PsycholingResult()
+        rospy.Subscriber("/iccs/translate", TimedString, self.handle_transcription)
+        self.cogni = CognistatesResult()
         self.cogni_computed = False
 
     def get_psycholing_dims(self, text):
@@ -39,13 +42,16 @@ class Psycholing(object):
                     count = self.lexicon[word][dim]
                     psy_dims[k] += count
         for k in psy_dims.keys():
-            psy_dims[k] = float(psy_dims[k]) / len(tokenized)
+            if len(tokenized) > 0:
+                psy_dims[k] = float(psy_dims[k]) / len(tokenized)
+            else:
+                psy_dims[k] = 0
         return psy_dims
 
     def handle_transcription(self, transcription):
         psy_dims = self.get_psycholing_dims(transcription.data)
-        self.cogni.header.id = str(uuid.uuid1())
-        self.cogni.header.timestamp = rospy.Time.now()
+        # self.cogni.header.id = str(uuid.uuid1())
+        self.cogni.header.stamp = rospy.Time.now()
         for k, v in psy_dims.items():
             psy = PsycholingDim()
             psy.dimension = k
@@ -53,12 +59,15 @@ class Psycholing(object):
             self.cogni.dimensions.append(psy)
         self.cogni.input = transcription
         self.cogni_computed = True
-        rospy.loginfo("Cognitive states: affect={}".format(psy_dims['affect']))
-        rospy.loginfo("Cognitive states: percept={}".format(psy_dims['percept']))
-        rospy.loginfo("Cognitive states: cognitive load={}".format(psy_dims['cogproc']))
-        rospy.loginfo("Cognitive states: drives={}".format(psy_dims['drives']))
-        rospy.loginfo("Cognitive states: social={}".format(psy_dims['social']))
-        rospy.loginfo("Cognitive states: stress={}".format(psy_dims['anx']))
+        rospy.loginfo("Cognitive states: affect={}, percept={}, load={}, social={}, stress={}, drives={}"
+                      .format(psy_dims['affect'], psy_dims['percept'],
+                              psy_dims['cogproc'], psy_dims['social'],
+                              psy_dims['anx'], psy_dims['drives']))
+        # rospy.loginfo("Cognitive states: percept={}".format(psy_dims['percept']))
+        # rospy.loginfo("Cognitive states: cognitive load={}".format(psy_dims['cogproc']))
+        # rospy.loginfo("Cognitive states: drives={}".format(psy_dims['drives']))
+        # rospy.loginfo("Cognitive states: social={}".format(psy_dims['social']))
+        # rospy.loginfo("Cognitive states: stress={}".format(psy_dims['anx']))
 
     def run(self):
         r = rospy.Rate(10)

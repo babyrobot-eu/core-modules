@@ -365,8 +365,8 @@ def debug_info_image(objects, category_index, threshold):
     """
     for box, score, cls in objects:
         if score > threshold:
-            rospy.loginfo("label:{}, score:{}, dist:{}".format(
+            rospy.loginfo("Objectrec found: label={}, score={}, dist={}".format(
                 category_index[cls]["name"],
                 score,
                 distance_box_to_center(box)))
-    rospy.loginfo("")
+    #rospy.loginfo("")

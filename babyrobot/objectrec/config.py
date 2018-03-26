@@ -19,8 +19,9 @@ class MODEL_PATHS(object):
 class MODEL(object):
     # name = 'ssd_inception_v2_coco_11_06_2017'
     name = 'faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
+    # name = 'ssd_inception_v2_coco_2017_11_17'
     labels = 'mscoco_label_map.pbtxt'
-    # name = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
+    #name = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
     # labels = 'oid_bbox_trainable_label_map.pbtxt'
     threshold = 0.3
     classes = 90

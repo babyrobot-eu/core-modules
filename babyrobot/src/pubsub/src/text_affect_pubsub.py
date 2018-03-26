@@ -4,6 +4,7 @@ import math
 import numpy as np
 import rospy
 import nltk
+from babyrobot_msgs.msg import TimedString, TimedFloat64
 from std_msgs.msg import Float64, String
 import babyrobot.text_affect.utils as ta_utils
 
@@ -13,10 +14,10 @@ class TextAffect(object):
 
         self.lexicon = ta_utils.load_lexicon(which='bing_liu')
 
-        self.pub = rospy.Publisher('/iccs/text_affect', Float64, queue_size=100)
+        self.pub = rospy.Publisher('/iccs/text_affect', TimedFloat64, queue_size=100)
         rospy.init_node('iccs_text_affect', anonymous=True)
-        rospy.Subscriber("/iccs/translate", String, self.handle_transcription)
-        self.valence = 0
+        rospy.Subscriber("/iccs/translate", TimedString, self.handle_transcription)
+        self.valence = TimedFloat64()
         self.text_affect_computed = False
 
     def sigmoid(self, x):
@@ -39,7 +40,8 @@ class TextAffect(object):
         return valence
 
     def handle_transcription(self, transcription):
-        self.valence = self.get_valence(transcription.data)
+        self.valence.data = self.get_valence(transcription.data)
+        self.valence.header.stamp = rospy.Time().now()
         self.text_affect_computed = True
         rospy.loginfo("Text valence: {}".format(self.valence))
 

@@ -18,6 +18,9 @@ def get_frames(s,
         sample_size = s.size
     else:
         sample_size = max_sample_size
+    # convert to mono
+    if s.ndim > 1:
+        s = s[:, 0]
     frame_size = int(frame_duration * sample_rate)
     frame_step = int(frame_stride * sample_rate)
     N_f = int(np.ceil((sample_size - frame_size) / frame_step))
