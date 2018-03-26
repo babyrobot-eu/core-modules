@@ -42,11 +42,13 @@ class ObjectRec(object):
         self.bridge = CvBridge()
         self.boxes = None
         self.classes = None
+        self.labels = []
+        self.publish_labels = False
         self.scores = None
         self.pil_img = None
         rospy.init_node('iccs_objectrec', anonymous=True)
         self.pub = rospy.Publisher('/iccs/image/objectrec', ImageMsg, queue_size=100)
-        self.pub_objects = rospy.Publisher('/iccs/objectrec/objects', String, queue_size=100)
+        self.pub_objects = rospy.Publisher('/iccs/objects', String, queue_size=100)
         rospy.Subscriber("/kinect1/qhd/image_color", ImageMsg, self.handle_image)
         self.pub_timer = rospy.Timer(rospy.Duration(1.0/20), self.pub_timer_callback)
         self.orec_timer = rospy.Timer(rospy.Duration(.5), self.orec_timer_callback)
@@ -55,6 +57,8 @@ class ObjectRec(object):
         if self.processed_images >= 1:
             (self.boxes, self.classes, self.scores, num_detections) = orec_image(
                 self.sess, detect_graph, self.pil_img)
+            self.labels = [label_map[cls]['name'] for cls in self.classes]
+            self.publish_labels = True
             # objects = list(zip(self.boxes, self.scores, self.classes))
             # debug_info_image(objects, label_map, CONFIG.model.threshold)
             self.processed_images = 0
@@ -62,7 +66,10 @@ class ObjectRec(object):
     def pub_timer_callback(self, _):
         # rospy.loginfo('Update objectrec image')
         self.pub.publish(self.recognized_image)
-
+        if self.publish_labels:
+            self.pub_objects.publish(','.join(self.labels))
+            self.publish_labels = False
+            
     def cv2pil(self, img):
         return Image.fromarray(img)
 
