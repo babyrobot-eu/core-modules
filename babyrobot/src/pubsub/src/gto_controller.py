@@ -20,6 +20,7 @@ class IrisTK_Bridge(object):
         self.iristk_name = iristk_name
         self.ros_node_name = ros_node_name
         self.sent_object_found = False
+        self.object_found = False
         self.audio_record_states = [
             'iccs.system.state.intro',
             'iccs.system.state.playmaybe',
@@ -41,7 +42,6 @@ class IrisTK_Bridge(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect_to_broker()
         self.current_state = ''
-        self.object_found = 3
         self.current_object = 'first'
         self.control_pub = rospy.Publisher("/iccs/gto/controller_commands", String, queue_size=10)
         rospy.init_node(self.ros_node_name, anonymous=True)
@@ -96,11 +96,11 @@ class IrisTK_Bridge(object):
 
     def handle_objects(self, found_objects):
         if self.current_state == 'iccs.system.state.first.firstproperty':
-            if self.object_found == 0 and not self.sent_object_found:
+            if self.object_found and not self.sent_object_found:
                 self.send_message('iccs.first.objectrecshow', '')
                 self.sent_object_found = True
             elif 'sports ball' in found_objects.data.split(','):
-                self.object_found -= 1
+                self.object_found = True
             else:
                 pass
 
