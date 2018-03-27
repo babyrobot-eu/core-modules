@@ -29,17 +29,17 @@ class AudioRecorder(object):
         rospy.init_node('iccs_audio_recorder', anonymous=True)
         rospy.Subscriber("/kinect1/audiorecord", String, self.handle_audio)
         rospy.Subscriber('/iccs/gto/controller_commands', String, self.handle_gto_controller)
-        rospy.Subscriber('/iccs/states', String, self.handle_states)
+        # rospy.Subscriber('/iccs/states', String, self.handle_states)
 
     def handle_gto_controller(self, state):
         if state.data == 'asr.listen.start':
             self.record_flag = True
             rospy.sleep(1)
 
-    def handle_states(self, state):
-        if state.data == 'asr.listen':
-            self.record_flag = True
-            rospy.sleep(1)
+    # def handle_states(self, state):
+    #     if state.data == 'asr.listen':
+    #         self.record_flag = True
+    #         rospy.sleep(1)
 
     def handle_audio(self, data):
         if self.record_flag:
