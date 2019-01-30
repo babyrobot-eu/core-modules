@@ -11,7 +11,7 @@ Pillow==4.3.0
 glob2==0.6
 scikit_learn==0.19b2
 ws4py==0.4.2
-PyYAML==3.13
+pyyaml>=4.2b1
 rospy_message_converter==0.4.0
 ujson==1.35
 http://download.pytorch.org/whl/cu80/torch-0.3.1-cp27-cp27mu-linux_x86_64.whl
