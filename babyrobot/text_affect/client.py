@@ -23,7 +23,7 @@ def get_text_valence(text):
         query.text = text
         metadata = ''
         affect_res = caller(query, metadata)
-        return psycholing_res.affect
+        return affect_res.affect
     except rospy.ServiceException, ex:
         rospy.logerr("Service call failed: {}".format(ex))
         return None

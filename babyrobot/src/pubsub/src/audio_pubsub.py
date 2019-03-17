@@ -65,14 +65,14 @@ class AudioRecorder(object):
                 # rospy.loginfo('Recorded audio: {}'.format(br_config.RECORDED_INPUT))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.recorded:
                 self.pub.publish(self.recorded_audio)
                 self.pub_np.publish(self.recorded_numpy)
                 self.recorded = False
                 self.record_flag = False
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':

@@ -80,7 +80,7 @@ class ObjectRec(object):
         """
         for box, score, cls in objects:
             if score > threshold:
-                print("label:{}, score:{}, dist:{}".format(
+                rospy.loginfo("label:{}, score:{}, dist:{}".format(
                     category_index[cls]["name"],
                     score,
                     distance_box_to_center(box)))

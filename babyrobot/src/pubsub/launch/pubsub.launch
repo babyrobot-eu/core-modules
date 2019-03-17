@@ -7,4 +7,5 @@
   <node name="translate" pkg="pubsub" type="translate_pubsub.py" />
   <node name="cognistates" pkg="pubsub" type="psycholing_pubsub.py" />
   <node name="text_affect" pkg="pubsub" type="text_affect_pubsub.py" />
+  <node name="gto_controller" pkg="pubsub" type="gto_controller.py" />
 </launch>

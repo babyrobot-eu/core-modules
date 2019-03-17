@@ -46,12 +46,12 @@ class TextAffect(object):
         rospy.loginfo("Text valence: {}".format(self.valence.data))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.text_affect_computed:
                 self.pub.publish(self.valence)
                 self.text_affect_computed = False
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':

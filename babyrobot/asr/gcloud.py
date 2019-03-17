@@ -3,6 +3,7 @@ import base64
 import httplib2
 import json
 import numpy as np
+import sys
 
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
@@ -53,5 +54,11 @@ def text2speech(base64_clip, sr=16000):
     response = service_request.execute()
     if 'results' not in response:
         return ''
+    print(response['results'][0]['alternatives'][0]['transcript'])
     return response['results'][0]['alternatives'][0]['transcript']
 
+if __name__ == '__main__':
+    if not sys.argv[1]:
+        print('no arguments')
+        exit(1)
+    print(text2speech_wav(sys.argv[1]))

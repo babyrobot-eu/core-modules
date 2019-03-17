@@ -20,12 +20,12 @@ class Translate(object):
         rospy.loginfo(u"Transcription (en): {}".format(self.translation.data))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.translated:
                 self.pub.publish(self.translation)
                 self.translated = False
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':

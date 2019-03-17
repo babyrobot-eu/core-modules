@@ -48,6 +48,11 @@ class IrisTK_Bridge(object):
         rospy.Subscriber('/iccs/states', String, self.handle_states)
         rospy.Subscriber('/iccs/objects', String, self.handle_objects)
         rospy.Subscriber('/iccs/translate', TimedString, self.handle_asr)
+        self.counter_pen = 0
+        self.counter_notebook = 0
+        self.counter_confused = 0
+        self.counter_book = 0
+        self.counter_replay = 0 
 
     def handle_asr(self, asr_out):
         asr = asr_out.data.lower()
@@ -55,6 +60,13 @@ class IrisTK_Bridge(object):
            len(asr) == 0):
             self.send_message('iccs.third.noresponse', '')
         # Wait for YES/NO
+        if self.current_state == 'iccs.system.state.intro':
+            self.counter_pen = 0
+            self.counter_notebook = 0
+            self.counter_confused = 0
+            self.counter_book = 0
+            self.counter_replay = 0 
+
         if (self.current_state == 'iccs.system.state.intro' or
            self.current_state == 'iccs.system.state.playmaybe'):
             if 'yes' in asr or 'okay' in asr or ('let' in asr and 'play' in asr):
@@ -65,44 +77,84 @@ class IrisTK_Bridge(object):
             if ('yes' in asr or
                'ok' in asr or
                'okay' in asr or
+               'ready' in asr or
                ('let' in asr and 'play' in asr)):
                 self.send_message('iccs.ready', 'yes')
+            else:
+                self.send_message('iccs.asrkaput.gendermale', '')
         if self.current_state == 'iccs.system.state.first.objectrecshow':
             if 'yes' in asr or 'correct' in asr or 'right' in asr or 'ball' in asr:
                 self.send_message('iccs.first.objectreccorrect', '')
+            else:
+                self.send_message('iccs.asrkaput.first.objectrecshow', '')
         if self.current_state == 'iccs.system.state.replayask':
-            if 'yes' in asr or 'ok' in asr or 'okay' in asr or 'play' in asr:
+            if self.counter_replay > 0:
+                asr = 'yes I want to'
+            if 'want' in asr or 'Yes' in asr or 'yes' in asr or 'ok' in asr or 'okay' in asr or 'play' in asr:
                 self.send_message('iccs.replay.yes', '')
             else:
-                self.send_message('iccs.replay.no', '')
+                self.send_message('iccs.asrkaput.replayask', '')
+                self.counter_replay += 1
+        if self.current_state == 'iccs.system.state.second.firstproperty':
+            if self.counter_pen > 0:
+               asr = 'I think it is the pen'
+            if 'pen' in asr or 'notebook' in asr:
+                self.send_message('iccs.second.wrong1', '')
+            else:
+                self.send_message('iccs.asrkaput.second.firstproperty', '')
+                self.counter_pen += 1
+ 
+        if self.current_state == 'iccs.system.state.second.wrong1':
+            if self.counter_notebook > 0:
+                asr = 'I think it is the notebook'
+            if 'pen' in asr or 'notebook' in asr:
+                self.send_message('iccs.second.similar', '')
+            else:
+                self.send_message('iccs.asrkaput.second.wrong1', '')
+                self.counter_notebook += 1
+
+        if self.current_state == 'iccs.system.state.second.similar':
+            if self.counter_confused > 0:
+                asr = 'I don\'t know. It is hard'
+            if 'know' in asr or 'choose' in asr or 'conf' in asr or 'hard' in asr or 'don' in asr:
+                self.send_message('iccs.second.confused', '')
+            else:
+                self.send_message('iccs.asrkaput.second.similar', '')
+                self.counter_confused = 0
+
+        if self.current_state == 'iccs.system.state.second.confused':
+            if self.counter_book > 0:
+                asr = 'I think it\'s the book'
+            if 'book' in asr or 'think' in asr:
+                self.send_message('iccs.second.correct', '')
+            else:
+                self.send_message('iccs.asrkaput.second.confused', '')
+                self.counter_book = 0
+
         if self.current_state == 'iccs.system.state.third.noresponse':
             if 'yes' in asr or 'want' in asr:
                 self.send_message('iccs.third.secondproperty', '')
-        if self.current_state == 'iccs.system.state.second.firstproperty':
-            if 'pen' in asr or 'notebook' in asr:
-                self.send_message('iccs.second.wrong1', '')
-        if self.current_state == 'iccs.system.state.second.wrong1':
-            if 'pen' in asr or 'notebook' in asr:
-                self.send_message('iccs.second.similar', '')
-        if self.current_state == 'iccs.system.state.second.similar':
-            if 'know' in asr or 'choose' in asr or 'conf' in asr:
-                self.send_message('iccs.second.confused', '')
-        if self.current_state == 'iccs.system.state.second.confused':
-            if 'book' in asr:
-                self.send_message('iccs.second.correct', '')
+            else:
+                self.send_message('iccs.asrkaput', '')
+
         if self.current_state == 'iccs.system.state.third.secondproperty':
             if 'plane' in asr:
                 self.send_message('iccs.third.correct', '')
-
+            else:
+                self.send_message('iccs.asrkaput', '')
+ 
     def handle_objects(self, found_objects):
         if self.current_state == 'iccs.system.state.first.firstproperty':
             if self.object_found and not self.sent_object_found:
+                rospy.loginfo('sent iccs.first.objectrecshow')
                 self.send_message('iccs.first.objectrecshow', '')
                 self.sent_object_found = True
-            elif 'sports ball' in found_objects.data.split(','):
+            
+            if 'sports ball' in found_objects.data.split(','):
                 self.object_found = True
-            else:
-                pass
+        else:
+            self.object_found = False
+            self.sent_object_found = False
 
     def handle_states(self, state):
         self.current_state = state.data.split(' ')[1]
@@ -134,7 +186,6 @@ class IrisTK_Bridge(object):
         if self.current_state == 'iccs.system.state.replayno':
             self.send_message('iccs.quit.end', '')
 
-
     def connect_to_broker(self):
         self.sock.connect((self.broker_ip, self.broker_port))
 
@@ -148,7 +199,7 @@ class IrisTK_Bridge(object):
         # subscribe to the event we want. In this case we only listen for athena.sloc.** events. ** is a wildcard
         self.sock.sendall('SUBSCRIBE athena.sloc.** \n')
 
-        print "SUCCESSFULLY SUBSCRIBED TO BROKER"
+        rospy.loginfo("SUCCESSFULLY SUBSCRIBED TO BROKER")
 
     # read line from socket
     def readlines(self, sock, recv_buffer=4096, delim='\n'):
@@ -172,10 +223,10 @@ class IrisTK_Bridge(object):
         full_event = event_format.format(event_name=event_name, byte_size=len(j))
         self.sock.sendall(full_event)
         self.sock.sendall(j)
-        print "Sent event %s with json info %s" % (full_event, j)
+        rospy.loginfo("Sent event %s with json info %s" % (full_event, j))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             r.sleep()
             # if flag:

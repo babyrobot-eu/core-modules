@@ -23,12 +23,12 @@ class ASR(object):
         # rospy.loginfo(u"Continuous ASR (el): {}".format(self.transcription))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.transcribed:
                 self.pub.publish(self.transcription)
                 self.transcribed = False
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':

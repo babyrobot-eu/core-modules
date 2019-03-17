@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import functools
 import shutil
 import subprocess
@@ -43,10 +45,10 @@ def translate(query, src='el', dest='en', paid=True):
             return response['translations'][0]['translatedText']
         except Exception as e:
             translation = translator.translate(query, src=src, dest=dest)
-            return translation
+            return translation.text
     else:
         translation = translator.translate(query, src=src, dest=dest)
-        return translation
+        return translation.text
 
 
 def yaml2dict(filename):

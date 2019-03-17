@@ -13,7 +13,7 @@ if __name__ == "__main__":
     rospy.init_node(ta_config.ROS_CONFIG.TEXT_AFFECT_CLIENT_NODE)
     with open(sys.argv[1]) as fd:
         text = ' '.join([l.strip() for l in fd.readlines()])
-    affect_res = ta_client.get_text_affect_dims(text)
+    affect_res = ta_client.get_text_valence(text)
     rospy.logerr("Service responded with {}".format(affect_res))
     json_recognized = json_message_converter. \
         convert_ros_message_to_json(affect_res)

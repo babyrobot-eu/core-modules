@@ -70,12 +70,12 @@ class Psycholing(object):
         # rospy.loginfo("Cognitive states: stress={}".format(psy_dims['anx']))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.cogni_computed:
                 self.pub.publish(self.cogni)
                 self.cogni_computed = False
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':

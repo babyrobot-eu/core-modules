@@ -39,7 +39,7 @@ class SpeechAffect(object):
         self._model = torch.load(self.model_path)
         self._data_manager = pickle.load(open(self.data_manager_path, 'rb'))
         self._model.eval()
-        print("Speech affect ready")
+        rospy.loginfo("Speech affect ready")
 
     def extract_feats_for_segment(self, s):
         return speech_feat_client.extract_speech_features(
@@ -67,7 +67,6 @@ class SpeechAffect(object):
         sr = 16000
         # clip_decoded = base64.decodestring(clip.data)
         # clip_array = np.frombuffer(clip_decoded, dtype=np.float16)
-        print(clip.data)
         clip_array = np.array(clip.data)
         if clip_array.ndim > 1:
             clip_array = clip_array[:, 0]
@@ -110,7 +109,6 @@ class SpeechAffect(object):
         intensities = cont_outputs.data.cpu().numpy()
 
         # get the predicted polarity
-        print(cat_outputs)
         pred_cat = np.argmax(cat_outputs[::-1])
         polarity = self._data_manager.label_cat_encoder.inverse_transform(pred_cat)
 
@@ -122,13 +120,13 @@ class SpeechAffect(object):
         rospy.loginfo("Speech emotion intensities: {}".format(intensities))
 
     def run(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(100)
         while not rospy.is_shutdown():
             if self.speech_affect_computed:
                 self.pub.publish(self.emorec_result)
                 self.speech_affect_computed = False
                 self.emorec_result = SpeechAffectResult()
-                r.sleep()
+            r.sleep()
 
 
 if __name__ == '__main__':
