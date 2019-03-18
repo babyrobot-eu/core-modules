@@ -1,0 +1,46 @@
+#default capture width and height
+#FRAME_WIDTH: 640
+#FRAME_HEIGHT: 480
+#max number of objects to be detected in frame
+MAX_NUM_OBJECTS: 50
+#minimum and maximum object area to be accepted
+MIN_OBJECT_AREA: 20 #100
+MAX_OBJECT_AREA: 204800
+#(FRAME_HEIGHT*FRAME_WIDTH / 1.5)
+erode_size: 2 #3
+dilate_size: 4 #8
+
+crop_range: [27, 0, 453, 212] #in pixel values (make sure these match the values in
+                                #image_crop_config.yaml, divided by the resize coefficients)
+resize_coefficients: [3.75, 2.547] #[x,y]:  Match to depth image size used by tracker (before downsampling). [3.75, 2.547] for SD -> HD
+particle_filter_downsampling: 4 #Downsampling ratio used by tracker
+
+show_rgb: true
+show_hsv: false
+show_threshold: false
+use_trackbars: false
+smooth_estimate: false
+interactive_hsv_ranges: false #calculate hsv ranges by selecting areas on the screen (click and drag)
+camera_topic: /kinect2/sd/image_color_rect
+rgb_camera_info_topic: /kinect2/sd/camera_info
+depth_camera_info_topic: /image_crop/newCameraInfo
+#camera_topic: /webcam/image_raw
+number_of_objects: 5
+std_coefficient: 1.8
+
+objects:
+    object1:
+        name: 'Blue Box'
+        hsv_range: [107, 113, 195, 240, 89, 137] #[107, 113, 195, 240, 89, 117]
+    object2:
+        name: 'Green Box'
+        hsv_range: [61, 77, 114, 241, 55, 110] 
+    object3:
+        name: 'Purple Box'
+        hsv_range: [114, 118, 162, 227, 38, 52] #[114, 118, 162, 227, 38, 52]
+    object4:
+        name: 'Red Box'
+        hsv_range: [125, 218, 140, 282, 110, 168] 
+    object5:
+        name: 'Yellow Box'
+        hsv_range: [25, 30, 135, 218, 103, 205] 

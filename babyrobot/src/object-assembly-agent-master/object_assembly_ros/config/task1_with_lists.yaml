@@ -1,0 +1,44 @@
+#task1 : build a simple structure using 4 building blocks 
+
+objects: [ box1, box2, box3, box4 ]
+
+subtasks:
+  -subtask1:
+    object: [2] #subtask refers to object 2. Data is a list because we may want
+		#to connect two composite objects, eg. [1, 2] with [3, 4]
+    relative_object: [1] #compare with single object
+    connection_type: place #place objects next to each other. TODO add other options
+    options:
+      -option01:
+        relative_pose: [1, 1, 1, 1, 1, 1, 1] #change this
+        margin: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      -option02:
+      -option03:
+      -option04:
+     # ... up to -option16
+  -subtask2:
+    object: [3]
+    relative_object: [1, 2] #compare with composite object 1+2, that has
+                            #orientation pos(2)-pos(1) (normalized) and
+			    #position = mean(pos(2)+pos(1))
+    connection_type: place
+    options:
+      -option01:
+        relative_pose: [1, 1, 1, 1, 1, 1, 1] #change this
+        margin: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      -option02:
+      -option03:
+      -option04:
+  -subtask3:
+    object: [4]
+    relative_object: [1, 2, 3] #compare with composite object 1+2+3, that has
+                               #orientation = pos(3)-pos(1+2) (normalized) and
+			       #position = mean(pos(3)+pos(2)+pos(1))
+    connection_type: place
+    options:
+      -option01:
+        relative_pose: [1, 1, 1, 1, 1, 1, 1] #change this
+        margin: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      -option02:
+      -option03:
+      -option04:

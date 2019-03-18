@@ -1,0 +1,44 @@
+#task1 : build a simple structure using 4 building blocks 
+
+objects: [ red, green, blue ]
+
+# type of symmetry that characterizes each object. Used to check multiple
+# possible configurations. Can be "none", "cubic", "cylindrical" (TODO), spherical (TODO).
+# Note that the meshes used to estimate the object poses must have their
+# origin set correctly for this to work. Parts with cubic or spherical symmetry
+# must have their origin at the center of the mesh. Parts with cylindrical symmetry
+# must have their origin on the central axis and the central axis must align with the z axis of it's coordinate frame00.
+object_symmetries: [ none, none, none ]
+
+number_of_checks: 2
+
+number_of_subtasks: 2
+
+# distance score parameters
+N: 8
+ymax: 100
+
+subtasks:
+  #subtask 1 translates to "place object 1 on object 2"
+  subtask2:
+    description: Place the green part in the blue part
+    object: 2
+    relative_object: 3 
+    connection_type: place #place objects next to each other. TODO add other options
+
+    # frame refers to the way the relative pose is calculated.
+    # Can be "global" or "relative", depending on the task. If the task requires
+    # a comparison of global coordinates (relative to the table), then use "global",
+    # eg. to place one object on top of another. Otherwise use "relative", eg. to 
+    # connect two parts irrespective of global coordinates.
+    frame: relative
+    relative_pose: [0, -0.05, 0.05, 0.7071, 0, 0, 0.7071] #[0, 0, 0.10, 0.7071, 0, 0, 0.7071] # (y points down)
+    margin: [0.01, 0.01, 0.01, 1.1, 0.1, 0.1, 0.1] #0.01->slightly over 10 degree difference
+  subtask1:
+    description: Place the blue part in the red part
+    object: 3
+    relative_object: 1 
+    connection_type: place
+    frame: relative
+    relative_pose: [0, -0.07, 0.01, 0.7071, 0, 0, 0.7071] #[0, 0, 0.02, 0.7071, 0, 0, 0.7071]
+    margin: [0.01, 0.01, 0.01, 1.1, 0.1, 0.1, 0.1]

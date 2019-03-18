@@ -1,0 +1,74 @@
+<launch>
+  <arg name="task_config" default="$(find object_assembly_ros)/config/learning_mode.yaml"/>
+  <arg name="tracker_config" default="$(find object_assembly_ros)/config/tracker.yaml"/>
+  <arg name="background_removal_config" default="$(find object_assembly_ros)/config/background_removal_config.yaml"/>
+
+  <arg name="filter_config" default="$(find dbot_ros)/config/particle_tracker.yaml"/>
+  <arg name="camera_config" default="$(find dbot_ros)/config/camera.yaml"/>
+  <arg name="object_config" default="$(find dbot_ros)/config/object.yaml"/>
+
+  <arg name="launch_colour_tracker" default="true"/>
+  <arg name="launch_image_crop" default="true"/>
+
+  <group if="$(arg launch_colour_tracker)">
+    <arg name="colours_config" default="$(find colour_based_tracker_ros)/config/colours_config.yaml"/>
+
+    <node 
+      name="colour_based_tracker" 
+      type="colour_based_tracker"
+      pkg="colour_based_tracker_ros" 
+      output="screen" 
+      respawn="false"
+      launch-prefix="">
+          <rosparam command="load" file="$(arg colours_config)" />
+    </node>
+  </group>
+
+  <node 
+    name="particle_tracker" 
+    type="particle_tracker"
+    pkg="dbot_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg filter_config)" />
+        <rosparam command="load" file="$(arg camera_config)" />
+        <rosparam command="load" file="$(arg object_config)" />
+        <!-- <param name="config_file"  type="string"  value="$(arg config_file)" /> -->
+  </node>
+
+  <node 
+    name="learning_mode" 
+    type="learning_mode"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg task_config)" />
+        <rosparam command="load" file="$(arg tracker_config)" />
+  </node>
+
+  <node
+    name="background_removal" 
+    type="background_removal"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg background_removal_config)" />
+  </node>
+
+  <group if="$(arg launch_image_crop)">
+    <arg name="image_crop_config" default="$(find object_assembly_ros)/config/image_crop_config.yaml"/>
+
+    <node
+      name="image_crop" 
+      type="image_crop"
+      pkg="object_assembly_ros" 
+      output="screen" 
+      respawn="false"
+      launch-prefix="">
+          <rosparam command="load" file="$(arg image_crop_config)" />
+    </node>
+  </group>
+</launch>

@@ -1,0 +1,3 @@
+int32 num_objects 
+----
+PointCloudArray point_cloud_array 

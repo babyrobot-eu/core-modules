@@ -1,0 +1,67 @@
+objects: [ blue, green, purple, red, yellow ]
+mesh_dir: /home/jack/code_test2/catkinws2/src/object_assembly_ros/resource/cube36mm24vert.obj
+
+# type of symmetry that characterizes each object. Used to check multiple
+# possible configurations. Can be "none", "cubic", "cylindrical" (TODO), spherical (TODO).
+# Note that the meshes used to estimate the object poses must have their
+# origin set correctly for this to work. Parts with cubic or spherical symmetry
+# must have their origin at the center of the mesh. Parts with cylindrical symmetry
+# must have their origin on the central axis and the central axis must align with the z axis of it's coordinate frame00.
+object_symmetries: [ cubic, cubic, cubic, cubic, cubic ]
+
+use_gui: true
+
+number_of_checks: 2
+
+margin: [0.01, 0.01, 0.01, 1.1, 0.1, 0.1, 0.1] #0.01->slightly over 10 degree difference
+
+N: 8
+ymax: 200
+
+number_of_tasks: 3
+
+task1:
+  name: first
+  number_of_connections: 4
+  connection1:
+    parts: [4, 2] #1 based
+    relative_pose: [0.036, 0, 0, 0, 0, 0, 1] #part2.x = part1.x + 0.036
+  connection2:
+    parts: [2, 3]
+    relative_pose: [0, 0, 0.036, 0, 0, 0, 1]
+  connection3:
+    parts: [3, 5]
+    relative_pose: [0, 0, 0.036, 0, 0, 0, 1]
+  connection4:
+    parts: [5, 1]
+    relative_pose: [0.036, 0, 0, 0, 0, 0, 1]
+task2:  
+  name: second
+  number_of_connections: 4
+  connection1:
+    parts: [4, 2]
+    relative_pose: [-0.036, 0, 0, 0, 0, 0, 1]
+  connection2:
+    parts: [2, 3]
+    relative_pose: [0, 0, 0.036, 0, 0, 0, 1]
+  connection3:
+    parts: [3, 5]
+    relative_pose: [0, 0, 0.036, 0, 0, 0, 1]
+  connection4:
+    parts: [5, 1]
+    relative_pose: [0.036, 0, 0, 0, 0, 0, 1]
+task3:
+  name: third
+  number_of_connections: 4
+  connection1:
+    parts: [4, 2]
+    relative_pose: [-0.036, 0, 0, 0, 0, 0, 1]
+  connection2:
+    parts: [4, 1]
+    relative_pose: [0, 0, -0.036, 0, 0, 0, 1]
+  connection3:
+    parts: [4, 3]
+    relative_pose: [0, 0, 0.036, 0, 0, 0, 1]
+  connection4:
+    parts: [4, 5]
+    relative_pose: [0.036, 0, 0, 0, 0, 0, 1]
