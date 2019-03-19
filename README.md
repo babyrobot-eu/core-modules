@@ -1,4 +1,9 @@
-# BabyRobot Integration
+# BabyRobot core modules
+
+![MagPuzzle Scenario Picture](logoBabyRobot.png)
+
+These are the modules that are used in the use cases 1 and 2 of the [Baby Robot EU Project, grant number: 687831](http://babyrobot.eu/).
+
 
 ## Integrated Services
 
