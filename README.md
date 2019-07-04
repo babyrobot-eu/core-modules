@@ -51,7 +51,7 @@ These are the modules that are used in the use cases 1 and 2 of the [Baby Robot 
 - Engagement Detection Module
   - Visual child engagement estimation.
 - Speech-based Emotion recognition
-  - The speech based emotion recognition module can be used to recognize the emotion of a child based on its speech.
+  - The speech based emotion recognition module can be used to recognize the emotion of a child based on its speech. Outputs include discrete emotion, emotion polarity and emotion intensity.
 - Text-based emotion recognition
   - Emotion recognition based on the child's speech (text).
 - Text-based cognitive state recognition
@@ -61,6 +61,8 @@ These are the modules that are used in the use cases 1 and 2 of the [Baby Robot 
 The outputs are timestamped for all modules.
 
 ## System Architecture
+
+![Babyrobot logo Picture](babyrobotArchitecture.png)
 
 ### ROS Topics
 
