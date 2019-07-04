@@ -70,86 +70,16 @@ We employ a layered architecture as can be seen in the schematic above. We split
 - Think: This layer provides higher level outputs for affective state recognition, engagement, reinforcement learning etc. The high level outputs are provided to a controller that performs action selection. A Wizard Of OZ interface is provided for the user to control the action selection directly. Intercomponent communication in the Sense and Think layers is handled by ROS
 - Act: This layer processes the selected actions and executes them in the robots using IrisTK. Currently supported robots are Furhat, NAO, Zeno and Kaspar (experimental).
 
+## Hardware Setup
 
+The proposed hardware setup to fully utilized the aforementioned modules, as well as a room where this setup is implemented, is presented in the following Figure.
 
-### ROS Topics
+![Babyrobot logo Picture](hardwareSetup.png)
 
-All modules will publish the outputs in the respective ROS topic:
-- `/audio`
-- `/color`
-- `/depth` 
-- `/object-detect`
-- `/asr`
-- `/emotion-predict`
-- `/speech-features`
+The setup comprises of four Kinect v2 sensors placed in front, front left, front right and directly above the area where the games are played. Furthermore we utilize a touch screen connected to a Windows machine needed for the various games. The components run in four different PCs on a hybrid setup. One PC is running Windows and IrisTk for real time dialog management. The other PCs run Linux and executes the master and slave ROS nodes. The Kinect sensors are connected and stream the video, depth and audio input in real time.
 
-### Message Format
-
-The messages can be 
-- JSON formatted strings (George +1)
-- [ROS messages](http://wiki.ros.org/msg) 
-
-Vote so that we can choose.
-
-#### Audio
-
-Message fields:
-- ID
-- Timestamp
-- Clip duration
-- base64 encoded audio segment
-
-#### Color
-
-Message fields:
-- ID
-- Timestamp
-- Image dimensions
-- base64 RGB image
-
-#### Depth
-
-Message fields:
-- ID
-- Timestamp
-- Image dimentions
-- base64 encoded depth image
-
-#### Object Detection
-
-Message fields:
-- ID
-- Timestamp
-- Related frame ID
-- List of `(object_label, bounding_box, proximity)` tuples
-
-#### ASR
-
-Message fields:
-- ID
-- Timestamp
-- Related audio segment ID
-- Transcribed text
-- Lemmatized text??
-
-#### Emotion Prediction
-
-Message fields:
-- ID
-- Timestamp
-- Emotion from visual modality
-  - Related frame ID
-  - List of tuples `(predicted_emotion, truth_value)`
-- Emotion from audio modality
-  - Related audio segment ID
-  - List of tuples `(predicted_emotion, truth_value)`
-- Combined prediction
-  - List of tuples `(predicted_emotion, truth_value)`
-  
-#### Speech Features
-
-Message fields:
-- ID
-- Timestamp
-- Related audio segment ID
-- Map of `{feature_name: extracted_features}`
+The hardware requirements for the Linux PCs are
+- A recent generation Intel CPU (i5 or higher)
+- 16GB RAM
+- 1TB of storage
+- One recent NVIDIA GPU (GTX1070 or higher)
