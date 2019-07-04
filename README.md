@@ -83,3 +83,53 @@ The hardware requirements for the Linux PCs are
 - 16GB RAM
 - 1TB of storage
 - One recent NVIDIA GPU (GTX1070 or higher)
+
+## API
+
+We provide a REST API to access the outputs of the low level modules. The requests, and responses of the API are described below:
+
+```
+POST /v1/recognize/objects: 
+INPUT:
+    {
+        "image": base64_encoded_image
+    }
+HEADERS: application/json
+RESULT:
+    {
+        json containing recognized objects and bounding boxes
+    }
+
+POST /v1/recognize/speechfeatures: 
+INPUT:
+    {
+        "clip": base64_encoded_wav_clip
+    }
+HEADERS: application/json
+RESULT:
+    {
+        json containing names and values of the extracted speech features
+    }
+
+POST /v1/recognize/emotions: 
+INPUT:
+    {
+        "clip": base64_encoded_wav_clip
+    }
+HEADERS: application/json
+RESULT:
+    {
+        json containing recognized emotion, emotion polarity and intensity
+    }
+
+POST /v1/recognize/semanticembeddings: 
+INPUT:
+    {
+        "clip": base64_encoded_wav_clip
+    }
+HEADERS: application/json
+RESULT:
+    {
+        json containing recognized emotion, emotion polarity and intensity
+    }
+```
