@@ -64,6 +64,14 @@ The outputs are timestamped for all modules.
 
 ![Babyrobot logo Picture](babyrobotArchitecture.png)
 
+We employ a layered architecture as can be seen in the schematic above. We split the system components in three conceptual layers
+
+- Sense: This layer incorporates components that perform low level processing on audio and visual input and includes functionalities for feature extraction, speech to text conversion, object and person tracking etc.  
+- Think: This layer provides higher level outputs for affective state recognition, engagement, reinforcement learning etc. The high level outputs are provided to a controller that performs action selection. A Wizard Of OZ interface is provided for the user to control the action selection directly. Intercomponent communication in the Sense and Think layers is handled by ROS
+- Act: This layer processes the selected actions and executes them in the robots using IrisTK. Currently supported robots are Furhat, NAO, Zeno and Kaspar (experimental).
+
+
+
 ### ROS Topics
 
 All modules will publish the outputs in the respective ROS topic:
