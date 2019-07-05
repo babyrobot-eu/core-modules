@@ -2,3 +2,7 @@
 	path = models
 	url = git@gitlab.com:georgepar/models
 	branch = master
+[submodule "sums-of-numbers-game"]
+	path = sums-of-numbers-game
+	url = https://github.com/babyrobot-eu/sums-of-numbers-game
+	branch = master

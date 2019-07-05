@@ -1,0 +1,1681 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flow name="Data_collectionFlow" package="iristk.app.data_collection" 
+	initial="Idle" xmlns:this="iristk.app.data_collection.Data_collectionFlow" xmlns="iristk.flow" 
+	xmlns:p="iristk.flow.param" xmlns:agent="iristk.situated.SystemAgentFlow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="iristk.flow flow.xsd iristk.situated.SystemAgentFlow SystemAgentFlow.xsd">
+	
+	<import class="java.util.ArrayList"/>
+	<import class="iristk.app.data_collection.Animal"/>
+	<import class="iristk.app.data_collection.FarmFunctions"/>
+	<import class="java.util.Date"/>
+	
+
+	<import class="iristk.app.data_collection.ManualSpeechGUI"/>
+	<import class="iristk.app.data_collection.MyLogger"/>
+	<import class="iristk.app.data_collection.GreekPhrases"/>
+	<import class="iristk.app.data_collection.ControlPanel"/>
+	
+	
+	<param name="agent" type="iristk.situated.SystemAgentFlow"/>
+	<param name="animals" type="ArrayList"/>
+	<param name="available_objects" type="AvailableObjects"/>
+		
+	
+	<var name="child_gender" type="String" value="'male'"/>
+	<var name="rpc_plays" type="int" value="0"/>
+
+	<var name="gender" type="String" value="'male'"/>
+	<var name="chosen_object" type="String"/>
+	<var name="properties" type="String[]"/>
+	<var name="N" type="int" value="4"/>
+	<var name="object_gender" type="String"/>
+	<var name="manual" type="boolean" value="true"/> <!-- true = no ASR, false = with ASR -->
+	<var name="choose" type="boolean" value="true"/> <!-- true = manually choose object, false = random -->
+	<var name="replay" type="boolean" value="false"/> <!-- true = played again, false = first time -->
+	<var name="logger" type="MyLogger"/>
+	<var name="controlPanel" type="ControlPanel"/>
+	<var name="key" type="int"/>
+	<var name="guesses" type="int"/>
+	<var name="games" type="int" value="0"/>
+	<var name="tries" type="int" value="0"/>
+	<var name="objcounter" type="int" value="0"/>
+	<var name="pointed_at_object" type="boolean" value="false"/>
+	<var name="long_pauses" type="int" value="0"/>
+	<var name="giveHelp" type="boolean" value="true"/>
+	<var name="game_start" type="long"/>
+	<var name="game_stop" type="long"/>
+	<var name="session_start" type="long"/>
+	<var name="session_stop" type="long"/>
+	<var name="language" type="String" value="GreekPhrases.LANG_GR"/>
+	
+	<var name="system" type="iristk.situated.SystemAgent" value="agent.getSystemAgent()"/> 
+	
+	<var name="current_animal" type="Animal"/>
+	<var name="animal_to_guess" type="Animal"/>
+	<var name="tmp_animal" type="Animal"/>
+	<var name="listen_sloc" type="boolean"/>
+	<var name="current_properties_said" type="int" value="0"/>
+	<var name="incorrect_recognitions_pantomime" type="int" value="0"/>
+	<var name="incorrect_child_recognitions_pantomime" type="int" value="0"/>
+	
+	<var name="x" type="float"/>
+	<var name="y" type="float"/>
+	<var name="z" type="float"/>
+	<var name="xb" type="double"/>
+	<var name="yb" type="double"/>
+	<var name="zb" type="double"/>
+	
+	<var name="location" type="iristk.situated.Location"/>
+	 
+	 <!-- Whether to use furhat or avatar for the game. If using avatar value="'system'"-->
+	<var name="current_agent" type="String" value="'system'"/>	
+	<var name="text_to_speak" type="String"/>	
+	<var name="gender_str" type="String"/>	
+	
+	 
+	<var name="GESTURES_TO_PLAY" type="int" value="2"/>
+	<var name="gestures_done" type="int" value="0"/>
+	<var name="total_wrong_recognized_gestures" type="int" value="0"/>
+	<var name="current_wrong_recognized_gestures" type="int" value="0"/>
+	
+	<var name="PANTOMIME_GESTURES_TO_PLAY_EACH" type="int" value="3"/>
+	<var name="pantomime_gestures_1_done" type="int" value="0"/>
+	<var name="pantomime_gestures_2_done" type="int" value="0"/>
+		
+	<var name="number" type="Integer"/>
+	<var name="emorec_opened_cards" type="int" value="0"/>
+	
+	<var name="rpc_1" type="Integer" value="0"/>
+	<var name="rpc_2" type="Integer" value="0"/>
+
+
+	<var name="current_pantomime_state" type="String" value="'Pantomime_State_1'"/>	
+
+	<var name="current_nao_behavior" type="String"/>	
+
+
+
+	<!-- CALLABLE STATES -->
+	
+	<state id="agent_attend">
+		<param name="agent"/>
+		<param name="location" type="iristk.situated.Location"/>
+		<param name="mode" default="'default'"/>
+		<param name="speed" default="'medium'"/>
+		<onentry>
+			<send event="action.gaze" p:location="location" p:agent="agent" p:mode="mode" p:speed="speed"/>
+			<return/>
+		</onentry>
+	</state>
+
+	
+	<state id="agent_speak">
+		<param name="text" help="The text to speak (can also be provided as a text node)"/>
+		<param name="agent" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="action.speech" 
+					p:text="text"
+					p:agent="agent"
+					bindId="action"/>
+		</onentry>
+		<onevent name="monitor.speech.done">
+			<return event="monitor.speech.done"/>
+		</onevent>
+	</state>
+	
+	<state id="agent_gesture">
+		<param name="name" help="The text to speak (can also be provided as a text node)"/>
+		<param name="agent" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="action.gesture" 
+					p:name="name"
+					p:agent="agent"
+					bindId="action"/>
+		</onentry>
+		<onevent name="monitor.gesture.end">
+			<return event="monitor.gesture.end"/>
+		</onevent>
+	</state>
+
+	<state id="nao_behavior">
+		<param name="name" help="The text to speak (can also be provided as a text node)" default="null"/>
+		<param name="behavior" help="The text to speak (can also be provided as a text node)" default="null"/>
+		<var name="action"/>
+		<onentry>
+			<if cond="name!=null">
+				<send event="athena.nao.behavior" 
+						p:name="name"
+						bindId="action"/>			
+			<elseif cond="behavior!=null"/>
+				<send event="athena.nao.behavior" 
+						p:behavior="behavior"
+						bindId="action"/>					
+			</if>
+
+		</onentry>
+		<onevent name="athena.nao.behavior.done">
+			<return event="athena.nao.behavior.done"/>
+		</onevent>
+	</state>
+	
+	<state id="zeno_animation">
+		<param name="name" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="athena.zeno.behavior" 
+					p:name="name"
+					bindId="action"/>
+		</onentry>
+   		<onevent name="athena.zeno.behavior.done">
+			<return event="athena.zeno.behavior.done"/>
+		</onevent>
+	</state>
+
+	<!-- MAIN FLOW -->
+
+	<state id="Idle" extends="Dialog">
+		<onentry>
+			<exec>listen_sloc=true</exec>
+		</onentry>
+		<onevent name="athena.admin.start">
+			<goto state="Greeting"/>
+		</onevent>
+	</state>
+
+	<state id="Greeting" extends="Dialog">
+		<onentry>
+			<exec>System.out.println("Greeting state");</exec>
+			<call state="agent_speak" p:text="'Γειά σου! Πολύ χαιρόμαστε που είσαι εδώ! Το όνομά μου είναι πάρης! Εσένα πως σε λένε;'" p:agent="'system' "/>
+			<wait msec="2000"/>
+			<goto state="Greeting_furhat_zeno"/>
+ 		</onentry>
+	</state>
+	
+	<state id="Greeting_nao" extends="Dialog">
+		<onentry>
+			<call state="nao_behavior" p:behavior="'xairetismos'"/>
+			<goto state="Greeting_furhat_zeno"/>
+		</onentry>
+	</state>
+
+ 	<state id="Greeting_furhat_zeno" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Δεξιά μου είναι ο φίλος μας ο νίκος και κάτω βρίσκεται η άννα.'" p:agent="'system' "/>	
+			<!-- Girnaei pros ton zino ? -->
+			<goto state="Greeting_zeno"/>
+		</onentry>
+	</state>
+
+	<state id="Greeting_zeno" extends="Dialog">
+		<onentry>
+			<call state="zeno_animation" p:name="'IROS_animations/nod.anim.xml'"/>
+			<goto state="Greeting_continue"/>
+		</onentry>
+	</state>
+
+
+	<state id="Greeting_continue" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Χαιρόμαστε πολύ που σε γνωρίζουμε! Είμαστε πολύ χαρούμενοι που ήρθες να παίξουμε. Θέλουμε να νιώθεις άνετα μαζί μας και να εκφράζεσαι όπως θες. Μπορείς να κάνεις χειρονομίες και γκριμάτσες, μας αρέσουν πολύ. Πριν ξεκινήσουμε να παίζουμε θα θέλαμε να μου δείξεις μερικές χειρονομίες. Αν συμφωνείς κάνε ένα καταφατικό νεύμα με το κεφάλι σου.'" p:agent="'system'"/>
+			<!-- <send event="athena.gesture.listen"/> -->
+			<wait msec="3000"/>
+			<exec>gestures_done=0</exec>
+			<goto state="Gesture_State_furhat"/>
+		</onentry>
+<!--  	<onevent name="athena.gesture.recognizedGroundTruth">
+			<goto state="Choose_gestures_game_agent"/>
+		</onevent> -->
+	</state>
+
+	<state id="Gesture_State_furhat" extends="Dialog">
+		<param name="speak" type="boolean" default="true" help="Whether to speak before sending a gesture listen event or not."/>	
+		<onentry>
+			<if cond="speak==true">
+				<if cond="gestures_done == GESTURES_TO_PLAY">
+					<call state="agent_speak" p:text="'Μάθαμε πολλά από τις χειρονομίες σου!'" p:agent="current_agent"/>
+					<send event="athena.games.gestrec.stop"/>
+					<goto state="Emorec_PreStart"/>
+				<elseif cond="gestures_done == 0"/>
+					<send event="athena.games.gestrec.start"/>
+					<call state="agent_speak" p:text="'Για αυτό το παιχνίδι θα πρέπει να μου κάνεις μία από τις χειρονομίες που έμαθες.'" p:agent="'system'"/>
+					<call state="agent_speak" p:text="'Κάνε μου μία χειρονομία'" p:agent="current_agent"/>		
+					<send event="athena.gesture.listen"/>			
+				<else/>
+					<random>
+						<call state="agent_speak" p:text="'Κάνε μου μία χειρονομία'" p:agent="current_agent"/>		
+						<call state="agent_speak" p:text="'Κάνε μου άλλη μία χειρονομία'" p:agent="current_agent"/>		
+						<call state="agent_speak" p:text="'Διάλεξε μία χειρονομία και κάντην'" p:agent="current_agent"/>		
+					</random>
+					<send event="athena.gesture.listen"/>			
+				</if>
+			<else/>
+				<send event="athena.gesture.listen"/>							
+			</if>
+		</onentry>
+		<onevent name="athena.gesture.recognizedGroundTruth">
+			<goto state="Gesture_recognized_furhat" p:recognized="(event:text)"/>
+		</onevent>
+	</state>
+
+	<state id="Gesture_recognized_furhat" extends="Dialog">
+		<param name="recognized" help="The recognized gesture."/>
+		<onentry>
+			<if cond="recognized.equals('greetings')">
+				<call state="agent_speak" p:text="'Νομίζω πως με χαιρέτησες. Σωστά;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>
+			<elseif cond="recognized.equals('come_closer')"/>
+				<call state="agent_speak" p:text="'Μάλλον μου είπες να έρθω πιο κοντά. Έχω δίκιο;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>	
+			<elseif cond="recognized.equals('point')"/>
+				<call state="agent_speak" p:text="'Έδειξες την κρεμάστρα. Το βρήκα σωστά;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>
+			<elseif cond="recognized.equals('sit_down')"/>
+				<call state="agent_speak" p:text="'Έκανες νόημα για να κάτσει κάποιος κάτω. Κατάλαβα σωστά;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>
+			<elseif cond="recognized.equals('stop')"/>
+				<call state="agent_speak" p:text="'Μου έδειξες να σταματήσω. Έχω δίκιο;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>
+			<elseif cond="recognized.equals('circle')"/>
+				<call state="agent_speak" p:text="'Σχεδίασες έναν κύκλο στον αέρα. Το βρήκα σωστά;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+				<exec>gestures_done++</exec>
+			<else/>
+				<call state="agent_speak" p:text="'Δεν κατάλαβα. Ξανακάντο.'" p:agent="current_agent"/>		
+				<goto state="Gesture_State_furhat" p:speak="false"/>
+			</if>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<if cond="(event:text).equals('nai')">
+				<random>
+					<call state="agent_speak" p:text="'Τέλεια!'" p:agent="current_agent"/>
+					<call state="agent_speak" p:text="'Ωραία!'" p:agent="current_agent"/>
+				</random>
+				<goto state="Gesture_State_furhat" p:speak="true"/>
+			<elseif cond="(event:text).equals('oxi')"/>
+				<if cond="current_wrong_recognized_gestures == 0">
+					<random>
+						<call state="agent_speak" p:text="'Κρίμα! Σε παρακαλώ κάντο άλλη μια φορά.'" p:agent="current_agent"/>
+						<call state="agent_speak" p:text="'Θέλω να το βρω! Σε παρακαλώ ξανακάντο!'" p:agent="current_agent"/>
+					</random>
+					<exec> current_wrong_recognized_gestures ++ </exec>
+					<exec> total_wrong_recognized_gestures ++ </exec>
+					<goto state="Gesture_State_furhat" p:speak="false"/>					
+				<else/>
+					<call state="agent_speak" p:text="'Δεν τα καταφέρνω. Πες μου τι έκανες.'" p:agent="current_agent"/>
+					<wait msec="3000"/>
+					<exec> current_wrong_recognized_gestures = 0 </exec>
+					<exec> total_wrong_recognized_gestures ++ </exec>
+					<goto state="Gesture_State_furhat" p:speak="true"/>
+				</if>
+			<else/>
+				<call state="agent_speak" p:text="'Θες να επαναλάβεις αυτό που είπες γιατί δεν κατάλαβα;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+			</if>
+		</onevent>
+	</state>
+
+
+	<!-- EMOTION RECOGNITION -->
+
+	<state id="Emorec_PreStart" extends="Dialog">
+		<onentry>
+			<exec>emorec_opened_cards=0</exec>
+			<send event="athena.games.emorec.start"/>
+			<call state="agent_speak" p:text="'Τώρα θέλουμε να παίξουμε ένα παιχνίδι για το πως εκφράζουμε τα συναισθήματά μας!'" p:agent="'system'"/>
+			<goto state="Emorec_Start_zeno"/>
+		</onentry>
+	</state>
+	
+	<!-- EMOREC GAME MANAGED BY ZENO -->
+	
+	<state id="Emorec_Start_zeno" extends="Dialog">
+		<onentry>
+			<send event="athena.games.emorec.start"/>
+			<call state="agent_speak" p:text="'Το παιχνίδι θα το παίξουμε στην οθόνη που είναι μπροστά μας.'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Θα εμφανιστούν στην οθόνη μερικές κάρτες. Αν επιλέξεις μία από αυτές τότε θα εμφανιστεί μία εικόνα. Θέλoυμε να δείξεις πως θα ένιωθες αν ήσουν εσύ στην σκηνή της εικόνας. Μετά θα σου δείξει ο νίκος πως νιώθει.'" p:agent="'system'"/>
+			<goto state="Emorec_State_zeno"/>			
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<if cond="(event:text).equals('nai')">	
+				<goto state="Emorec_State_zeno"/>
+			<else/>
+				<call state="agent_speak" p:text="'Συγγνώμη δεν καταλάβαμε. Μπορείς να επαναλάβεις;'" p:agent="'system'"/>		
+				<send event="athena.asr.listen" p:options="'nai,oxi'" />
+			</if>
+		</onevent>
+	</state>	
+
+		
+	<state id="Emorec_State_zeno" extends="Dialog">
+		<onentry>
+			<send event="athena.games.emorec.start"/>
+			<if cond="emorec_opened_cards == 6">
+				<call state="agent_speak" p:text="'Μάθαμε πολλά από τις εκφράσεις σου!'" p:agent="'system'"/>
+				<send event="athena.games.emorec.stop"/>
+				<goto state="Pantomime_Start"/>
+			<elseif cond="emorec_opened_cards == 5"/>
+				<call state="agent_speak" p:text="'Άνοιξε και την τελευταία κάρτα!'" p:agent="'system'"/>
+			<elseif cond="emorec_opened_cards == 0"/>
+				<call state="agent_speak" p:text="'Διάλεξε μία κάρτα!'" p:agent="'system'"/>
+			<else/>
+				<random>
+					<call state="agent_speak" p:text="'Διάλεξε μία άλλη κάρτα!'" p:agent="'system'"/>
+					<call state="agent_speak" p:text="'Επίλεξε μία κάρτα!'" p:agent="'system'"/>
+					<call state="agent_speak" p:text="'Ποια κάρτα θα διαλέξεις τώρα;'" p:agent="'system'"/>
+				</random>
+			</if>
+		</onentry>
+		<onevent name="athena.games.emorec.card_opened" cond="event:text!=null">
+			<exec>
+				emorec_opened_cards++
+			</exec>
+			<if cond="(event:text).equals('anger')">
+				<call state="Emorec_Anger_zeno"/>
+			<elseif cond="(event:text).equals('happiness')"/>
+				<call state="Emorec_Happiness_zeno"/>
+			<elseif cond="(event:text).equals('fear')"/>
+				<call state="Emorec_Fear_zeno"/>
+			<elseif cond="(event:text).equals('sadness')"/>
+				<call state="Emorec_Sadness_zeno"/>
+			<elseif cond="(event:text).equals('disgust')"/>
+				<call state="Emorec_Disgust_zeno"/>
+			<elseif cond="(event:text).equals('surprise')"/>
+				<call state="Emorec_Surprise_zeno"/>
+			</if>
+			<reentry/>
+		</onevent>
+	</state>
+	
+	<state id="Emorec_Disgust_zeno" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Η κάρτα αυτή δείχνει την αηδία. Πως κάνεις όταν αηδιάζεις με κάτι;'" p:agent="'system'"/>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Χάχα! Ο νίκος έτσι αηδιάζει!'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/disgust.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>
+	
+	<state id="Emorec_Anger_zeno" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Α! Βλέπουμε διάλεξες τον θυμό! Πως κάνεις όταν θυμώνεις;'" p:agent="'system'"/>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Ο νίκος έτσι θυμώνει.'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/anger.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>	
+	
+	<state id="Emorec_Surprise_zeno" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Αυτή είναι η εκπληξη. Πως κάνεις με αυτό το συναίσθημα;'" p:agent="'system'"/>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Κοίτα πως κάνει ο νίκος!'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/surprise.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>	
+	
+	<state id="Emorec_Sadness_zeno" extends="Dialog">
+		<onentry>
+			<if cond="child_gender.equals('male')">
+				<call state="agent_speak" p:text="'Αυτή η κάρτα δείχνει την λύπη. Πως θα ήταν το πρόσωπο σου αν ήσουνα λυπημένος;'" p:agent="'system'"/>		
+			<else/>
+				<call state="agent_speak" p:text="'Αυτή η κάρτα δείχνει την λύπη. Πως θα ήταν το πρόσωπο σου αν ήσουνα λυπημένη;'" p:agent="'system'"/>
+			</if>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Ο νίκος έτσι στενοχωριέται.'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/sadness.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>
+	
+	<state id="Emorec_Fear_zeno" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Αυτός είναι ο φόβος. Πως κάνεις όταν φοβάσαι;'" p:agent="'system'"/>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Ο νίκος όταν φοβάται κάνει έτσι.'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/fear.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>	
+	
+	<state id="Emorec_Happiness_zeno" extends="Dialog">
+		<onentry>
+			<if cond="child_gender.equals('male')">
+				<call state="agent_speak" p:text="'Βλέπουμε διάλεξες τη χαρά. Πως κάνεις το πρόσωπό σου όταν είσαι χαρούμενος;'" p:agent="'system'"/>
+			<else/>
+				<call state="agent_speak" p:text="'Βλέπουμε διάλεξες τη χαρά. Πως κάνεις το πρόσωπό σου όταν είσαι χαρούμενη;'" p:agent="'system'"/>			
+			</if>
+			<wait msec="3000"/>
+			<call state="agent_speak" p:text="'Τέλεια! Ο νίκος έτσι χαίρεται.'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+			<return/>
+		</onentry>	
+	</state>
+
+	<!-- Pantomime -->		
+	<state id="Pantomime_Start" extends="Dialog">
+		<onentry>
+			<send event="athena.games.pantomime.start"/>
+			<call state="nao_behavior" p:name="'pantomima1'"/>
+			<wait msec="1000"/>
+			<call state="nao_behavior" p:name="'pantomima2'"/>
+			<wait msec="1000"/>
+			<call state="nao_behavior" p:name="'pantomima3'"/>
+			<wait msec="1000"/>
+			<call state="nao_behavior" p:name="'pantomima4'"/>
+			<send event="athena.asr.listen"  p:options="'nai,oxi'"/>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<if cond="(event:text).equals('nai')">
+				<call state="nao_behavior" p:name="'pantomima5'"/>
+				<goto state="Pantomime_State_1"/>				
+			<elseif cond="(event:text).equals('oxi')"/>
+				<call state="nao_behavior" p:name="'ela_se_parakalw'"/>
+				<send event="athena.asr.listen"  p:options="'nai,oxi'"/>
+			<else/>
+				<call state="nao_behavior" p:name="'ela_min_ntrepese'"/>
+			</if>
+		</onevent>
+	</state>
+	
+	
+	<state id="Pantomime_State_child_1" extends="Dialog">
+		<onentry>
+			<call state="nao_behavior" p:name="'dialexeKmimisou'"/>
+		</onentry>
+		<onevent name="athena.games.pantomime.recognize">
+			<call state="nao_behavior" p:name="(event:text)"/>
+			<send event="athena.asr.listen" p:options="'nai,oxi'" /> 			
+		</onevent>
+		<onevent name="athena.asr.recognizedGroundTruth">
+			<if cond="(event:text).equals('nai')">
+				<call state="nao_behavior" p:name="'xarika'"/>
+				<exec>incorrect_recognitions_pantomime = 0</exec>
+				<goto state="Pantomime_State_1"/>
+			<elseif cond="(event:text).equals('oxi')"/>
+				<if cond="incorrect_recognitions_pantomime>0">
+					<call state="nao_behavior" p:name="'xanalathos'"/>
+					<wait msec="3000"/>
+					<exec>incorrect_recognitions_pantomime = 0</exec>
+					<goto state="Pantomime_State_1"/>
+				<else/>
+					<exec>incorrect_recognitions_pantomime ++</exec>
+					<call state="nao_behavior" p:name="'ekanalathos'"/>
+					<call state="nao_behavior" p:name="'xanavro'"/>
+					<send event="athena.asr.listen" p:options="'nai,oxi'" />
+				</if>
+			<else/>
+				<call state="nao_behavior" p:name="'pesxana'"/>						
+				<send event="athena.asr.listen" p:options="'nai,oxi'" />
+			</if>
+		</onevent>
+	</state>
+
+
+	<state id="Pantomime_State_child_2" extends="Dialog">
+		<onentry>
+			<call state="nao_behavior" p:name="'dialexeKmimisou'"/>
+		</onentry>
+		<onevent name="athena.games.pantomime.recognize">
+			<call state="nao_behavior" p:name="(event:text)"/>
+			<send event="athena.asr.listen" p:options="'nai,oxi'" /> 			
+		</onevent>
+		<onevent name="athena.asr.recognizedGroundTruth">
+			<if cond="(event:text).equals('nai')">
+				<call state="nao_behavior" p:name="'xarika'"/>
+				<exec>incorrect_recognitions_pantomime = 0</exec>
+				<goto state="Pantomime_State_2"/>
+			<elseif cond="(event:text).equals('oxi')"/>
+				<if cond="incorrect_recognitions_pantomime>0">
+					<call state="nao_behavior" p:name="'xanalathos'"/>
+					<wait msec="3000"/>			
+					<exec>incorrect_recognitions_pantomime = 0</exec>
+					<goto state="Pantomime_State_2"/>
+				<else/>
+					<exec>incorrect_recognitions_pantomime ++</exec>
+					<call state="nao_behavior" p:name="'ekanalathos'"/>
+					<call state="nao_behavior" p:name="'xanavro'"/>
+					<send event="athena.asr.listen" p:options="'nai,oxi'" />
+				</if>
+			<else/>
+				<call state="nao_behavior" p:name="'pesxana'"/>						
+				<send event="athena.asr.listen" p:options="'nai,oxi'" />
+			</if>
+		</onevent>
+	</state>
+	
+	<state id="Pantomime_State_1" extends="Dialog">
+		<onentry>
+			<if cond="pantomime_gestures_1_done%2 == 1">
+  				<exec> pantomime_gestures_1_done++ </exec>
+				<goto state="Pantomime_State_child_1"/>			
+			</if>
+
+			<exec> pantomime_gestures_1_done++ </exec>
+
+			<if cond="pantomime_gestures_1_done == 3">
+ 	 			<call state="nao_behavior" p:name="'6nees'"/>
+	 			<exec>incorrect_recognitions_pantomime = 0</exec>
+				<exec>incorrect_child_recognitions_pantomime = 0</exec>
+				<goto state="Pantomime_State_2"/>			
+			</if>
+
+						 
+			<if cond="pantomime_gestures_1_done > 0">
+				<call state="nao_behavior" p:name="'thadeixw'"/>
+			</if>	
+			<random>
+  				<exec> current_nao_behavior = "air_guitar" </exec>
+				<exec> current_nao_behavior = "macarena" </exec>
+			</random>
+			<call state="nao_behavior" p:behavior="current_nao_behavior"/>
+			<call state="nao_behavior" p:name="'timimoumai'"/>
+			<goto state="listen_pantomime_1"/>
+		</onentry>
+<!--  	<onevent name="athena.games.pantomime.continue">
+			<exec>incorrect_recognitions_pantomime = 0</exec>
+			<exec>incorrect_child_recognitions_pantomime = 0</exec>
+			<call state="nao_behavior" p:name="'6nees'"/>
+			<goto state="Pantomime_State_2"/>
+		</onevent> -->	
+	</state>
+
+
+
+
+	
+	<state id="listen_pantomime_1" extends="Dialog">
+ 		<onentry>
+			<send event="athena.asr.listen" p:options="'xoreywXoro,paizwKithara,karfwma,bafwToixo,tzamia,odhghsh,skavwTrypa,skoupizwPatwma,kolympi,gymanzomai,siderwma,gyrnawSelides'"/>
+ 		</onentry>
+ 		<onevent name="athena.asr.recognizedGroundTruth">
+			<if cond="(event:text).equals('xoreywXoro')">
+ 				<if cond="current_nao_behavior.equals('macarena')">
+  					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'xoros2'"/>			
+					<goto state="Pantomime_State_1"/>
+				<else/>
+					<goto state="Pantomime_Failed_1"/>				
+ 				</if>
+			<elseif cond="(event:text).equals('paizwKithara')"/>
+ 				<if cond="current_nao_behavior.equals('air_guitar')">
+ 					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'kithara2'"/>			
+				<goto state="Pantomime_State_1"/>
+				<else/>
+					<goto state="Pantomime_Failed_1"/>
+ 				</if>
+			<elseif cond="(event:text).equals('karfwma')"/>
+				<if cond="current_nao_behavior.equals('sfyri')">
+ 					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'karfono2'"/>
+					<goto state="Pantomime_State_1"/>
+				<else/>
+					<goto state="Pantomime_Failed_1"/>
+				</if>
+			<else/>
+				<goto state="Pantomime_Failed_1"/>
+			</if>
+		</onevent>
+	</state>
+	
+	<state id="listen_pantomime_2" extends="Dialog">
+ 		<onentry>
+			<send event="athena.asr.listen" p:options="'xoreywXoro,paizwKithara,karfwma,bafwToixo,tzamia,odhghsh,skavwTrypa,skoupizwPatwma,kolympi,gymanzomai,siderwma,gyrnawSelides'"/>
+ 		</onentry>
+ 		<onevent name="athena.asr.recognizedGroundTruth">
+			<if cond="(event:text).equals('gymanzomai')">
+				<if cond="current_nao_behavior.equals('workout')">
+ 					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'gym'"/>
+					<goto state="Pantomime_State_2"/>
+				<else/>
+					<goto state="Pantomime_Failed_2"/>
+				</if>
+			<elseif cond="(event:text).equals('gyrnawSelides')"/>
+				<if cond="current_nao_behavior.equals('book')">
+ 					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'vivlio2'"/>
+					<goto state="Pantomime_State_2"/>
+				<else/>
+					<goto state="Pantomime_Failed_2"/>
+				</if>
+			<elseif cond="(event:text).equals('tzamia')"/>
+				<if cond="current_nao_behavior.equals('tzamia')">
+ 					<call state="nao_behavior" p:name="'sosta'"/>
+					<call state="nao_behavior" p:name="'tzamia2'"/>
+					<goto state="Pantomime_State_2"/>
+				<else/>
+					<goto state="Pantomime_Failed_2"/>
+				</if>
+<!--  			<else/>
+				<goto state="Pantomime_Failed_2"/>-->
+			<else/>
+				<goto state="Pantomime_Failed_2"/>
+			</if>
+		</onevent>
+	</state>
+
+	
+	<state id="Pantomime_Failed_1" extends="Dialog">
+		<onentry>
+			<if cond="incorrect_child_recognitions_pantomime > 0">
+				<call state="nao_behavior" p:name="'oxideneinai'"/>
+				<exec>incorrect_child_recognitions_pantomime=0</exec>
+
+ 				<if cond="current_nao_behavior.equals('macarena')">
+					<call state="nao_behavior" p:name="'xoros2'"/>			
+ 				</if>
+ 				<if cond="current_nao_behavior.equals('air_guitar')">
+					<call state="nao_behavior" p:name="'kithara2'"/>			
+ 				</if>
+				<if cond="current_nao_behavior.equals('Sfyri')">
+					<call state="nao_behavior" p:name="'karfono2'"/>
+				</if>
+				<goto state="Pantomime_State_1"/>
+			<else/>
+				<call state="nao_behavior" p:name="'oxideneinai'"/>
+				<call state="nao_behavior" p:name="'prospathise'"/>
+				<exec>incorrect_child_recognitions_pantomime++</exec>
+				<goto state="listen_pantomime_1"/>
+			</if>
+		</onentry>
+	</state>
+	
+	<state id="Pantomime_Failed_2" extends="Dialog">
+		<onentry>
+			<if cond="incorrect_child_recognitions_pantomime > 0">
+				<call state="nao_behavior" p:name="'oxideneinai'"/>
+				<exec>incorrect_child_recognitions_pantomime=0</exec>
+
+				<if cond="current_nao_behavior.equals('workout')">
+					<call state="nao_behavior" p:name="'gym'"/>
+				</if>
+				<if cond="current_nao_behavior.equals('book')">
+					<call state="nao_behavior" p:name="'vivlio2'"/>
+				</if>
+				<if cond="current_nao_behavior.equals('tzamia')">
+					<call state="nao_behavior" p:name="'tzamia2'"/>
+				</if>
+				<goto state="Pantomime_State_2"/>
+			<else/>
+				<call state="nao_behavior" p:name="'oxideneinai'"/>
+				<call state="nao_behavior" p:name="'prospathise'"/>
+				<exec>incorrect_child_recognitions_pantomime++</exec>
+				<goto state="listen_pantomime_2"/>
+			</if>
+		</onentry>
+	</state>
+		
+	
+
+	<state id="Pantomime_State_2" extends="Dialog">
+		<onentry>
+			<exec>current_pantomime_state="Pantomime_State_2"</exec>
+
+			<if cond="pantomime_gestures_2_done%2 == 1">
+  				<exec> pantomime_gestures_2_done++ </exec>
+				<goto state="Pantomime_State_child_2"/>			
+			</if>
+
+
+			<if cond="pantomime_gestures_2_done > 3">
+				<goto state="Idle"/>			
+			</if>
+
+			<exec> pantomime_gestures_2_done++ </exec>
+
+
+			<call state="nao_behavior" p:name="'thadeixw'"/>
+			<send event="athena.games.pantomime.continue"/>
+			<random>
+  				<exec> current_nao_behavior = "workout" </exec>
+				<exec> current_nao_behavior = "book" </exec>
+				<exec> current_nao_behavior = "tzamia" </exec>
+			</random>
+
+			<call state="nao_behavior" p:behavior="current_nao_behavior"/>
+			<call state="nao_behavior" p:name="'timimoumai'"/>
+
+			<goto state="listen_pantomime_2"/>
+		</onentry>
+		<onevent name="athena.games.pantomime.stop">
+			<call state="nao_behavior" p:name="'teleia'"/>
+			<goto state="FarmStart"/>
+		</onevent>
+	</state>
+	
+	<!--  -->
+	
+	
+	
+
+
+	<state id="FarmStart" extends="Dialog">
+		<param name="speak" type="boolean" default="true" help="Whether to immediately return and produce speech asynchronous"/>	
+		<onentry>
+			<send event="athena.games.farm.start"/>
+			<call state="agent_speak" p:text="'Θα παίξουμε ένα παιχνίδι όπου κάποιος σκέφτεται ένα ζώο της φάρμας και ο άλλος πρέπει να μαντέψει ποιό είναι το ζώο αυ΄τό.'" p:agent="current_agent"/>		
+			<goto state="Start_Guess_Furhat"/>	
+		</onentry>
+		<onevent name="athena.gesture.recognizedGroundTruth">
+			<goto state="Gesture_recognized_furhat" p:recognized="(event:text)"/>
+		</onevent>		
+	</state>
+
+	<!-- Each time we start a game, populate the animals array, and pick a random. -->
+	<state id="Start_Guess_Furhat" extends="Dialog">
+		<onentry>
+			<exec>
+				animals = FarmFunctions.createAnimals(); 
+				current_animal = FarmFunctions.randomAnimal(animals);
+				current_properties_said=0
+			</exec>
+
+			<exec>
+				Date date = new Date(System.currentTimeMillis());	
+			</exec>
+			<log>Starting Furhat Animal at <expr>date</expr></log>
+		
+			<goto state="Guess_Furhat"/>
+		</onentry>	
+	</state>
+	
+	<state id="Guess_Furhat" extends="Dialog">
+		<onentry>
+			<if cond="current_properties_said==0">
+				<exec>
+					text_to_speak = "Το ζώο που διάλεξα έχει " + current_animal.size + " μέγεθος"
+				</exec>
+			<elseif cond="current_properties_said==1"/>
+				<exec>
+					text_to_speak = "Το ζώο που διάλεξα είναι " + current_animal.animal_type
+				</exec>
+			<elseif cond="current_properties_said==2"/>
+				<exec>
+					text_to_speak = "Το ζώο που διάλεξα είναι " + current_animal.getOneColor()
+				</exec>
+<!-- 		<elseif cond="current_properties_said==3"/>
+				<exec>
+					text_to_speak = "Το ζώο που διάλεξα έχει " + current_animal.num_legs + " πόδια"
+				</exec>
+-->
+			<elseif cond="current_properties_said==3"/>
+				<exec>
+					text_to_speak = "Το ζώο που διάλεξα " + current_animal.characteristic
+				</exec>
+			</if>
+			<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+			<exec>
+				current_properties_said++
+			</exec>
+			<send event="athena.asr.listen" p:options="'papia,kyknos,kota,peristeri,galopoyla,pagoni,cari,batraxos,gata,skylos,koyneli,skioyros,skantzoxoiros,goyroyni,probato,katsika,agelada,gaidaros,alogo'"/>
+			<exec>
+				listen_sloc=true;
+			</exec>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<exec>
+				listen_sloc=false;
+			</exec>
+			<if cond="(event:text).equals(current_animal.asr_name)">
+				<exec>
+					Date date = new Date(System.currentTimeMillis());	
+				</exec>
+				<log>Ending Furhat Animal Success at <expr>date</expr></log>
+
+
+				<call state="agent_speak" p:text="'Σωστά! Το βρήκατε!'" p:agent="current_agent"/>
+				<call state="animal_placement"/>
+				<call state="agent_speak" p:text="'Σειρά σας! Βάλτε ένα ζώο.'" p:agent="current_agent"/>
+				<goto state="Start_Guess_Human"/>
+			<elseif cond="(event:text).equals('listen_again')"/>
+				<call state="agent_speak" p:text="'Θες να επαναλάβεις γιατί δεν κατάλαβα;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'papia,kyknos,kota,peristeri,galopoyla,pagoni,cari,batraxos,gata,skylos,koyneli,skioyros,skantzoxoiros,goyroyni,probato,katsika,agelada,gaidaros,alogo'"/>
+			<else/>
+				<call state="agent_speak" p:text="'Όχι δεν είναι αυτό.'" p:agent="current_agent"/>
+				<if cond="current_properties_said==4">
+					<exec>
+						Date date = new Date(System.currentTimeMillis());	
+					</exec>
+					<log>Ending Furhat Animal Failure at <expr>date</expr></log>
+
+					<exec>
+						text_to_speak = "Χάσατε! Το ζώο που σκεφτόμουνα είναι " + FarmFunctions.getGenderString(current_animal.gender) + " " + current_animal.name
+					</exec>
+					<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>	
+					<call state="animal_placement"/>
+
+					<call state="agent_speak" p:text="'Σειρά σας! Βάλτε ένα ζώο.'" p:agent="current_agent"/>
+					<goto state="Start_Guess_Human"/>
+				<else/>
+					<reentry/>
+				</if>
+			</if>
+		</onevent>
+	</state>
+
+	<state id="animal_placement">
+		<onentry>
+			<call state="agent_speak" p:text="'Βάλτε το ζώο στη σωστή θέση του στη φάρμα.'" p:agent="current_agent"/>
+		</onentry>
+		<onevent name="athena.games.farm.incorrect_placement">
+			<log>Incorrect Placement</log>
+			<call state="agent_speak" p:text="'Αυτή η θέση δεν είναι καλή.'" p:agent="current_agent"/>		
+		</onevent>
+		<onevent name="athena.games.farm.correct_placement">
+			<log>Correct Placement</log>
+			<call state="agent_speak" p:text="'Τέλεια!'" p:agent="current_agent"/>		
+			<return/>
+		</onevent>
+	</state>
+
+	<!-- Each time we start a game, populate the animals array, and create a null guess (properties will be set as they are recognized. -->
+	<state id="Start_Guess_Human" extends="Dialog">
+		<onentry>
+			<exec>
+				animals = FarmFunctions.createAnimals();
+				animal_to_guess = new Animal(null,null,null,null,100,null,null,null)
+			</exec>
+			<call state="agent_speak" p:text="'Έχετε λίγο χρόνο να αποφασίσετε το ζώο που θα βάλετε!'" p:agent="current_agent"/>
+			<wait msec="7000"/>
+			<exec>
+				Date date = new Date(System.currentTimeMillis());	
+			</exec>
+			<log>Starting Human Animal at <expr>date</expr></log>
+			<goto state="Guess_Human"/>
+		</onentry>
+	</state>
+
+	<state id="Guess_Human" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Πείτε μου ένα χαρακτηριστικό.'" p:agent="current_agent"/>
+			<send event="athena.asr.listen" p:options="'megalo,mikro,mesaio,pthna,amfibia,uhlastika,caria,kitrino,aspro,mayro,kafe,gkri,polyxrwmo,roz,prasino,podia4,podia2,podia0,ayga,laimo,eirhnh,xmas,entypOura,gyala,prigkipissa,spiti,filosAnur,karota,fountOyra,agkauia,trweiPanta,malli,braxia,mhrykastiko,anPetaei,kalpasmo'"/>
+			<exec>
+				listen_sloc=true;
+			</exec>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth">
+			<exec>
+				listen_sloc=false;
+			</exec>
+			<if cond="(event:text).equals('listen_again')">
+				<call state="agent_speak" p:text="'Θες να επαναλάβεις γιατί δεν κατάλαβα;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'megalo,mikro,mesaio,pthna,amfibia,uhlastika,caria,kitrino,aspro,mayro,kafe,gkri,polyxrwmo,roz,prasino,podia4,podia2,podia0,ayga,laimo,eirhnh,xmas,entypOura,gyala,prigkipissa,spiti,filosAnur,karota,fountOyra,agkauia,trweiPanta,malli,braxia,mhrykastiko,anPetaei,kalpasmo'"/>
+			<else/>
+				<!-- oxi akrivws swsto -->
+				<if cond="(event:text).equals('mikro')">
+					<exec>
+						animal_to_guess.size = "Μικρό"
+					</exec>
+				<elseif cond="(event:text).equals('megalo')"/>
+					<exec>
+						animal_to_guess.size = "Μεγάλο"
+					</exec>
+				<elseif cond="(event:text).equals('mesaio')"/>
+					<exec>
+						animal_to_guess.size = "Μεσαίο"
+					</exec>
+					
+				<elseif cond="(event:text).equals('pthna')"/>
+					<exec>
+						animal_to_guess.animal_type = "Πτηνό"
+					</exec>
+				<elseif cond="(event:text).equals('uhlastika')"/>
+					<exec>
+						animal_to_guess.animal_type = "Θηλαστικό"
+					</exec>
+				<elseif cond="(event:text).equals('caria')"/>
+					<exec>
+						animal_to_guess.animal_type = "Ψάρι"
+					</exec>
+				<elseif cond="(event:text).equals('amfibia')"/>
+					<exec>
+						animal_to_guess.animal_type = "Αμφίβιο"
+					</exec>
+	
+	
+				<elseif cond="(event:text).equals('kitrino')"/>
+					<exec>
+						animal_to_guess.color = "Κίτρινο"
+					</exec>
+				<elseif cond="(event:text).equals('aspro')"/>
+					<exec>
+						animal_to_guess.color = "Άσπρο"
+					</exec>
+				<elseif cond="(event:text).equals('mayro')"/>
+					<exec>
+						animal_to_guess.color = "Μαύρο"
+					</exec>
+				<elseif cond="(event:text).equals('kafe')"/>
+					<exec>
+						animal_to_guess.color = "Καφέ"
+					</exec>
+				<elseif cond="(event:text).equals('gkri')"/>
+					<exec>
+						animal_to_guess.color = "Γκρι"
+					</exec>
+				<elseif cond="(event:text).equals('polyxrwmo')"/>
+					<exec>
+						animal_to_guess.color = "Πολύχρωμο"
+					</exec>
+				<elseif cond="(event:text).equals('roz')"/>
+					<exec>
+						animal_to_guess.color = "Ροζ"
+					</exec>
+				<elseif cond="(event:text).equals('prasino')"/>
+					<exec>
+						animal_to_guess.color = "Πράσινο"
+					</exec>
+	
+	
+				<elseif cond="(event:text).equals('podia4')"/>
+					<exec>
+						animal_to_guess.num_legs = 4
+					</exec>
+				<elseif cond="(event:text).equals('podia2')"/>
+					<exec>
+						animal_to_guess.num_legs = 2
+					</exec>
+				<elseif cond="(event:text).equals('podia0')"/>
+					<exec>
+						animal_to_guess.num_legs = 0
+					</exec>
+	
+	
+				<elseif cond="(event:text).equals('ayga')"/>
+					<exec>
+						animal_to_guess.characteristic = "γεννάει αυγά"
+					</exec>
+	
+				<elseif cond="(event:text).equals('laimo')"/>
+					<exec>
+						animal_to_guess.characteristic = "έχει μεγάλο λαιμό"
+					</exec>
+					
+				<elseif cond="(event:text).equals('eirhnh')"/>
+					<exec>
+						animal_to_guess.characteristic = "θυμίζει την ειρήνη"
+					</exec>
+				<elseif cond="(event:text).equals('xmas')"/>
+					<exec>
+						animal_to_guess.characteristic = "θυμίζει χριστούγεννα"
+					</exec>
+				<elseif cond="(event:text).equals('entypOura')"/>
+					<exec>
+						animal_to_guess.characteristic = "έχει εντυπωσιακή ουρά"
+					</exec>
+				<elseif cond="(event:text).equals('gyala')"/>
+					<exec>
+						animal_to_guess.characteristic = "ζούνε και σε γυάλα"
+					</exec>
+				<elseif cond="(event:text).equals('prigkipissa')"/>
+					<exec>
+						animal_to_guess.characteristic = "το φιλάει και μια πριγκήπισσα"
+					</exec>
+				<elseif cond="(event:text).equals('spiti')"/>
+					<exec>
+						animal_to_guess.characteristic = "μένει και μέσα στο σπίτι"
+					</exec>
+				<elseif cond="(event:text).equals('filosAnur')"/>
+					<exec>
+						animal_to_guess.characteristic = "είναι ο καλύτερος φίλος του ανθρώπου"
+					</exec>
+				<elseif cond="(event:text).equals('karota')"/>
+					<exec>
+						animal_to_guess.characteristic = "τρώει καρότα"
+					</exec>
+				<elseif cond="(event:text).equals('fountOyra')"/>
+					<exec>
+						animal_to_guess.characteristic = "έχει φουντωτή ουρά"
+					</exec>
+					
+				<elseif cond="(event:text).equals('agkauia')"/>
+					<exec>
+						animal_to_guess.characteristic = "έχει αγκάθια"
+					</exec>
+		
+				<elseif cond="(event:text).equals('trweiPanta')"/>
+					<exec>
+						animal_to_guess.characteristic = "τρώει τα πάντα"
+					</exec>
+				<elseif cond="(event:text).equals('malli')"/>
+					<exec>
+						animal_to_guess.characteristic = "μας δίνει μαλλί"
+					</exec>
+	
+				<elseif cond="(event:text).equals('braxia')"/>
+					<exec>
+						animal_to_guess.characteristic = "σκαρφαλώνει στα βράχια"
+					</exec>
+				<elseif cond="(event:text).equals('mhrykastiko')"/>
+					<exec>
+						animal_to_guess.characteristic = "είναι μυρηκαστικό"
+					</exec>
+				<elseif cond="(event:text).equals('anPetaei')"/>
+					<exec>
+						animal_to_guess.characteristic = "ρωτάνε αν πετάει"
+					</exec>
+				<elseif cond="(event:text).equals('kalpasmo')"/>
+					<exec>
+						animal_to_guess.characteristic = "είναι γνωστό για τον καλπασμό του"
+					</exec>	
+				</if>
+				<exec>
+					text_to_speak = FarmFunctions.takeAGuess(animals, animal_to_guess)
+				</exec>
+				<if cond="text_to_speak=='Undefined'">
+					<exec>
+						Date date = new Date(System.currentTimeMillis());	
+					</exec>
+					<log>Ending Human Animal Failure at <expr>date</expr></log>
+	
+					<exec>
+						text_to_speak = "Δεν ξέρω ποιο ζώο είναι! Πείτε μου."
+					</exec>
+					<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+					<wait msec="2000"/>
+					<call state="agent_speak" p:text="'Κρίμα που δεν το βρήκα!'" p:agent="current_agent"/>
+					<call state="animal_placement"/>
+					<call state="agent_speak" p:text="'Σειρά μου να βάλω ζώο!'" p:agent="current_agent"/>
+					<wait msec="1000"/>
+					<goto state="Start_Guess_Furhat"/>
+				<else/>
+					<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+					<goto state="waitForGuessAnswer"/>
+				</if>
+			</if>
+		</onevent>
+	</state>
+
+	<state id="waitForGuessAnswer" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Το βρήκα σωστά;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>	
+				<exec>
+					listen_sloc=true;
+				</exec>
+			</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<exec>
+				listen_sloc=false;
+			</exec>	
+			<if cond="(event:text).equals('nai')">
+				<exec>
+					Date date = new Date(System.currentTimeMillis());	
+				</exec>
+				<log>Ending Human Animal Success at <expr>date</expr></log>
+			
+			
+				<call state="agent_speak" p:text="'Τέλεια!'" p:agent="current_agent"/>
+				<call state="animal_placement"/>
+				<call state="agent_speak" p:text="'Σειρά μου να βάλω ζώο!'" p:agent="current_agent"/>
+				<wait msec="1000"/>
+				<goto state="Start_Guess_Furhat"/>
+			<elseif cond="(event:text).equals('listen_again')"/>
+				<call state="agent_speak" p:text="'Θες να επαναλάβεις γιατί δεν κατάλαβα;'" p:agent="current_agent"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>	
+			<elseif cond="(event:text).equals('oxi')"/>
+				<if cond="animals.size() == 0">
+					<exec>
+						Date date = new Date(System.currentTimeMillis());	
+					</exec>
+					<log>Ending Human Animal Failure at <expr>date</expr></log>
+
+					<exec>
+						text_to_speak = "Δεν ξέρω ποιό ζώο είναι! Πείτε μου."
+					</exec>
+					<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+					<wait msec="2000"/>
+					<call state="agent_speak" p:text="'Κρίμα που δεν το βρήκα!'" p:agent="current_agent"/>
+					<call state="animal_placement"/>
+					<call state="agent_speak" p:text="'Σειρά μου να βάλω ζώο!'" p:agent="current_agent"/>
+					<wait msec="1000"/>
+					<goto state="Start_Guess_Furhat"/>
+				<elseif cond="animals.size() == 1"/>
+					<exec>
+						text_to_speak = FarmFunctions.getFinalAnimalString(animals)
+					</exec>
+					<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+					<send event="athena.asr.listen" p:options="'nai,oxi'"/>	
+					<exec>
+						listen_sloc=true;
+					</exec>
+
+				<else/>
+					<goto state="Guess_Human"/>								
+				</if>
+			</if>
+		</onevent>		
+	</state>
+
+	
+
+	<!-- Rock Paper Scissors -->
+
+	<state id="RPC_PreStart" extends="Dialog">
+		<onentry>
+<!--  			<send event="athena.games.rpc.start"/>	
+			<call state="agent_speak" p:text="'Πολύ ωραία.'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Για το επομένο παιχνίδι χρειαζόμαστε και άλλον ένα. Να τον φωνάξουμε;'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Τι λες;'" p:agent="'system'"/>
+			<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+			-->
+			<goto state="RPC_Start_furhat"/>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<if cond="(event:text).equals('nai')">
+				<call state="agent_speak" p:text="'Τέλεια!'" p:agent="'system'"/>
+				<goto state="RPC_Start_furhat"/>
+			<elseif cond="(event:text).equals('oxi')"/>
+				<call state="agent_speak" p:text="'Σε παρακαλώ, ας φωνάξουμε και το άλλο παιδί. Θα δεις θα σου αρέσει να παίξουμε όλοι μαζί! Τι λες;'" p:agent="'system'"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+			<else/>
+				<call state="agent_speak" p:text="'Συγγνώμη δεν κατάλαβα. Μπορείς να επαναλάβεις;'" p:agent="'system'"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+			</if>
+		</onevent>
+	</state>
+
+
+	<!-- Rock Paper Scissors Furhat -->
+
+	<state id="RPC_Start_furhat" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Παιδιά θα θέλαμε να μας δείξετε πως παίζετε το παιχνίδι πέτρα ψαλίδι χαρτί! Θέλουμε πολύ να το μάθουμε αλλά είναι δύσκολο για μας. Θα θέλαμε λοιπόν να παίξετε μπροστά μας τρεις φορές το συγκεκριμένο παιχνίδι, για να μπορέσουμε να μάθουμε τις χειρονομίες. Όταν θα πω πέτρα ψαλίδι χαρτί θα σχηματίσετε μπροστά μας μια χειρονομία που να συμβολίζει την πέτρα, το ψαλίδι ή το χαρτί.'" p:agent="current_agent"/>
+			<call state="agent_speak" p:text="'Έτοιμοι;'" p:agent="current_agent"/>
+			<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+		</onentry>
+		<onevent name="athena.asr.recognizedGroundTruth" cond="event:text!=null">
+			<if cond="(event:text).equals('nai')">
+				<exec>rpc_1 = 0</exec>
+				<exec>rpc_2 = 0</exec>
+				<goto state="RPC_state_furhat"/>
+			<elseif cond="(event:text).equals('oxi')"/>
+				<!-- EDW TI KANEI -->	
+			<else/>
+				<call state="agent_speak" p:text="'Συγγνώμη δεν κατάλαβα. Μπορείτε να επαναλάβετε;'" p:agent="'system'"/>
+				<send event="athena.asr.listen" p:options="'nai,oxi'"/>
+			</if>
+		</onevent>
+	</state>
+
+
+	<state id="RPC_state_furhat" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Πέτρα, Ψαλίδι, Χαρτί'" p:agent="current_agent"/>			
+			<send event="athena.kinect_gesture.listen"/>
+		</onentry>
+		<onevent name="athena.games.rpc.round_winner" cond="event:text!=null">
+			<if cond="(event:text).equals('first')">
+				<exec>rpc_1 ++</exec>
+			<elseif cond="(event:text).equals('second')"/>
+				<exec>rpc_2 ++</exec>
+			</if>				
+			<goto state="RPC_eval_furhat"/>
+		</onevent>
+	</state>
+	
+	<state id="RPC_eval_furhat" extends="Dialog">
+		<onentry>
+			<exec>text_to_speak = "Το σκορ είναι " + Integer.toString(rpc_1) + " " + Integer.toString(rpc_2) </exec>
+			<call state="agent_speak" p:text="text_to_speak" p:agent="current_agent"/>
+			<wait msec="1000"/>
+			<if cond="rpc_1 == 2">
+				<call state="agent_speak" p:text="'Νίκισε ο πρώτος παίχτης.'" p:agent="current_agent"/>
+				<goto state="Ending"/>
+			<elseif cond="rpc_2 == 2"/>
+				<call state="agent_speak" p:text="'Νίκισε ο δεύτερος παίχτης.'" p:agent="current_agent"/>
+				<goto state="Ending"/>
+			<else/>
+				<call state="agent_speak" p:text="'Πάμε πάλι.'" p:agent="current_agent"/>
+			</if>
+			<goto state="RPC_state_furhat"/>
+		</onentry>
+	</state>
+
+	<state id="Ending" extends="Dialog">
+		<onentry>
+			<if cond="rpc_plays == 0">
+				<exec> rpc_plays ++ </exec>
+				<call state="agent_speak" p:text="'Ας παίξουμε άλλη μία φορά!'" p:agent="current_agent"/>			
+				<goto state="RPC_state_furhat"/>
+			<else/>
+				<send event="athena.games.rpc.stop"/>			
+				<call state="agent_speak" p:text="'Σας ευχαριστούμε πολύ που ήρθατε να παίξετε μαζί μας. Ελπίζουμε να ξαναέρθετε. Γεια σας!'" p:agent="'system'"/>
+			</if>
+		</onentry>
+	</state>
+	
+	<!-- EXTENDABLE STATES -->
+	<state id="Pause" extends="Dialog">
+		<onevent name="athena.admin.resume">
+			<return/>
+		</onevent>
+	</state>
+	
+	<state id="Dialog">
+		<onevent name="athena.admin.pause">
+			<call state="Pause"/>
+		</onevent>
+		<onevent name="athena.admin.gender_change">
+			<if cond="(event:text).equals('male')">
+				<exec>child_gender = "male"</exec>			
+			<else/>
+				<exec>child_gender = "female"</exec>						
+			</if>
+		</onevent>
+		<onevent name="athena.admin.start_pantomime">
+			<goto state="Pantomime_Start"/>
+		</onevent>
+		<onevent name="athena.admin.start_farm">
+			<goto state="FarmStart"/>
+		</onevent>
+		<onevent name="athena.admin.start_emorec">
+			<goto state="Emorec_PreStart"/>
+		</onevent>
+		<onevent name="athena.admin.start_rpc">
+			<goto state="RPC_PreStart"/>
+		</onevent>
+		<onevent name="athena.admin.start_gesture">
+			<goto state="Greeting_continue"/>
+		</onevent>
+		<onevent name="athena.admin.start_object">
+			<goto state="PreObject"/>
+		</onevent>
+		<onevent name="athena.agent.attend">
+			<if cond="listen_sloc==true">
+				<exec> 
+					x = (Float) event.get("x");
+					y = (Float) event.get("y");
+					z =  (Float) event.get("z");
+					xb = x;
+					yb = y;
+					zb = z;
+					location = new iristk.situated.Location(xb,yb,zb)
+				</exec>
+				<call state="agent_attend" p:agent="'system'" p:location="location"/> 
+			</if>
+		</onevent>
+	</state>
+
+	
+	<!-- Guess the object -->
+
+	<state id="PreObject" extends="Dialog">
+		<onentry>
+			<agent:attendNobody/>
+			<if cond="system.hasUsers()">
+				<agent:attendRandom/>
+				<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<else/>
+				<agent:attendNobody/>
+			</if>
+		</onentry>
+		<onevent name="sense.user.enter">
+			<exec>System.out.println("User entered")</exec>
+			<agent:attend target="event:user"/>
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+		</onevent>
+		<onevent name="iccs.main.start">
+			<!-- <agent:gesture name="'smile'"/> -->
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<goto state="IntroGuess"/>
+		</onevent>
+	</state>
+	
+	<state id="IntroGuess" extends="Dialog">
+		<onentry>
+			<send event="iccs.game.start"/>
+			<call state="agent_speak" p:text="'Θες να παίξουμε τώρα ένα άλλο παιχνίδι?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onentry>
+		<onevent name="iccs.play">
+			<if cond="(event:text).equals('yes')">
+				<call state="agent_speak" p:text="'Τέλεια.'" p:agent="'system'"/>
+				<goto state="DescribeGame"/>
+			<elseif cond="(event:text).equals('maybe')"/>
+				<call state="agent_speak" p:text="'Έλα μη ντρέπεσαι. Ας παίξουμε.'" p:agent="'system'"/>
+				<send event="iccs.asr.listen"/>
+			<elseif cond="(event:text).equals('confirm')"/>
+				<call state="agent_speak" p:text="'Τέλεια.'" p:agent="'system'"/>
+				<goto state="DescribeGame"/>
+			<else/>
+				<call state="agent_speak" p:text="'Εντάξει, θα παίξουμε κάποια άλλη φορά μαζί.'" p:agent="'system'"/>
+			</if>
+		</onevent>
+	</state>
+	
+	<state id="DescribeGame" extends="Dialog">
+		<onevent name="iccs.gender">
+			<if cond="(event:text).equals('male')">
+				<call state="agent_speak" p:text="'Θα περιγράψω κάτι που βλέπω, και εσύ πρέπει να το βρείς. Είσαι έτοιμος?'" p:agent="'system'"/>
+				<send event="iccs.asr.listen"/>
+			<else/>
+				<call state="agent_speak" p:text="'Θα περιγράψω κάτι που βλέπω, και εσύ πρέπει να το βρείς. Είσαι έτοιμη?'" p:agent="'system'"/>
+				<send event="iccs.asr.listen"/>
+			</if>
+		</onevent>
+		<onevent name="iccs.ready">
+			<if cond="(event:text).equals('yes')">
+				<goto state="FirstObject"/>
+			<else/>
+				<call state="agent_speak" p:text="'Πες μου όταν ετοιμαστείς.'" p:agent="'system'"/>
+				<send event="iccs.asr.listen"/>
+			</if>
+		</onevent>
+	</state>
+	
+	<state id="FirstObject" extends="Dialog">
+		<onentry>
+			<call state="agent_speak" p:text="'Ας διαλέξω ένα αντικείμενο που μπορείς να βρείς γύρω σου.'" p:agent="'system'"/>
+			<wait msec="300"/>
+			<call state="FindObject"/>
+			<agent:attendRandom/>
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Εντάξει! Διάλεξα το αντικείμενό μου. Ας παίξουμε.'" p:agent="'system'"/>
+		</onentry>
+		
+		<onevent name="iccs.first.firstproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι πορτοκαλί.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.secondproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι στρογγυλό.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.thirdproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι παιχνίδι.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.fourthproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι μαλακό.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.first.wrong1">
+			<call state="agent_speak" p:text="'Όχι. Συνέχισε να προσπαθείς.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.wrong2">
+			<call state="agent_speak" p:text="'Δεν είναι αυτό. Δοκίμασε κάποιο άλλο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.similar">
+			<call state="agent_speak" p:text="'Όχι ακριβώς. Είναι κάτι παρόμοιο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.wronghelp">
+			<call state="agent_speak" p:text="'Όχι. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.first.correct">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Ήταν η μπάλα. Βάλτην μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+			<goto state="SecondObject"/>
+		</onevent>
+		
+		<onevent name="iccs.first.noresponse">
+			<call state="agent_speak" p:text="'Θέλεις να σε βοηθήσω λίγο?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.first.confused">
+			<call state="agent_speak" p:text="'Φαίνεσαι μπερδεμένος. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+			<call state="HelpState"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.first.objectrecshow">
+			<call state="agent_speak" p:text="'Νομίζω ότι μου δείχνεις τη μπάλα. Σωστά?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.first.objectreccorrect">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Βάλτην μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+			<goto state="SecondObject"/>
+		</onevent>
+	</state>
+	
+	<state id="SecondObject" extends="Dialog">
+		<onevent name="iccs.second.start">
+			<call state="agent_speak" p:text="'Ας διαλέξω ένα άλλο αντικείμενο που μπορείς να βρείς γύρω σου.'" p:agent="'system'"/>
+			<wait msec="300"/>
+			<call state="FindObject"/>
+			<agent:attendRandom/>
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Εντάξει! Διάλεξα το αντικείμενό μου. Ας παίξουμε.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.second.firstproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι άσπρο.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.secondproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι τετράγωνο.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.thirdproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι για να διαβάζουμε.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.fourthproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι βαρύ.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.second.wrong1">
+			<call state="agent_speak" p:text="'Όχι. Συνέχισε να προσπαθείς.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.wrong2">
+			<call state="agent_speak" p:text="'Δεν είναι αυτό. Δοκίμασε κάποιο άλλο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.similar">
+			<call state="agent_speak" p:text="'Όχι ακριβώς. Είναι κάτι παρόμοιο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.wronghelp">
+			<call state="agent_speak" p:text="'Όχι. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.second.correct">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Ήταν το βιβλίο. Βάλτο μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+			<goto state="ThirdObject"/>
+		</onevent>
+		
+		<onevent name="iccs.second.noresponse">
+			<call state="agent_speak" p:text="'Θέλεις να σε βοηθήσω λίγο?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.second.confused">
+			<call state="agent_speak" p:text="'Φαίνεσαι μπερδεμένος. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+			<call state="HelpState"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.second.objectrecshow">
+			<call state="agent_speak" p:text="'Νομίζω ότι μου δείχνεις το βιβλίο. Σωστά?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.second.objectreccorrect">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Βάλτο μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+			<goto state="ThirdObject"/>
+		</onevent>
+	</state>
+	
+	<state id="ThirdObject" extends="Dialog">
+		<onevent name="iccs.third.start">
+			<call state="agent_speak" p:text="'Ας διαλέξω ένα άλλο αντικείμενο που μπορείς να βρείς γύρω σου.'" p:agent="'system'"/>
+			<wait msec="300"/>
+			<call state="FindObject"/>
+			<agent:attendRandom/>
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Εντάξει! Διάλεξα το αντικείμενό μου. Ας παίξουμε.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.third.firstproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι ασημένιο.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.secondproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι μακρύ.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.thirdproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι για να τρώμε.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.fourthproperty">
+			<call state="agent_speak" p:text="'Αυτό που διάλεξα είναι μεταλλικό.'" p:agent="'system'"/>
+			<random>
+				<call state="agent_speak" p:text="'Τι είναι?'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για βρες το.'" p:agent="'system'"/>
+			</random>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.third.wrong1">
+			<call state="agent_speak" p:text="'Όχι. Συνέχισε να προσπαθείς.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.wrong2">
+			<call state="agent_speak" p:text="'Δεν είναι αυτό. Δοκίμασε κάποιο άλλο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.similar">
+			<call state="agent_speak" p:text="'Όχι ακριβώς. Είναι κάτι παρόμοιο.'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.wronghelp">
+			<call state="agent_speak" p:text="'Όχι. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.third.correct">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Ήταν το κουτάλι. Βάλτο μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+		</onevent>
+		
+		<onevent name="iccs.third.noresponse">
+			<call state="agent_speak" p:text="'Θέλεις να σε βοηθήσω λίγο?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.third.confused">
+			<call state="agent_speak" p:text="'Φαίνεσαι μπερδεμένος. Άσε με να σε βοηθήσω λίγο.'" p:agent="'system'"/>
+			<call state="HelpState"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		
+		<onevent name="iccs.third.objectrecshow">
+			<call state="agent_speak" p:text="'Νομίζω ότι μου δείχνεις το κουτάλι. Σωστά?'" p:agent="'system'"/>
+			<send event="iccs.asr.listen"/>
+		</onevent>
+		<onevent name="iccs.third.objectreccorrect">
+			<call state="agent_speak" p:text="'Μπράβο! Το βρήκες. Βάλτο μέσα στο πράσινο κουτί.'" p:agent="'system'"/>
+			<goto state="QuitState"/>
+		</onevent>
+	</state>
+
+	<state id="FindObject" extends="Dialog">
+		<onentry>
+			<call state="agent_attend" p:location="new iristk.situated.Location(0.5, -0.23, 0.5)" p:agent="'system'"/>
+
+			<random>
+				<call state="agent_speak" p:text="'Λοιπόν...'" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Για να δω.'" p:agent="'system'"/>
+			</random>
+			<wait msec="1000"/>
+			<call state="agent_attend" p:location="new iristk.situated.Location(-0.5, -0.23, 0.5)" p:agent="'system'"/>
+
+			<wait msec="1000"/>
+			<call state="agent_attend" p:location="new iristk.situated.Location(0.5, -0.23, 0.5)" p:agent="'system'"/>
+			<wait msec="1000"/>
+			<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.73, 2)" p:agent="'system'"/>
+			<return/>
+		</onentry>
+	</state>
+
+	<state id="HelpState" extends="Dialog">
+		<onevent name="iccs.help.spatial">
+			<if cond="(event:text).equals('spatial_right')">
+				<call state="agent_attend" p:location="new iristk.situated.Location(0.2, -0.73, 0.5)" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Βρίσκεται στα δεξιά σου.'" p:agent="'system'"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.73, 2)" p:agent="'system'"/>
+			<elseif cond="(event:text).equals('spatial_left')"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(-0.2, -0.73, 0.5)" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Βρίσκεται στα αριστερά σου.'" p:agent="'system'"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.73, 2)" p:agent="'system'"/>
+			<elseif cond="(event:text).equals('spatial_behind')"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, 0.1, 0.5)" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Βρίσκεται πίσω σου.'" p:agent="'system'"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.73, 2)" p:agent="'system'"/>
+			<elseif cond="(event:text).equals('spatial_table')"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.9, 0.5)" p:agent="'system'"/>
+				<call state="agent_speak" p:text="'Βρίσκεται πάνω στο τραπέζι.'" p:agent="'system'"/>
+				<call state="agent_attend" p:location="new iristk.situated.Location(0, -0.73, 2)" p:agent="'system'"/>
+			</if>
+			<return/>
+		</onevent>
+	</state>
+		
+	<state id="QuitState" extends="Dialog">
+		<onevent name="iccs.quit.end">
+			<call state="agent_gesture" p:name="'smile'" p:agent="'system'"/>
+			<call state="agent_speak" p:text="'Εντάξει, ας κάνουμε ένα διάλειμμα τώρα!'" p:agent="'system'"/>
+		</onevent>
+	</state>
+	
+</flow>

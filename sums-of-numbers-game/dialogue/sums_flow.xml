@@ -1,0 +1,118 @@
+<state id="Idle" extends="Dialog">
+	<onevent name="athena.games.sums.start">
+		<goto state="Sums_Start"/>
+	</onevent>
+</state>
+
+<state id="Sums_Start" extends="Dialog">
+	<onentry>
+		<call state="agent_speak" p:text="'Θέλω να μάθω να προσθέτω αριθμούς έως το 4.'" p:agent="'system'"/>
+		<call state="agent_speak" p:text="'Εσύ είσαι πολύ καλός σε αυτό. Μπορείς να με βοηθήσεις;'" p:agent="'system'"/>
+		<call state="agent_speak" p:text="'Κάθε φορά που κάνεις κάτι σωστό θα ενισχυτής.'" p:agent="'system'"/>
+	</onentry>
+	<onevent name="athena.games.sums.start.respond" cond="event:text!=null">
+		<if cond="(event:text).equals('yes')">
+			<call state="agent_speak" p:text="'Σε παρακαλώ φτιάξε ένα εσύ να δω.'" p:agent="'system'"/>
+			<send event="athena.games.sums.enablecards"/>
+			<goto state="Child_Sum"/>
+		<else/>
+			<goto state="Idle"/>
+		</if>
+	</onevent>
+</state>
+
+<state id="Child_Sum" extends="Dialog">
+	<onevent name="athena.games.sums.reask1">
+		<call state="agent_speak" p:text="'Φτιάξε και εσύ ένα.'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.reask2">
+		<call state="agent_speak" p:text="'Πρέπει να φτιάξεις και εσύ ένα για να ενισχυτής.'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumcorrect">
+		<call state="agent_speak" p:text="'Μπράβο! Είσαι πολύ καλός! Ευχαριστώ!'" p:agent="'system'"/>
+		<goto state="Wrong_Robot_Sum"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumwrong">
+		<call state="agent_speak" p:text="'Ωχ! Έγινε κάτι λάθος; Δεν πειράζει, ξαναπροσπάθησε.'" p:agent="'system'"/>
+		<send event="athena.games.sums.enablecards"/>
+	</onevent>
+</state>
+
+<state id="Wrong_Robot_Sum" extends="Dialog">
+	<onentry>
+		<call state="agent_speak" p:text="'Τώρα θα το κάνω εγώ.'" p:agent="'system'"/>
+		<send event="athena.games.sums.robotwrongsum"/>
+	</onentry>
+	<onevent name="athena.games.sums.robotsumready">
+		<call state="agent_speak" p:text="'Το έκανα σωστά;'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.childwrong">
+		<call state="agent_speak" p:text="'Δε φαίνεται σωστό. Μπορείς να μου δείξεις το σωστό;'" p:agent="'system'"/>
+		<send event="athena.games.sums.childshowcorrect"/>
+		<goto state="Wrong_Robot_Sum_Child_Correcting"/>
+	</onevent>
+	<onevent name="athena.games.sums.childcorrect">
+		<send event="athena.games.sums.childshowcorrect"/>
+		<goto state="Wrong_Robot_Sum_Child_Correcting"/>
+	</onevent>
+</state>
+
+<state id="Wrong_Robot_Sum_Child_Correcting" extends="Dialog">
+	<onevent name="athena.games.sums.sumwrong">
+		<call state="agent_speak" p:text="'Πρέπει να μου δείξεις το σωστό για να ενισχυτής.'" p:agent="'system'"/>
+		<send event="athena.games.sums.childshowcorrect"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumcorrect">
+		<call state="agent_speak" p:text="'Μπράβο! Ευχαριστώ!'" p:agent="'system'"/>
+		<send event="athena.games.sums.waitforyourwelcome"/>
+	</onevent>
+	<onevent name="athena.games.sums.yourwelcome" cond="event:text!=null">
+		<if cond="(event:text).equals('yes')">
+			<goto state="Correct_Robot_Sum"/>
+		<else/>
+			<call state="agent_speak" p:text="'Πρέπει να πεις παρακαλώ για να ενισχυτής.'" p:agent="'system'"/>
+			<send event="athena.games.sums.waitforyourwelcome"/>
+		</if>
+	</onevent>
+</state>
+
+<state id="Correct_Robot_Sum" extends="Dialog">
+	<onentry>
+		<call state="agent_speak" p:text="'Θα το κάνω πάλι εγώ.'" p:agent="'system'"/>
+		<send event="athena.games.sums.robotcorrectsum"/>
+	</onentry>
+	<onevent name="athena.games.sums.childcongrats" cond="event:text!=null">
+		<if cond="(event:text).equals('yes')">
+			<goto state="Together_Sum"/>
+		<else/>
+			<call state="agent_speak" p:text="'Πρέπει να μου πεις μπράβο για να ενισχυτής.'" p:agent="'system'"/>
+			<send event="athena.games.sums.childshowcorrect"/>
+		</if>
+	</onevent>
+</state>
+
+<state id="Together_Sum" extends="Dialog">
+	<onentry>
+		<call state="agent_speak" p:text="'Έλα να κάνουμε ένα μαζί.'" p:agent="'system'"/>
+		<send event="athena.games.sums.togethersum"/>
+	</onentry>
+	<onevent name="athena.games.sums.sumcorrect">
+		<call state="agent_speak" p:text="'Μπράβο!'" p:agent="'system'"/>
+		<goto state="Replay"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumwrong">
+		<call state="agent_speak" p:text="'Ωχ! Έγινε κάτι λάθος; Δεν πειράζει, ξαναπροσπάθησε.'" p:agent="'system'"/>
+		<send event="athena.games.sums.childretry"/>
+	</onevent>
+	<onevent name="athena.games.sums.childnoaction">
+		<call state="agent_speak" p:text="'Πρέπει να βοηθήσεις και εσύ και να βάλεις το επόμενο για να ενισχυτής.'" p:agent="'system'"/>
+	</onevent>
+</state>
+
+<state id="Replay" extends="Dialog">
+	<onentry>
+		<call state="agent_speak" p:text="'Ας ξαναπαίξουμε. Φτιάξε ένα άθροισμα.'" p:agent="'system'"/>
+		<send event="athena.games.sums.enablecards"/>
+		<goto state="Child_Sum"/>
+	</onentry>
+</state>

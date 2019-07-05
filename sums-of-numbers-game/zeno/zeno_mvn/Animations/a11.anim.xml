@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<Animation>
+	<Version type="Animation">
+		<Name>a11.anim.xml</Name>
+		<Number>1.0</Number>
+	</Version>
+	<Channels>
+		<Channel id="400" name="Left Shoulder Y">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>474.0</Time><Position>0.3520249221183801</Position></ControlPoint>
+						<ControlPoint><Time>3282.0</Time><Position>0.30659536541889487</Position></ControlPoint>
+						<ControlPoint><Time>4513.0</Time><Position>0.3921568627450981</Position></ControlPoint>
+						<ControlPoint><Time>5939.0</Time><Position>0.3489096573208723</Position></ControlPoint>
+						<ControlPoint><Time>9332.0</Time><Position>0.3416149068322981</Position></ControlPoint>
+						<ControlPoint><Time>10927.0</Time><Position>0.5093167701863355</Position></ControlPoint>
+						<ControlPoint><Time>11853.0</Time><Position>0.35403726708074534</Position></ControlPoint>
+						<ControlPoint><Time>13071.0</Time><Position>0.3534635879218473</Position></ControlPoint>
+						<ControlPoint><Time>13648.0</Time><Position>0.758436944937833</Position></ControlPoint>
+						<ControlPoint><Time>14665.0</Time><Position>0.39076376554174064</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="500" name="Right Shoulder Y">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>468.0</Time><Position>0.33956386292834895</Position></ControlPoint>
+						<ControlPoint><Time>3265.0</Time><Position>0.4295900178253119</Position></ControlPoint>
+						<ControlPoint><Time>4643.0</Time><Position>0.249554367201426</Position></ControlPoint>
+						<ControlPoint><Time>5939.0</Time><Position>0.3489096573208723</Position></ControlPoint>
+						<ControlPoint><Time>8769.0</Time><Position>0.3623188405797102</Position></ControlPoint>
+						<ControlPoint><Time>9975.0</Time><Position>0.525879917184265</Position></ControlPoint>
+						<ControlPoint><Time>11517.0</Time><Position>0.3561076604554866</Position></ControlPoint>
+						<ControlPoint><Time>12987.0</Time><Position>0.46536412078152756</Position></ControlPoint>
+						<ControlPoint><Time>14563.0</Time><Position>0.37477797513321487</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="301" name="Eyelids">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>493.0</Time><Position>0.7538940809968847</Position></ControlPoint>
+						<ControlPoint><Time>808.0</Time><Position>0.0</Position></ControlPoint>
+						<ControlPoint><Time>1028.0</Time><Position>0.7186544342507646</Position></ControlPoint>
+						<ControlPoint><Time>3057.0</Time><Position>0.672782874617737</Position></ControlPoint>
+						<ControlPoint><Time>3350.0</Time><Position>0.02752293577981646</Position></ControlPoint>
+						<ControlPoint><Time>3711.0</Time><Position>0.7217125382262997</Position></ControlPoint>
+						<ControlPoint><Time>6157.0</Time><Position>0.6850152905198776</Position></ControlPoint>
+						<ControlPoint><Time>6588.0</Time><Position>0.17125382262996947</Position></ControlPoint>
+						<ControlPoint><Time>6720.0</Time><Position>0.6941896024464832</Position></ControlPoint>
+						<ControlPoint><Time>8796.0</Time><Position>0.7349896480331263</Position></ControlPoint>
+						<ControlPoint><Time>9198.0</Time><Position>0.16149068322981364</Position></ControlPoint>
+						<ControlPoint><Time>9453.0</Time><Position>0.7370600414078675</Position></ControlPoint>
+						<ControlPoint><Time>11249.0</Time><Position>0.7515527950310559</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="100" name="Waist">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>499.0</Time><Position>0.5077881619937694</Position></ControlPoint>
+						<ControlPoint><Time>2472.0</Time><Position>0.5418894830659536</Position></ControlPoint>
+						<ControlPoint><Time>3171.0</Time><Position>0.4839255499153976</Position></ControlPoint>
+						<ControlPoint><Time>5395.0</Time><Position>0.4723707664884136</Position></ControlPoint>
+						<ControlPoint><Time>6031.0</Time><Position>0.5632798573975044</Position></ControlPoint>
+						<ControlPoint><Time>7159.0</Time><Position>0.5650623885918004</Position></ControlPoint>
+						<ControlPoint><Time>7867.0</Time><Position>0.49376114081996436</Position></ControlPoint>
+						<ControlPoint><Time>11766.0</Time><Position>0.5239786856127886</Position></ControlPoint>
+						<ControlPoint><Time>12868.0</Time><Position>0.4813499111900533</Position></ControlPoint>
+						<ControlPoint><Time>13953.0</Time><Position>0.5275310834813499</Position></ControlPoint>
+						<ControlPoint><Time>15021.0</Time><Position>0.48845470692717585</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="311" name="Eyes Yaw">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>474.0</Time><Position>0.485981308411215</Position></ControlPoint>
+						<ControlPoint><Time>1558.0</Time><Position>0.6452599388379205</Position></ControlPoint>
+						<ControlPoint><Time>3708.0</Time><Position>0.33333333333333337</Position></ControlPoint>
+						<ControlPoint><Time>5878.0</Time><Position>0.6085626911314985</Position></ControlPoint>
+						<ControlPoint><Time>7970.0</Time><Position>0.5026737967914439</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="200" name="Neck Yaw">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>482.0</Time><Position>0.518716577540107</Position></ControlPoint>
+						<ControlPoint><Time>2136.0</Time><Position>0.6788990825688073</Position></ControlPoint>
+						<ControlPoint><Time>4169.0</Time><Position>0.33333333333333337</Position></ControlPoint>
+						<ControlPoint><Time>5852.0</Time><Position>0.6636085626911314</Position></ControlPoint>
+						<ControlPoint><Time>7908.0</Time><Position>0.3939393939393939</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="202" name="Neck Pitch">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>446.0</Time><Position>0.7981651376146789</Position></ControlPoint>
+						<ControlPoint><Time>1104.0</Time><Position>0.8562691131498471</Position></ControlPoint>
+						<ControlPoint><Time>1755.0</Time><Position>0.72782874617737</Position></ControlPoint>
+						<ControlPoint><Time>2510.0</Time><Position>0.9296636085626911</Position></ControlPoint>
+						<ControlPoint><Time>3245.0</Time><Position>0.7828746177370031</Position></ControlPoint>
+						<ControlPoint><Time>3958.0</Time><Position>0.9418960244648318</Position></ControlPoint>
+						<ControlPoint><Time>5297.0</Time><Position>0.764525993883792</Position></ControlPoint>
+						<ControlPoint><Time>5990.0</Time><Position>0.944954128440367</Position></ControlPoint>
+						<ControlPoint><Time>7099.0</Time><Position>0.7706422018348624</Position></ControlPoint>
+						<ControlPoint><Time>7800.0</Time><Position>0.8807339449541285</Position></ControlPoint>
+						<ControlPoint><Time>8648.0</Time><Position>0.8302277432712215</Position></ControlPoint>
+						<ControlPoint><Time>9694.0</Time><Position>0.9337474120082816</Position></ControlPoint>
+						<ControlPoint><Time>10472.0</Time><Position>0.782608695652174</Position></ControlPoint>
+						<ControlPoint><Time>11611.0</Time><Position>0.8219461697722568</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+		<Channel id="300" name="Brows Pitch">
+			<MotionPaths>
+				<MotionPath name="path">
+					<Version type="Interpolation">
+						<Name>C-Spline Interpolation</Name>
+						<Number>1.0</Number>
+					</Version>
+					<ControlPoints>
+						<ControlPoint><Time>492.0</Time><Position>0.5115864527629234</Position></ControlPoint>
+						<ControlPoint><Time>2584.0</Time><Position>0.7878787878787878</Position></ControlPoint>
+						<ControlPoint><Time>4297.0</Time><Position>0.17825311942959</Position></ControlPoint>
+						<ControlPoint><Time>6164.0</Time><Position>0.7736185383244207</Position></ControlPoint>
+						<ControlPoint><Time>7959.0</Time><Position>0.4919786096256684</Position></ControlPoint>
+					</ControlPoints>
+				</MotionPath>
+			</MotionPaths>
+		</Channel>
+	</Channels>
+	<AddOns />
+	<ChannelsParameters />
+	<SyncPointGroups />
+</Animation>

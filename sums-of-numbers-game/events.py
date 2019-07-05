@@ -1,0 +1,11 @@
+from pygame.locals import USEREVENT
+
+# ----- EVENTS ----- #
+START_SUMS = USEREVENT + 1
+STOP_SUMS = USEREVENT + 2
+
+GAME_EVENT = USEREVENT + 3
+
+# --------- EMOREC -------- #
+START_EMOREC = USEREVENT + 4
+STOP_EMOREC = USEREVENT + 5

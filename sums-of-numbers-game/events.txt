@@ -1,0 +1,13 @@
+start game:
+athena.games.sums.initid with text: "child_id,session_id"
+
+erxetai apo to matlab event:
+athena.games.sums.proposedaction with text: "arithmos" pou einai na epilegei
+
+stelnw event kathe fora pou sxhmatizetai ena athroisma kai einai swsto i lathos:
+athena.games.sums.reward with text: "reward,performed_action"
+reward = -1 h 1
+performed_action = arithmos pou paixthke
+
+stelnw event kathe fora pou teleiwnei to session oloklhrwtika:
+athena.games.sums.endsession

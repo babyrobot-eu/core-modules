@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<flow name="Data_collectionFlow" package="iristk.app.data_collection" 
+	initial="Idle" xmlns:this="iristk.app.data_collection.Data_collectionFlow" xmlns="iristk.flow" 
+	xmlns:p="iristk.flow.param" xmlns:agent="iristk.situated.SystemAgentFlow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="iristk.flow flow.xsd iristk.situated.SystemAgentFlow SystemAgentFlow.xsd">
+	
+	<import class="java.util.ArrayList"/>
+	<import class="java.util.Date"/>
+	
+	<param name="agent" type="iristk.situated.SystemAgentFlow"/>
+
+	<var name="child_gender" type="String" value="'male'"/>
+	<var name="temp" type="String" value="''"/>
+	<var name="whosturn" type="String" value="'child'"/>
+	<var name="session_id" type="String" value="'1'"/>
+	<var name="child_id" type="String" value="'1'"/>
+	<var name="agent_id" type="String" value="'1'"/>
+	<var name="equation1_id" type="String" value="'1'"/>
+	<var name="equation2_id" type="String" value="'1'"/>
+	<var name="trial_mode" type="String" value="'1'"/>
+	<var name="card_selected" type="String" value="'1'"/>
+	<var name="zeno_card" type="String" value="'asd'"/>
+	
+	<var name="system" type="iristk.situated.SystemAgent" value="agent.getSystemAgent()"/>
+	 
+	 <!-- Whether to use furhat or avatar for the game. If using avatar value="'system'"-->
+	<var name="current_agent" type="String" value="'system'"/>	
+	<var name="text_to_speak" type="String"/>	
+	<var name="gender_str" type="String"/>		
+
+	<!-- MAIN FLOW -->
+
+	<state id="Idle" extends="Dialog">
+		<onevent name="athena.games.sums.male">
+			<exec>
+				child_gender = "male"
+			</exec>
+		</onevent>
+		<onevent name="athena.games.sums.female">
+			<exec>
+				child_gender = "female"
+			</exec>
+		</onevent>
+		<onevent name="athena.games.sums.iristk.childid">
+			<exec>
+				child_id = asString(event:text)
+			</exec>
+		</onevent>
+		<onevent name="athena.games.sums.iristk.sessionid">
+			<exec>
+				session_id = asString(event:text)
+			</exec>
+		</onevent>
+	</state>
+
+	<state id="Sums_Start" extends="Dialog">
+	<onentry>
+		<send event="athena.games.sums.masterstart"/>
+		<exec>temp = child_id + ',' + session_id</exec>
+		<send event="athena.games.sums.initid" p:text="temp"/>
+		
+<!-- 		<call state="agent_speak" p:text="'Θέλω να μάθω να προσθέτω αριθμούς έως το 4.'" p:agent="'system'"/>
+ -->		<if cond="child_gender.equals('male')">
+		<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\intro.wav'" p:agent="'system'"/>
+		<else/>
+		<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\intro_female.wav'" p:agent="'system'"/>
+		</if>
+		<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\katheforaxamogelaw.wav'" p:agent="'system'"/>
+		<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+		<wait msec="5000"/>
+		<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\tilesnakseki.wav'" p:agent="'system'"/>
+		<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+	</onentry>
+	<onevent name="athena.games.sums.start.respond" cond="event:text!=null">
+		<if cond="(event:text).equals('yes')">
+			<goto state="Child_Sum"/>
+		<else/>
+			<goto state="Idle"/>
+		</if>
+	</onevent>
+</state>
+
+<state id="Child_Sum" extends="Dialog">
+	<onentry>
+		<exec>
+			agent_id = "2";
+			trial_mode = "2";
+		</exec>
+		<send event="athena.games.sums.selectequations"/>
+	</onentry>
+	<onevent name="athena.games.sums.equations">
+		<exec>
+			temp = asString(event:text);
+			String[] variables = temp.split(",");
+			equation1_id = variables[0];
+			equation2_id = variables[1];
+			temp = agent_id + ',' + equation1_id + ',' + trial_mode;
+		</exec>
+		<send event="athena.games.sums.experiment" p:text="temp"/>
+		<send event="athena.games.sums.playwithsum1"/>
+<!-- 		<call state="agent_speak" p:text="'Σε παρακαλώ φτιάξε ένα εσύ να δω.'" p:agent="'system'"/>
+ -->	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\se_parakalw_deikse_ena_esy_gia_na_dw.wav'" p:agent="'system'"/>
+ 	
+		 <send event="athena.games.sums.enablecards"/>
+	</onevent>
+	<onevent name="athena.games.sums.reask1">
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\Poionoumeroeinaitoswsto,mporeisnamoutodeikseis.wav'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.reask2">
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\deiksemouesytoswstogianatode.wav'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.reask3">
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\Prepei_na_ftiakseis_ki_esy_ena_nato_dwkainatomathw.wav'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumcorrect">
+		<exec>
+			temp = "1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+		<if cond="child_gender.equals('male')">
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\mpravo_eisaipolukalos.wav'" p:agent="'system'"/>
+		<else/>
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\bravo_eisaipolukali.wav'" p:agent="'system'"/>
+		</if>
+		<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+		<wait msec="5000"/>
+		<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumwrong">
+		<exec>
+			temp = "-1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\wx_egine_kati_lathos.wav'" p:agent="'system'"/>
+		<send event="athena.games.sums.resetcardholder"/>
+		<send event="athena.games.sums.enablecards"/>
+	</onevent>
+</state>
+
+<state id="Wrong_Robot_Sum" extends="Dialog">
+	<onentry>
+		<send event="athena.games.sums.playwithsum2"/>
+	<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\seira_mou_twra.wav'" p:agent="'system'"/>
+		<exec>whosturn = "robot"</exec>
+		<wait msec="1000"/>
+		<send event="athena.games.sums.resetcardholder"/>
+		<exec>
+			agent_id = "1";
+			trial_mode = "1";
+			temp = agent_id + ',' + equation2_id + ',' + trial_mode;
+		</exec>
+		<send event="athena.games.sums.experiment" p:text="temp"/>
+	</onentry>
+	<onevent name="athena.games.sums.proposedaction">
+		<wait msec="1000"/>
+		<exec>
+			temp = asString(event:text);
+		</exec>
+		<exec>
+			zeno_card = "zeno_select_card_" + temp;
+		</exec>
+		<call state="zeno_animation" p:name="zeno_card"/>
+		<wait msec="500"/>
+		<send event="athena.games.sums.robotwrongsum.select" p:text="temp"/>
+	</onevent>
+	<onevent name="athena.games.sums.robotsumready">
+		<exec>
+			temp = asString(event:text);
+		</exec>
+		<if cond="temp.equals('0')">
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwmhden.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('1')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwena.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('2')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwdyo.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('3')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwmtria.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('4')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwtessera.wav'" p:agent="'system'"/>
+		</if>
+		<wait msec="500"/>
+		<send event="athena.games.sums.robotsum.make"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumwrong">
+		<exec>
+			temp = "-1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+		<if cond="whosturn.equals('robot')">
+			<wait msec="500"/>
+			<call state="zeno_animation" p:name="'IROS_animations/FitInBox.anim.xml'"/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\oupsekanalathos.wav'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/sadness.anim.xml'"/>
+			<wait msec="5000"/>
+			<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+			<send event="athena.games.sums.resetcardholder"/>
+			<exec>whosturn = "child"</exec>
+			<send event="athena.games.sums.enablecards"/>
+		<else/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\wx_egine_kati_lathos.wav'" p:agent="'system'"/>
+			<send event="athena.games.sums.resetcardholder"/>
+			<send event="athena.games.sums.enablecards"/>
+		</if>
+	</onevent>
+	<onevent name="athena.games.sums.sumcorrect">
+		<exec>
+			temp = "1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\bravo_euxaristwgiathvoitheia.wav'" p:agent="'system'"/>
+		<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.games.sums.robotwrong.reask1">
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\se_parakalw_deikse_mou_to_swsto.wav'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.robotwrong.reask2">
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\deiksemoutoswstogiatidentokserw.wav'" p:agent="'system'"/>
+	</onevent>
+	<onevent name="athena.games.sums.robotwrong.reask3">
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\Prepeinamoudeikseistoswstgianatomathw.wav'" p:agent="'system'"/>
+	</onevent>
+</state>
+
+<state id="Robot_Test" extends="Dialog">
+	<onentry>
+		<send event="athena.games.sums.playwithsum1"/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\mouaresetopaixnidi_asdokimaswakomaena.wav'" p:agent="'system'"/>
+		<exec>whosturn = "robot"</exec>
+		<wait msec="1000"/>
+		<send event="athena.games.sums.resetcardholder"/>
+		<exec>
+			agent_id = "1";
+			trial_mode = "3";
+			temp = agent_id + ',' + equation1_id + ',' + trial_mode;
+		</exec>
+		<send event="athena.games.sums.experiment" p:text="temp"/>
+	</onentry>
+	<onevent name="athena.games.sums.proposedaction">
+		<wait msec="1000"/>
+		<exec>
+			temp = asString(event:text);
+			zeno_card = "zeno_select_card_" + temp
+		</exec>
+		<call state="zeno_animation" p:name="zeno_card"/>
+		<wait msec="500"/>
+		<send event="athena.games.sums.robotwrongsum.select" p:text="temp"/>
+	</onevent>
+	<onevent name="athena.games.sums.robotsumready">
+		<exec>temp = asString(event:text)</exec>
+		<if cond="temp.equals('0')">
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwmhden.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('1')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwena.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('2')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwdyo.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('3')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwtria.wav'" p:agent="'system'"/>
+		<elseif cond="temp.equals('4')"/>
+			<call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\nomizwtessera.wav'" p:agent="'system'"/>
+		</if>
+		<wait msec="500"/>
+		<send event="athena.games.sums.robotsum.make"/>
+	</onevent>
+	<onevent name="athena.games.sums.sumwrong">
+		<exec>
+			temp = "-1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+		<if cond="whosturn.equals('robot')">
+			<wait msec="500"/>
+			<call state="zeno_animation" p:name="'IROS_animations/FitInBox.anim.xml'"/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\oupsekanalathos.wav'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/sadness.anim.xml'"/>
+			<wait msec="5000"/>
+			<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+			<send event="athena.games.sums.resetcardholder"/>
+			<exec>whosturn = "child"</exec>
+			<send event="athena.games.sums.enablecards"/>
+		<else/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\wx_egine_kati_lathos.wav'" p:agent="'system'"/>
+			<send event="athena.games.sums.resetcardholder"/>
+			<send event="athena.games.sums.enablecards"/>
+		</if>
+	</onevent>
+	<onevent name="athena.games.sums.sumcorrect">
+		<exec>
+			temp = "1" + ',' + card_selected;
+		</exec>
+		<send event="athena.games.sums.reward" p:text="temp"/>
+		<if cond="whosturn.equals('robot')">
+			<wait msec="500"/>
+			<call state="zeno_animation" p:name="'IROS_animations/FitInBox.anim.xml'"/>
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\naitovrikaseeuxaristwpoumevoithasnamathw.wav'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+			<wait msec="5000"/>
+			<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+			<send event="athena.games.sums.disablecards"/>
+		</if>
+	</onevent>
+</state>
+
+<state id="Replay" extends="Dialog">
+	<onentry>
+        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\thesnaksanapaiksoume.wav'" p:agent="'system'"/>
+	</onentry>
+	<onevent name="athena.games.sums.replay.yes">
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\Teleiaasksanapaiksoume.wav'" p:agent="'system'"/>
+		<send event="athena.games.sums.stop"/>
+		<wait msec="1000"/>
+		<send event="athena.games.sums.masterstart"/>
+		<send event="athena.games.sums.reloadequations"/>
+		<goto state="Child_Sum"/>
+	</onevent>
+	<onevent name="athena.games.sums.replay.no">
+	        <call state="agent_audio" p:audio="'C:\Users\Nick\Documents\Baby Robot\sums-of-numbers-game\wavs\entakseiseeuxaristwpoumemathaineis.wav'" p:agent="'system'"/>
+	        <send event="athena.games.sums.stop"/>
+		<goto state="Idle"/>
+	</onevent>
+</state>
+	
+<!-- EXTENDABLE STATES -->
+<state id="Pause" extends="Dialog">
+	<onevent name="athena.admin.resume">
+		<return/>
+	</onevent>
+</state>
+
+<state id="Dialog">
+	<onevent name="athena.games.sums.card_selected">
+		<exec>
+			card_selected = asString(event:text);
+		</exec>
+	</onevent>
+	<onevent name="athena.admin.zenohappy">
+		<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.admin.zenosad">
+		<call state="zeno_animation" p:name="'IROS_animations/sadness.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.admin.zenoneutral">
+		<call state="zeno_animation" p:name="'IROS_animations/neutral.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.admin.zeno_card_select">
+		<exec>
+			temp = asString(event:text);
+			zeno_card = "zeno_select_card_" + temp
+		</exec>
+		<call state="zeno_animation" p:name="zeno_card"/>
+	</onevent>
+	<onevent name="athena.admin.zenoreset">
+		<call state="zeno_animation" p:name="'IROS_animations/FitInBox.anim.xml'"/>
+	</onevent>
+	<onevent name="athena.admin.pause">
+		<call state="Pause"/>
+	</onevent>
+	<onevent name="athena.games.sums.idle">
+		<goto state="Idle"/>
+	</onevent>
+	<onevent name="athena.games.sums.start">
+		<goto state="Sums_Start"/>
+	</onevent>
+	<onevent name="athena.games.sums.childsum">
+		<goto state="Child_Sum"/>
+	</onevent>
+	<onevent name="athena.games.sums.gotorobotwrongsum">
+		<goto state="Wrong_Robot_Sum"/>
+	</onevent>
+	<onevent name="athena.games.sums.gotorobottest">
+		<goto state="Robot_Test"/>
+	</onevent>
+	<onevent name="athena.games.sums.gotoreplay">
+		<goto state="Replay"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec1">
+		<goto state="Emorec_1"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec2">
+		<goto state="Emorec_2"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec3">
+		<goto state="Emorec_3"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec4">
+		<goto state="Emorec_4"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec5">
+		<goto state="Emorec_5"/>
+	</onevent>
+	<onevent name="athena.games.emorec.gotoemorec6">
+		<goto state="Emorec_6"/>
+	</onevent>
+</state>
+
+
+	<!-- EMOREC GAME MANAGED BY ZENO -->
+	
+	<state id="Emorec_1" extends="Dialog">
+		<onentry>
+			<send event="athena.games.emorec.clearcards"/>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Show+me+in+your+face+how+will+you+do+when+you+are+happy%3F.wav'" p:agent="'system'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>			
+			<else/>
+				<goto state="Emorec_2"/>
+			</if>
+		</onevent>
+	</state>	
+
+	<state id="Emorec_2" extends="Dialog">
+		<onentry>
+			<send event="athena.games.emorec.showhappiness"/>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Look+at+the+card.+This+is+joy.+Can+you+show+me+how+you+are+happy%3F.wav'" p:agent="'system'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>				
+			<else/>
+				<goto state="Emorec_3"/>
+			</if>
+		</onevent>
+	</state>	
+
+	<state id="Emorec_3" extends="Dialog">
+		<onentry>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Let+me+show+you+how+I+am+happy..wav'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>				
+			<else/>
+				<goto state="Emorec_4"/>
+			</if>
+		</onevent>
+	</state>	
+	
+	<state id="Emorec_4" extends="Dialog">
+		<onentry>
+			<send event="athena.games.emorec.clearcards"/>
+			<send event="athena.games.emorec.showsadness"/>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Show+me+in+your+face+how+will+you+do+when+you+are+sad%3F.wav'" p:agent="'system'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>			
+			<else/>
+				<goto state="Emorec_5"/>
+			</if>
+		</onevent>
+	</state>	
+
+	<state id="Emorec_5" extends="Dialog">
+		<onentry>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Look+at+the+card.+This+is+sadness.+Can+you+show+me+how+you+are+sad%3F.wav'" p:agent="'system'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>				
+			<else/>
+				<goto state="Emorec_6"/>
+			</if>
+		</onevent>
+	</state>	
+
+	<state id="Emorec_6" extends="Dialog">
+		<onentry>
+			<call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Let+me+show+you+how+I+am+sad..wav'" p:agent="'system'"/>
+			<call state="zeno_animation" p:name="'IROS_animations/sadness.anim.xml'"/>
+		</onentry>
+		<onevent name="athena.games.emorec.correct" cond="event:text!=null">
+			<if cond="(event:text).equals('yes')">	
+			
+			    <call state="agent_audio" p:audio="'C:\Users\kinect_user\Desktop\ENG wavs for emotions\Great%21+Well+Done%21.wav'" p:agent="'system'"/>
+			
+				<call state="zeno_animation" p:name="'IROS_animations/happiness.anim.xml'"/>				
+		
+			</if>
+		</onevent>
+	</state>
+
+	<!-- CALLABLE STATES -->
+
+	<state id="agent_speak">
+		<param name="text" help="The text to speak (can also be provided as a text node)"/>
+		<param name="agent" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="action.speech" 
+					p:text="text"
+					p:agent="agent"
+					bindId="action"/>
+		</onentry>
+		<onevent name="monitor.speech.done">
+			<return event="monitor.speech.done"/>
+		</onevent>
+	</state>
+	
+	<state id="agent_audio">
+		<param name="audio" help="The text to speak (can also be provided as a text node)"/>
+		<param name="agent" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="action.speech" 
+					p:audio="audio"
+					p:agent="agent"
+					bindId="action"/>
+		</onentry>
+		<onevent name="monitor.speech.done">
+			<return event="monitor.speech.done"/>
+		</onevent>
+	</state>
+
+	<state id="zeno_animation">
+		<param name="name" help="The text to speak (can also be provided as a text node)"/>
+		<var name="action"/>
+		<onentry>
+			<send event="athena.zeno.behavior" 
+					p:name="name"
+					bindId="action"/>
+			<return/>
+		</onentry>
+	</state>
+	
+	<state id="zeno_movement">
+		<param name="shoulder_pitch" help="The text to speak (can also be provided as a text node)"/>
+		<param name="shoulder_roll" help="The text to speak (can also be provided as a text node)"/>
+		<onentry>
+			<send event="athena.zeno.movement"
+					p:name="shoulder_pitch"
+					/>
+					<return/>
+		</onentry>
+   		<onevent name="athena.zeno.movement.done">
+			<return event="athena.zeno.movement.done"/>
+		</onevent>
+	</state>
+	
+	
+</flow>

@@ -1,0 +1,71 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.mechio</groupId>
+    <version>1.0.3</version>
+
+    <artifactId>zeno_mvn</artifactId>
+    <packaging>jar</packaging>
+
+    <name>zeno_interaction</name>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+  
+    </build>
+    
+    <repositories>
+        <repository>
+            <id>sonatype-public</id>
+            <!-- Needed for snapshots -->
+            <name>sonatype public</name>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.mechio</groupId>
+            <artifactId>org.mechio.client.basic</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.appdapter</groupId>
+            <artifactId>ext.bundle.osgi.common</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20090211</version>
+        </dependency>
+        <dependency>
+            <groupId>org.robokind</groupId>
+            <artifactId>org.robokind.client.basic</artifactId>
+            <version>0.9.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jflux</groupId>
+            <artifactId>org.jflux.impl.messaging.rk</artifactId>
+            <version>0.1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+    </dependencies>
+    
+</project>
