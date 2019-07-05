@@ -1,6 +1,6 @@
 [submodule "models"]
 	path = models
-	url = git@gitlab.com:georgepar/models
+	url = https://github.com/babyrobot-eu/models
 	branch = master
 [submodule "sums-of-numbers-game"]
 	path = sums-of-numbers-game
