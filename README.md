@@ -133,3 +133,20 @@ RESULT:
         json containing recognized emotion, emotion polarity and intensity
     }
 ```
+
+## Run the services
+
+Launch files are provided for most services. Just run
+
+
+```
+roslaunch --wait speech_features babyrobot/src/speech_features/launch/server.launch
+roslaunch --wait objectrec babyrobot/src/objectrec/launch/server.launch
+roslaunch --wait concept_net babyrobot/src/concept_net/launch/concept_space_server.launch
+roslaunch --wait concept_net babyrobot/src/concept_net/launch/fusion_server.launch
+roslaunch --wait concept_net babyrobot/src/concept_net/launch/semantic_similarity_server.launch
+roslaunch --wait psycholing babyrobot/src/psycholing/launch/server.launch
+roslaunch --wait text_affect babyrobot/src/text_affect/launch/server.launch
+roslaunch --wait speech_emotion babyrobot/src/emorec_pytorch/launch/server.launch
+roslaunch --wait controller babyrobot/src/pubsub/launch/pubsub.launch
+```
