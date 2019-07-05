@@ -52,7 +52,9 @@ class IrisTK_Bridge(object):
         self.counter_notebook = 0
         self.counter_confused = 0
         self.counter_book = 0
-        self.counter_replay = 0 
+        self.counter_replay = 0
+        self.counter_play = 0 
+        self.counter_correct = 0 
 
     def handle_asr(self, asr_out):
         asr = asr_out.data.lower()
@@ -66,6 +68,8 @@ class IrisTK_Bridge(object):
             self.counter_confused = 0
             self.counter_book = 0
             self.counter_replay = 0 
+            self.counter_play = 0 
+            self.counter_correct = 0 
 
         if (self.current_state == 'iccs.system.state.intro' or
            self.current_state == 'iccs.system.state.playmaybe'):
@@ -74,6 +78,9 @@ class IrisTK_Bridge(object):
             else:
                 self.send_message('iccs.play', 'maybe')
         if self.current_state == 'iccs.system.state.gendermale':
+            if self.counter_play > 0:
+                asr = 'yes I am ready'
+
             if ('yes' in asr or
                'ok' in asr or
                'okay' in asr or
@@ -82,11 +89,16 @@ class IrisTK_Bridge(object):
                 self.send_message('iccs.ready', 'yes')
             else:
                 self.send_message('iccs.asrkaput.gendermale', '')
+                self.counter_play += 1
         if self.current_state == 'iccs.system.state.first.objectrecshow':
+            if self.counter_correct > 0:
+                asr = 'yes correct'
+
             if 'yes' in asr or 'correct' in asr or 'right' in asr or 'ball' in asr:
                 self.send_message('iccs.first.objectreccorrect', '')
             else:
                 self.send_message('iccs.asrkaput.first.objectrecshow', '')
+                self.counter_correct += 1
         if self.current_state == 'iccs.system.state.replayask':
             if self.counter_replay > 0:
                 asr = 'yes I want to'
@@ -120,7 +132,7 @@ class IrisTK_Bridge(object):
                 self.send_message('iccs.second.confused', '')
             else:
                 self.send_message('iccs.asrkaput.second.similar', '')
-                self.counter_confused = 0
+                self.counter_confused += 1
 
         if self.current_state == 'iccs.system.state.second.confused':
             if self.counter_book > 0:
@@ -129,7 +141,7 @@ class IrisTK_Bridge(object):
                 self.send_message('iccs.second.correct', '')
             else:
                 self.send_message('iccs.asrkaput.second.confused', '')
-                self.counter_book = 0
+                self.counter_book += 1
 
         if self.current_state == 'iccs.system.state.third.noresponse':
             if 'yes' in asr or 'want' in asr:
