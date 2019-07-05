@@ -1,0 +1,24 @@
+point_cloud_topic: /kinect2/sd/points
+depth_image_topic: /kinect2/hd/image_depth_rect
+#2.33
+max_depth: 0.85
+surf_threshold: 0.015
+
+recalculate_surface_params: false
+#Available types: kmeans, dbscan
+clustering_type: kmeans
+
+#crop depth image to exclude outer pixels from foreground
+crop_depth_image:
+  #crop margins (percentage)
+  top_margin: 10
+  left_margin: 30
+  #crop height and width (percentage)
+  width: 45
+  height: 60
+
+#crop depth image, using above parameters, for table detection
+crop_for_table_detection: true
+
+show_table_mask: false
+

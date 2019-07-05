@@ -1,0 +1,35 @@
+<launch>
+  <arg name="task_config" default="$(find object_assembly_ros)/config/learning_mode.yaml"/>
+  <arg name="tracker_config" default="$(find object_assembly_ros)/config/tracker.yaml"/>
+  <arg name="background_removal_config" default="$(find object_assembly_ros)/config/background_removal_config.yaml"/>
+  <arg name="image_crop_config" default="$(find object_assembly_ros)/config/image_crop_config.yaml"/>
+
+  <node 
+    name="learning_mode" 
+    type="learning_mode"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg task_config)" />
+        <rosparam command="load" file="$(arg tracker_config)" />
+  </node>
+  <node
+    name="background_removal" 
+    type="background_removal"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg background_removal_config)" />
+  </node>
+  <node
+    name="image_crop" 
+    type="image_crop"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg image_crop_config)" />
+  </node>
+</launch>

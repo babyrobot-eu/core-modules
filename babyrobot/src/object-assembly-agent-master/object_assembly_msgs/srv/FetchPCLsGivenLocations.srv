@@ -1,0 +1,4 @@
+Points2D points 
+int32 num_objects
+----
+PointCloudArray point_cloud_array 

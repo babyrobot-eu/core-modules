@@ -1,0 +1,7 @@
+directory:  /home/jack/catkin_ws/src/object_assembly_ros/resource
+filenames:     [ cube1.ply, cube2.ply, cube3.ply, cube4.ply ]
+
+background_removal_service: /background_removal/FetchPCLsGivenLocations
+camera_topic: sdfssdfsdf
+colour_tracker_topic: /colour_tracker/objects_Points2D
+frame_id: /kinect2_rgb_optical_frame

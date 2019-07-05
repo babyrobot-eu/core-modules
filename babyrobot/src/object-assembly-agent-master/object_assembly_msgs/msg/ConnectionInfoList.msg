@@ -1,0 +1,1 @@
+object_assembly_msgs/ConnectionInfo[] connections

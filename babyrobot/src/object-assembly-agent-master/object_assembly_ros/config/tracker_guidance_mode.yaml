@@ -1,0 +1,7 @@
+#tracker_namespace: rms_gaussian_filter_object_tracker
+#pose_topic: objects_state
+object_pose_topic: /particle_tracker/objects_state
+surface_params_service: /background_removal/FetchSurfaceParams
+max_particles: 12 #TODO check that this is <= num_particles/num_objects of tracker (9 seemed good for learning mode)
+all_particles: 75 #number of particles per part to assign once connection is certain
+connection_info_list_topic: connection_list

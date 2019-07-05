@@ -1,0 +1,4 @@
+string object_name
+bool auto_detect
+bool auto_confirm
+----

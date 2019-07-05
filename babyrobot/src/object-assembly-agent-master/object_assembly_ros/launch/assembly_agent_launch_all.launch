@@ -1,0 +1,84 @@
+<launch>
+  <arg name="user"/>
+  <arg name="filename"/>
+  <arg name="external_disk"/>
+  <arg name="task_config" default="$(find object_assembly_ros)/config/baby_robot.yaml"/>
+  <arg name="tracker_config" default="$(find object_assembly_ros)/config/tracker_guidance_mode.yaml"/>
+  <arg name="background_removal_config" default="$(find object_assembly_ros)/config/background_removal_config.yaml"/>
+  <arg name="image_crop_config" default="$(find object_assembly_ros)/config/image_crop_config.yaml"/>
+
+  <arg name="colours_config" default="$(find colour_based_tracker_ros)/config/colours_config_guidance_mode.yaml"/>
+
+  <arg name="filter_config" default="$(find dbot_ros)/config/particle_tracker_guidance_mode.yaml"/>
+  <arg name="camera_config" default="$(find dbot_ros)/config/camera.yaml"/>
+  <arg name="object_config" default="$(find dbot_ros)/config/object(babyrobot).yaml"/>
+
+  <arg name="launch_colour_tracker" default="true"/>
+  <arg name="launch_image_crop" default="true"/>
+
+  <group if="$(arg launch_colour_tracker)">
+      <node 
+        name="colour_based_tracker" 
+        type="colour_based_tracker"
+        pkg="colour_based_tracker_ros" 
+        output="screen" 
+        respawn="false"
+        launch-prefix="">
+            <rosparam command="load" file="$(arg colours_config)" />
+      </node>
+  </group>
+
+  <node 
+    name="particle_tracker" 
+    type="particle_tracker"
+    pkg="dbot_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg filter_config)" />
+        <rosparam command="load" file="$(arg camera_config)" />
+        <rosparam command="load" file="$(arg object_config)" />
+        <!-- <param name="config_file"  type="string"  value="$(arg config_file)" /> -->
+        <param name="initial_pose_filepath" type="string" value="/home/jack/InitPoses/$(arg filename).txt" />
+  </node>
+
+  <node 
+    name="assembly_agent" 
+    type="assembly_agent"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg task_config)" />
+        <rosparam command="load" file="$(arg tracker_config)" />
+  </node>
+  <node
+    name="background_removal" 
+    type="background_removal"
+    pkg="object_assembly_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg background_removal_config)" />
+  </node>
+  <group if="$(arg launch_image_crop)">
+      <node
+        name="image_crop" 
+        type="image_crop"
+        pkg="object_assembly_ros" 
+        output="screen" 
+        respawn="false"
+        launch-prefix="">
+            <rosparam command="load" file="$(arg image_crop_config)" />
+      </node>
+  </group>
+
+  <group if="$(arg external_disk)">
+    <node pkg="rosbag" type="play" name="player" output="screen" required="true" args="--clock -r 0.1 /media/jack/INTENSO/Thesis/data/$(arg user)/$(arg filename).bag"/>
+  </group>
+  <group unless="$(arg external_disk)">
+    <node pkg="rosbag" type="play" name="player" output="screen" required="true" args="--clock -r 0.1 /media/jack/DEF8DBF5F8DBC9C3/Users/Jack/Desktop/Thesis/bags/$(arg user)/$(arg filename).bag"/>
+  </group>
+
+    <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /colour_based_tracker/input /assembly_agent/connection_vector /assembly_agent/connection_list /particle_tracker/objects_state -O /media/jack/DEF8DBF5F8DBC9C3/Users/Jack/Desktop/Thesis/bags/output/$(arg filename).bag"/>
+</launch>

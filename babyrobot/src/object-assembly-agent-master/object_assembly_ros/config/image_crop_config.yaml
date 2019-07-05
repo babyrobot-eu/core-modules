@@ -1,0 +1,19 @@
+depth_image_topic: /kinect2/hd/image_depth_rect
+colour_image_topic: /kinect2/sd/image_color_rect
+camera_info_topic: /kinect2/hd/camera_info
+
+#crop_left: 768
+#crop_top: 180
+#crop_width: 768
+#crop_height: 360
+
+crop_left: 450
+crop_top: 300
+crop_width: 1000
+crop_height: 600
+
+convert_to: 32FC1
+scaling_factor: 0.001
+
+remove_hand: false
+hsv_range: [160,30,60,100,40,93] #[157,180,60,100,40,93]

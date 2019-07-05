@@ -1,0 +1,12 @@
+<launch>
+  <arg name="colours_config" default="$(find colour_based_tracker_ros)/config/colours_config.yaml"/>
+  <node 
+    name="colour_based_tracker" 
+    type="colour_based_tracker"
+    pkg="colour_based_tracker_ros" 
+    output="screen" 
+    respawn="false"
+    launch-prefix="">
+        <rosparam command="load" file="$(arg colours_config)" />
+  </node>
+</launch>
