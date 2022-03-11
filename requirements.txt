@@ -7,7 +7,7 @@ matplotlib==2.0.2
 numpy==1.13.1
 tensorflow_gpu==1.2.1
 scipy==0.19.1
-Pillow==4.3.0
+Pillow==9.0.1
 glob2==0.6
 scikit_learn==0.19b2
 ws4py==0.4.2
