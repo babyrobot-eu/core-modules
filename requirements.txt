@@ -4,7 +4,7 @@ Flask==0.12.4
 Flask_API==1.0
 six==1.10.0
 matplotlib==2.0.2
-numpy==1.13.1
+numpy==1.21.0
 tensorflow_gpu==1.2.1
 scipy==0.19.1
 Pillow==4.3.0
