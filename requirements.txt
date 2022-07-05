@@ -13,6 +13,6 @@ scikit_learn==0.19b2
 ws4py==0.4.2
 pyyaml>=4.2b1
 rospy_message_converter==0.4.0
-ujson==1.35
+ujson==5.4.0
 http://download.pytorch.org/whl/cu80/torch-0.3.1-cp27-cp27mu-linux_x86_64.whl
 torchvision
